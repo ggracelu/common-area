@@ -17,6 +17,12 @@ export default function SignInPage() {
             elements: {
               card: "shadow-none bg-transparent",
               rootBox: "w-full",
+              formButtonPrimary:
+                "rounded-[var(--radius-button)] bg-[var(--color-foreground)] text-[var(--color-paper)] shadow-[var(--shadow-button)] hover:bg-[var(--color-accent-dark)]",
+              footerActionLink: "text-[var(--color-accent)] hover:text-[var(--color-accent-dark)]",
+              formFieldInput:
+                "rounded-[1rem] border-[var(--color-line)] bg-white/70 focus:border-[var(--color-accent)] focus:ring-[var(--color-accent)]",
+              formFieldLabel: "text-[var(--color-foreground)]",
             },
           }}
         />

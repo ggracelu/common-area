@@ -2,6 +2,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { navLinks } from "@/lib/site-content";
 
 export async function Header() {
@@ -15,7 +16,12 @@ export async function Header() {
           <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-xl shadow-[0_10px_25px_rgba(191,90,54,0.25)]">
             🐈
           </span>
-          <span className="text-lg font-semibold tracking-tight sm:text-xl">Common Area</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-semibold tracking-tight sm:text-xl">Common Area</span>
+            <span className="hidden text-xs text-[color:rgba(37,34,30,0.58)] sm:block">
+              Turn your city into a campus.
+            </span>
+          </div>
         </Link>
 
         {!isSignedIn ? (
@@ -44,7 +50,7 @@ export async function Header() {
               </Button>
             </div>
             <div className="md:hidden">
-              <Button href="/sign-up">Save me a spot</Button>
+              <Button href="/sign-up" variant="sticker">Save me a spot</Button>
             </div>
           </>
         ) : (
@@ -64,6 +70,7 @@ export async function Header() {
                   Bingo
                 </Link>
               </nav>
+              <Badge variant="sky" className="hidden lg:inline-flex">Signed in</Badge>
               <UserButton />
             </div>
             <div className="md:hidden">

@@ -26,10 +26,10 @@ export function AppNav() {
             key={link.href}
             href={link.href}
             prefetch={false}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-[var(--radius-button)] px-4 py-2 text-sm font-medium transition-colors ${
               isActive
-                ? "bg-[var(--color-foreground)] text-[var(--color-background)]"
-                : "bg-white/65 text-[color:rgba(37,34,30,0.72)] hover:text-[var(--color-foreground)]"
+                ? "bg-[var(--color-foreground)] text-[var(--color-background)] shadow-[var(--shadow-button)]"
+                : "border border-[var(--color-line)] bg-white/65 text-[color:rgba(37,34,30,0.72)] hover:bg-white/85 hover:text-[var(--color-foreground)]"
             }`}
           >
             {link.label}

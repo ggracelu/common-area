@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { Polaroid } from "@/components/ui/Polaroid";
+import { Sticker } from "@/components/ui/Sticker";
 
 type AuthShellProps = {
   title: string;
@@ -19,19 +22,31 @@ export function AuthShell({ title, description, children }: AuthShellProps) {
             </span>
             <span className="text-xl font-semibold tracking-tight">Common Area</span>
           </Link>
-          <Badge className="mt-8">Chicago season access</Badge>
-          <h1 className="mt-5 text-5xl font-semibold tracking-tight sm:text-6xl">
+          <Badge variant="sky" className="mt-8">Chicago season access</Badge>
+          <h1 className="display-heading mt-5 text-5xl font-semibold sm:text-6xl">
             {title}
           </h1>
-          <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.72)]">
+          <p className="editorial-subhead mt-5">
             {description}
           </p>
-          <p className="mt-8 text-sm font-medium text-[color:rgba(37,34,30,0.66)]">
-            Turn your city into a campus.
-          </p>
+          <Sticker className="mt-8">Your spot is still here.</Sticker>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <Polaroid title="Common room note" caption="Someone else is also nervous." tilt="left">
+              <div aria-hidden="true" className="flex min-h-[8rem] items-end justify-between bg-[linear-gradient(180deg,rgba(191,212,223,0.84),rgba(246,239,230,0.92))] p-4 text-4xl">
+                <span>🛋️</span>
+                <span>🐈</span>
+              </div>
+            </Polaroid>
+            <Card variant="paper" className="paper-surface">
+              <p className="section-eyebrow">Crumbs says</p>
+              <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.76)]">
+                Community is mostly showing up and knowing where the snacks are.
+              </p>
+            </Card>
+          </div>
         </section>
 
-        <section className="rounded-[2rem] border border-black/8 bg-white/86 p-4 shadow-[0_24px_80px_rgba(66,57,45,0.12)] backdrop-blur sm:p-6">
+        <section className="paper-surface rounded-[2rem] p-4 sm:p-6">
           {children}
         </section>
       </div>

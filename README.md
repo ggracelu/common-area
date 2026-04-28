@@ -3,7 +3,7 @@
 Common Area is a seasonal, cohort-based social platform for Gen Z young adults in Chicago. It turns the city into a campus through recurring, interest-driven cohorts hosted by local businesses.
 
 ## Project Overview
-This repository now includes the Phase 4 Supabase catalog foundation for Common Area. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, protected route scaffolding, and a real public season page backed by Supabase catalog data. Payments, cohort logic, chat, and bingo persistence are still intentionally deferred.
+This repository now includes the Phase 4 Supabase catalog foundation for Common Area plus Design System v1 implementation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, protected route scaffolding, a real public season page backed by Supabase catalog data, and shared design tokens/primitives aligned with the Common Area brand direction. Payments, cohort logic, chat, and bingo persistence are still intentionally deferred.
 
 Current scope:
 - Base Next.js app structure
@@ -14,6 +14,8 @@ Current scope:
 - Supabase client utilities and catalog query helpers
 - Initial schema and seed data for profiles, seasons, activities, and season_activities
 - Public `/season` page backed by Supabase
+- Design system documentation in `docs/DESIGN_SYSTEM.md`
+- Shared UI primitives and global design tokens
 - Environment template for future integrations
 
 Not implemented yet:
@@ -24,7 +26,7 @@ Not implemented yet:
 - Bingo prompts
 
 ## Current Project Phase
-This repo is in Phase 4: Supabase foundation and season/activity catalog.
+This repo is in Phase 4 with the initial Common Area design system now implemented across the public landing page and authenticated placeholder shell.
 
 Brand note:
 - The visible product is now `Common Area`.
@@ -36,6 +38,7 @@ See:
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Data Model](./docs/DATA_MODEL.md)
 - [Build Phases](./docs/BUILD_PHASES.md)
+- [Design System](./docs/DESIGN_SYSTEM.md)
 
 ## Planned Stack
 - Next.js App Router
@@ -114,6 +117,12 @@ These values are now required for local auth setup:
 - Stripe keys
 
 Never commit real secrets. Follow the security and environment policies in [AGENTS.md](./AGENTS.md).
+
+Design system note:
+- `docs/DESIGN_SYSTEM.md` defines the current Common Area visual system
+- Design tokens now live in `app/globals.css`
+- Shared primitives in `components/ui` now provide the base button, card, badge, sticker, polaroid, and section-header patterns
+- This pass did not change backend scope or add new product logic
 
 Profile persistence is not implemented in this phase. Clerk user data is normalized into an in-memory preview shape only; the real `profiles` table integration will come later with Supabase.
 Clerk still owns identity in this phase. Supabase `profiles` are prepared in schema only, and profile creation/upsert should remain a server-controlled flow in a later phase.

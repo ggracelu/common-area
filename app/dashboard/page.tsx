@@ -1,7 +1,9 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { AppShell } from "@/components/app/AppShell";
+import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Sticker } from "@/components/ui/Sticker";
 import { buildProfilePreviewFromClerkUser } from "@/lib/profile";
 
 const onboardingChecklist = [
@@ -45,10 +47,8 @@ export default async function DashboardPage() {
       description="This is the authenticated Common Area shell. Profile persistence, season state, and real onboarding logic will connect in later phases."
     >
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
-        <Card className="bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(248,226,196,0.82))]">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent)]">
-            Onboarding preview
-          </p>
+        <Card variant="scrapbook">
+          <Badge variant="rust">Onboarding preview</Badge>
           <h2 className="mt-4 text-2xl font-semibold tracking-tight">
             Current status: {profilePreview.onboardingStatus.replaceAll("_", " ")}
           </h2>
@@ -65,14 +65,16 @@ export default async function DashboardPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-6 text-sm font-medium text-[color:rgba(37,34,30,0.72)]">
-            Crumbs says: showing up counts. Your spot is still here.
-          </p>
+          <Sticker className="mt-6">Crumbs says: showing up counts. Your spot is still here.</Sticker>
         </Card>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {dashboardActions.map((action) => (
-            <Card key={action.title} className="flex h-full flex-col justify-between">
+          {dashboardActions.map((action, index) => (
+            <Card
+              key={action.title}
+              variant={index % 2 === 0 ? "paper" : "default"}
+              className="flex h-full flex-col justify-between lift-hover"
+            >
               <div>
                 <h3 className="text-2xl font-semibold tracking-tight">{action.title}</h3>
                 <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
@@ -80,7 +82,7 @@ export default async function DashboardPage() {
                 </p>
               </div>
               <div className="mt-6">
-                <Button href={action.href}>Open</Button>
+                <Button href={action.href} variant="secondary">Open</Button>
               </div>
             </Card>
           ))}

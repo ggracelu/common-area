@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { AppNav } from "@/components/app/AppNav";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 
 export function AppHeader() {
   return (
@@ -13,17 +15,15 @@ export function AppHeader() {
             </span>
             <div>
               <p className="text-lg font-semibold tracking-tight">Common Area</p>
-              <p className="text-sm text-[color:rgba(37,34,30,0.68)]">Authenticated shell</p>
+              <p className="text-sm text-[color:rgba(37,34,30,0.68)]">Authenticated common room</p>
             </div>
           </Link>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/season"
-              className="hidden rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-[var(--color-foreground)] sm:inline-flex"
-            >
+            <Badge variant="butter" className="hidden sm:inline-flex">Crumbs saved you a spot.</Badge>
+            <Button href="/season" variant="secondary" size="sm" className="hidden sm:inline-flex">
               Browse the season
-            </Link>
+            </Button>
             <UserButton />
           </div>
         </div>

@@ -1,6 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { AppShell } from "@/components/app/AppShell";
+import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { Sticker } from "@/components/ui/Sticker";
 import { buildProfilePreviewFromClerkUser } from "@/lib/profile";
 
 export default async function ProfilePage() {
@@ -12,7 +14,8 @@ export default async function ProfilePage() {
       title="Profile foundation"
       description="This page previews how Clerk user data will map into the future Common Area profiles table once Supabase arrives."
     >
-      <Card className="max-w-3xl">
+      <Card variant="scrapbook" className="max-w-3xl">
+        <Badge variant="sky">In-memory preview only</Badge>
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Clerk user id</dt>
@@ -35,6 +38,7 @@ export default async function ProfilePage() {
             <dd className="mt-1 text-base font-medium">{profilePreview.onboardingStatus}</dd>
           </div>
         </dl>
+        <Sticker className="mt-6">Crumbs believes in low-pressure setup.</Sticker>
       </Card>
     </AppShell>
   );
