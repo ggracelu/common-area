@@ -293,7 +293,9 @@ export function V16CampusCrumbsSite() {
                 <p className="v16-kicker">
                   CHICAGO SEASON <span aria-hidden="true">•</span> COHORTS <span aria-hidden="true">•</span> CAMPUS ENERGY
                 </p>
-                <h1 className="v16-h1">Turn your city into a campus.</h1>
+                <h1 className="v16-h1">
+                  Turn your city into a <span className="v16-campus-em">campus</span>.
+                </h1>
                 <p className="v16-lede">
                   Common Area creates recurring, interest-driven cohorts hosted by local businesses—so your neighborhood starts to feel like campus buildings.
                 </p>

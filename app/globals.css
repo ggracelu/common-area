@@ -3641,7 +3641,11 @@ button {
 .v16-hero-wrap {
   border-radius: 2.6rem;
   border: 1px solid rgba(0, 0, 0, 0.14);
-  background: rgba(255, 255, 255, 0.92);
+  background:
+    radial-gradient(circle at 18% 20%, rgba(233, 255, 107, 0.55), transparent 44%),
+    radial-gradient(circle at 84% 14%, rgba(26, 92, 255, 0.22), transparent 46%),
+    radial-gradient(circle at 82% 78%, rgba(255, 59, 46, 0.18), transparent 48%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 247, 247, 0.7));
   box-shadow: 0 46px 140px rgba(52, 36, 24, 0.14);
   position: relative;
   overflow: hidden;
@@ -3667,6 +3671,28 @@ button {
   transform-origin: left top;
   transition: transform 120ms linear;
   will-change: transform;
+}
+
+.v16-campus-em {
+  color: var(--v16-blue, #1a5cff);
+  text-shadow: 0 10px 40px rgba(26, 92, 255, 0.14);
+}
+
+/* v16 hero should look like v15 (except 3 photos) */
+.v16-root .v15-collage {
+  overflow: hidden;
+}
+
+.v16-root .v15-p-b {
+  right: 18px;
+}
+
+.v16-root .v15-marquee-track {
+  font-family: var(--v16-mono, var(--font-mono));
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  font-size: 0.86rem;
+  color: rgba(0, 0, 0, 0.62);
 }
 
 .v16-marquee {
