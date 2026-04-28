@@ -114,48 +114,76 @@ function PixelCrumbsFullBody({ reduced }: { reduced: boolean }) {
           <filter id="v16Shadow" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="rgba(0,0,0,0.22)" />
           </filter>
+          <pattern id="v16TabbyStripes" width="8" height="8" patternUnits="userSpaceOnUse">
+            <rect width="8" height="8" fill="#cfcfcf" />
+            <rect x="1" y="1" width="6" height="1.6" fill="#9b9b9b" opacity="0.85" />
+            <rect x="0.8" y="4.2" width="6.4" height="1.6" fill="#8e8e8e" opacity="0.75" />
+          </pattern>
         </defs>
 
         {/* Pose A: sitting / licking paw */}
         <g className="v16-pose v16-pose-lick" filter="url(#v16Shadow)">
-          <rect x="18" y="18" width="28" height="16" rx="2" fill="#cfcfcf" />
-          <rect x="22" y="12" width="20" height="12" rx="2" fill="#d9d9d9" />
-          <rect x="22" y="10" width="4" height="4" fill="#d9d9d9" />
-          <rect x="38" y="10" width="4" height="4" fill="#d9d9d9" />
-          <rect x="26" y="16" width="4" height="4" fill="#0a0a0a" />
-          <rect x="34" y="16" width="4" height="4" fill="#0a0a0a" />
-          <rect x="30" y="20" width="4" height="2" fill="#0a0a0a" />
-          <rect x="30" y="22" width="4" height="2" fill="#ff3b2e" />
-          {/* Paw up */}
+          {/* Body */}
+          <rect x="18" y="20" width="28" height="16" rx="3" fill="url(#v16TabbyStripes)" />
+          <rect x="20" y="28" width="10" height="8" rx="2" fill="#e7e7e7" opacity="0.9" />
+          {/* Head + ears */}
+          <rect x="22" y="10" width="20" height="14" rx="3" fill="#d6d6d6" />
+          <rect x="22" y="8" width="5" height="5" rx="1" fill="#d6d6d6" />
+          <rect x="37" y="8" width="5" height="5" rx="1" fill="#d6d6d6" />
+          <rect x="24" y="12" width="16" height="5" rx="2" fill="#b7b7b7" opacity="0.55" />
+          {/* Face */}
+          <rect x="26" y="15" width="3" height="3" fill="#0a0a0a" />
+          <rect x="35" y="15" width="3" height="3" fill="#0a0a0a" />
+          <rect x="31" y="18" width="2" height="2" fill="#0a0a0a" opacity="0.85" />
+          <rect x="30" y="20" width="4" height="2" fill="#ff3b2e" opacity="0.9" />
+          {/* Paw up (lick) */}
           <g className="v16-paw">
-            <rect x="42" y="22" width="6" height="6" rx="1" fill="#d9d9d9" />
-            <rect x="44" y="24" width="2" height="2" fill="#0a0a0a" opacity="0.22" />
+            <rect x="41" y="22" width="7" height="7" rx="2" fill="#dcdcdc" />
+            <rect x="43" y="24" width="3" height="2" fill="#0a0a0a" opacity="0.16" />
           </g>
-          {/* Tail */}
+          {/* Feet */}
+          <rect x="22" y="34" width="7" height="4" rx="1" fill="#dcdcdc" />
+          <rect x="34" y="34" width="7" height="4" rx="1" fill="#dcdcdc" />
+          {/* Tail (striped) */}
           <g className="v16-tail">
-            <rect x="14" y="24" width="6" height="4" rx="1" fill="#cfcfcf" />
-            <rect x="10" y="26" width="6" height="4" rx="1" fill="#cfcfcf" />
+            <rect x="14" y="26" width="7" height="4" rx="1" fill="#bdbdbd" />
+            <rect x="10" y="28" width="6" height="4" rx="1" fill="#b3b3b3" />
+            <rect x="12" y="28" width="2" height="4" fill="#8f8f8f" opacity="0.55" />
+            <rect x="17" y="26" width="2" height="4" fill="#8f8f8f" opacity="0.55" />
           </g>
         </g>
 
         {/* Pose B: curled up */}
         <g className="v16-pose v16-pose-curl" filter="url(#v16Shadow)">
-          <rect x="18" y="18" width="28" height="18" rx="6" fill="#d9d9d9" />
-          <rect x="24" y="14" width="16" height="10" rx="5" fill="#e2e2e2" />
-          <rect x="27" y="17" width="3" height="2" fill="#0a0a0a" opacity="0.6" />
-          <rect x="34" y="17" width="3" height="2" fill="#0a0a0a" opacity="0.6" />
-          <rect x="31" y="20" width="2" height="2" fill="#0a0a0a" opacity="0.65" />
-          {/* Tail wraps */}
-          <rect x="16" y="24" width="8" height="6" rx="3" fill="#cfcfcf" />
+          {/* Curled body */}
+          <rect x="16" y="18" width="32" height="20" rx="10" fill="url(#v16TabbyStripes)" />
+          <rect x="20" y="22" width="18" height="10" rx="6" fill="#e8e8e8" opacity="0.9" />
+          {/* Head nestled */}
+          <rect x="24" y="14" width="16" height="10" rx="5" fill="#d7d7d7" />
+          <rect x="24" y="13" width="4" height="4" rx="1" fill="#d7d7d7" />
+          <rect x="36" y="13" width="4" height="4" rx="1" fill="#d7d7d7" />
+          {/* Face (sleepy) */}
+          <rect x="27" y="18" width="3" height="1.6" fill="#0a0a0a" opacity="0.55" />
+          <rect x="34" y="18" width="3" height="1.6" fill="#0a0a0a" opacity="0.55" />
+          <rect x="31" y="20" width="2" height="2" fill="#0a0a0a" opacity="0.45" />
+          {/* Tail wrap stripe */}
+          <rect x="14" y="26" width="10" height="8" rx="4" fill="#bdbdbd" />
+          <rect x="16" y="26" width="2" height="8" fill="#8f8f8f" opacity="0.55" />
         </g>
 
         {/* Pose C: nap (long loaf) */}
         <g className="v16-pose v16-pose-nap" filter="url(#v16Shadow)">
-          <rect x="12" y="22" width="40" height="12" rx="6" fill="#d9d9d9" />
-          <rect x="20" y="16" width="16" height="10" rx="5" fill="#e2e2e2" />
-          <rect x="23" y="19" width="3" height="1.5" fill="#0a0a0a" opacity="0.55" />
-          <rect x="30" y="19" width="3" height="1.5" fill="#0a0a0a" opacity="0.55" />
-          <rect x="27" y="21.5" width="2" height="1.5" fill="#0a0a0a" opacity="0.55" />
+          {/* Loaf body */}
+          <rect x="10" y="22" width="44" height="13" rx="7" fill="url(#v16TabbyStripes)" />
+          <rect x="14" y="27" width="18" height="8" rx="4" fill="#e8e8e8" opacity="0.9" />
+          {/* Head */}
+          <rect x="20" y="15" width="18" height="11" rx="5" fill="#d7d7d7" />
+          <rect x="20" y="13" width="5" height="5" rx="1" fill="#d7d7d7" />
+          <rect x="33" y="13" width="5" height="5" rx="1" fill="#d7d7d7" />
+          {/* Closed eyes */}
+          <rect x="24" y="19" width="3" height="1.5" fill="#0a0a0a" opacity="0.5" />
+          <rect x="31" y="19" width="3" height="1.5" fill="#0a0a0a" opacity="0.5" />
+          <rect x="28" y="21.2" width="2" height="1.5" fill="#0a0a0a" opacity="0.42" />
           {/* Slow breathing indicator */}
           <circle className="v16-zzz" cx="50" cy="18" r="2" fill="var(--v16-lime)" opacity="0.85" />
           <circle className="v16-zzz" cx="54" cy="14" r="1.6" fill="var(--v16-lime)" opacity="0.65" />
