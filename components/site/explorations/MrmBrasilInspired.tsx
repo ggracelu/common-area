@@ -123,7 +123,7 @@ export function MrmBrasilInspiredSite() {
             </span>
             <div className="leading-tight">
               <p className="text-xs font-black uppercase tracking-[0.22em]">Common Area</p>
-              <p className="text-xs text-white/60">MRM-inspired exploration</p>
+              <p className="text-xs text-white/60">Landing exploration</p>
             </div>
           </div>
 
@@ -262,8 +262,7 @@ export function MrmBrasilInspiredSite() {
               </h2>
             </div>
             <p className="max-w-[34rem] text-sm leading-7 text-white/70">
-              A “common room” is mostly a routine. The product promise stays Common Area; this is a
-              visual experiment inspired by [MRM Brasil](https://www.mrmbrasil.com.br/en).
+              A “common room” is mostly a routine: places you return to, people you recognize, and a social rhythm that doesn’t require perfect first impressions.
             </p>
           </div>
 

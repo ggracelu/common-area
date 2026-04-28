@@ -12,6 +12,7 @@ import { SeasonPreview } from "@/components/site/SeasonPreview";
 import { SocialProof } from "@/components/site/SocialProof";
 import { WhyCohorts } from "@/components/site/WhyCohorts";
 import { MrmBrasilInspiredSite } from "@/components/site/explorations/MrmBrasilInspired";
+import { V12ScrapbookStudioSite } from "@/components/site/explorations/V12ScrapbookStudio";
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -124,6 +125,16 @@ export const explorationVersions = [
     palette: "Black/white + neon lime + red + electric blue",
     typography: "System UI display (heavy) + mono microcopy + brutal hierarchy.",
     motion: "Cursor layer + marquees + zoom/lift + in-view reveals + overlap stacks.",
+  },
+  {
+    slug: "v12-scrapbook-studio",
+    number: "12",
+    title: "V12 Scrapbook Studio",
+    description:
+      "Light-mode default with bold serif headlines, tiny body copy, italic scrapbook moments, polaroid collage galleries, and post-it note sections.",
+    palette: "White paper + warm cream + rust + butter + electric blue",
+    typography: "Bold serif display + small calm sans body + italic serif as scrapbook texture.",
+    motion: "Cursor glow + scrolling banner + photo zoom hover + reveal steps + collage lift.",
   },
 ] as const;
 
@@ -1800,6 +1811,7 @@ export function ExplorationSite({ slug }: { slug: ExplorationSlug }) {
   if (slug === "field-guide") return <FieldGuideSite />;
   if (slug === "house-party-bulletin") return <HousePartyBulletinSite />;
   if (slug === "mrm-bw-overlap") return <MrmBrasilInspiredSite />;
+  if (slug === "v12-scrapbook-studio") return <V12ScrapbookStudioSite />;
   return <YearbookWallSite />;
 }
 
