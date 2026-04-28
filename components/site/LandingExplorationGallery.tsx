@@ -15,6 +15,7 @@ import { MrmBrasilInspiredSite } from "@/components/site/explorations/MrmBrasilI
 import { V12ScrapbookStudioSite } from "@/components/site/explorations/V12ScrapbookStudio";
 import { V13KitschComputerClubSite } from "@/components/site/explorations/V13KitschComputerClub";
 import { V14AdckerIndexSite } from "@/components/site/explorations/V14AdckerIndex";
+import { V15CampusArcadeSite } from "@/components/site/explorations/V15CampusArcade";
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -157,6 +158,16 @@ export const explorationVersions = [
     palette: "Black/white base + selective neon pops",
     typography: "Oversized serif display + mono UI labels + clean body.",
     motion: "Scroll % counter + pulsing dot + menu overlay + hover zoom.",
+  },
+  {
+    slug: "v15-campus-arcade",
+    number: "15",
+    title: "V15 Campus Arcade",
+    description:
+      "Evolved from v13 into a believable landing: campus-first copy, pixel Crumbs, Streamline pixel icons, fuller hero collage, and scroll whoosh/zoom.",
+    palette: "White base + neon lime + red + electric blue + magenta",
+    typography: "Heavy system UI display + retro mono microcopy.",
+    motion: "Single-color cursor glow + deeper scroll whoosh + collage zoom.",
   },
 ] as const;
 
@@ -1836,6 +1847,7 @@ export function ExplorationSite({ slug }: { slug: ExplorationSlug }) {
   if (slug === "v12-scrapbook-studio") return <V12ScrapbookStudioSite />;
   if (slug === "v13-kitsch-computer-club") return <V13KitschComputerClubSite />;
   if (slug === "v14-adcker-index") return <V14AdckerIndexSite />;
+  if (slug === "v15-campus-arcade") return <V15CampusArcadeSite />;
   return <YearbookWallSite />;
 }
 
