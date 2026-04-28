@@ -4,8 +4,8 @@ import { AuthShell } from "@/components/site/AuthShell";
 export default function SignInPage() {
   return (
     <AuthShell
-      title="Sign in for the next WhyNot season."
-      description="Come back to your dashboard, check your onboarding progress, and keep your Chicago social plans moving."
+      title="Sign in to Common Area."
+      description="Come back to your dashboard, check your onboarding progress, and keep your Chicago social rhythm moving."
     >
       <div className="flex justify-center py-4">
         <SignIn

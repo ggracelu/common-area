@@ -1,16 +1,17 @@
-# WhyNot Product Plan
+# Common Area Product Plan
 
 ## One-Line Description
-WhyNot is a seasonal social platform that groups Gen Z Chicago users into local activity cohorts with no swiping or bio-based matching.
+Common Area is a seasonal social platform that turns post-grad city life into a campus feeling through recurring, interest-driven cohorts hosted by local businesses.
 
 ## Problem Statement
-Young adults often want community but dislike the friction of swiping, the pressure of profile-based matching, and the randomness of one-off social events. Many existing products create attention loops instead of repeated, low-stakes familiarity. WhyNot addresses that gap by turning social discovery into a seasonal commitment around curated local activities and small businesses.
+After college, many young adults lose the social architecture that once made community easy. The city may offer endless events, but not enough repeated presence. Swiping is performative, one-off meetups feel random, and generic event marketplaces rarely create familiar faces. Common Area addresses that gap by helping people build a campus feeling after college: recurring cohorts, shared interests, and local businesses that start to feel like common rooms again.
 
 ## Target User
 - Gen Z young adults in Chicago
 - Users looking for friendship, social momentum, and recurring shared experiences
+- Users who want a campus-like social rhythm after college
 - Users who want structured participation without dating-style matching
-- Users who prefer a playful, low-pressure product tone but still expect trust and operational competence
+- Users who prefer a warm, grounded, low-pressure product tone but still expect trust and operational competence
 
 ## Core Product Loop
 - Discover the season
@@ -21,6 +22,24 @@ Young adults often want community but dislike the friction of swiping, the press
 - Return for dashboard, chat, and bingo prompts
 
 The loop should make social participation feel easy to start, easy to continue, and more rewarding with repetition.
+
+## Positioning
+Common Area is not:
+- a one-off dinner app
+- a swipe-based friend app
+- a generic events marketplace
+
+Common Area is positioned around:
+- seeing the same people more than once
+- joining cohorts based on shared interests
+- returning to familiar local businesses
+- creating a social rhythm around real places
+- making a big city feel like it has common rooms again
+
+Competitor context:
+- `222` leans toward curated social experiences and social matching.
+- `Timeleft` centers weekly gatherings that turn strangers into friends with no bios, no swiping, and no planning.
+- `Common Area` should differentiate on repeated presence, seasonal cohorts, shared interests, and local businesses as the campus buildings of post-grad city life.
 
 ## MVP Journey
 1. User discovers the current Chicago season.
@@ -55,24 +74,27 @@ The loop should make social participation feel easy to start, easy to continue, 
 - Cohort chat
 - Bingo/scavenger-hunt prompts and completion tracking
 
-## Wally Brand Voice
-Wally the pigeon is the mascot and tonal guide for the brand.
+## Crumbs Brand Voice
+Crumbs the Cat is the mascot and tonal guide for the brand.
 
-Wally should feel:
-- playful
-- chaotic in a charming way
-- socially warm
-- encouraging
+Crumbs should feel:
+- dry
+- warm
+- lazy
+- observant
+- low-pressure
+- slightly sarcastic
 - local and memorable
 
-Wally should not make the product feel:
+Crumbs should not make the product feel:
 - childish
 - flaky
+- hyper-social
 - careless with trust and safety
 - careless with payments
 - careless with privacy or user data
 
-The product voice should reduce pressure without reducing clarity.
+The product voice should reduce pressure without reducing clarity. It should feel cozy, lived-in, communal, and more grounded than the product's earlier tone.
 
 ## Product Constraints
 - Chicago-only for MVP
@@ -82,6 +104,7 @@ The product voice should reduce pressure without reducing clarity.
 - Cohorts target about 15-20 users
 - Cohort overlap should aim for at least 2 shared activities, but assignment is best-effort if perfect grouping is not possible
 - Deposit is a $20 seasonal commitment mechanism, not a broader payments platform
+- Local businesses should be framed as campus-like third places rather than anonymous venues
 
 ## Non-Goals
 - No swiping
@@ -90,7 +113,7 @@ The product voice should reduce pressure without reducing clarity.
 - No multi-city support yet
 - No business-facing dashboard yet
 - No mobile app yet
-- No production-grade Wally automation worker yet
+- No production-grade Crumbs automation worker yet
 
 ## Success Metrics
 - Deposit conversion

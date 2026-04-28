@@ -10,20 +10,20 @@ export function Hero() {
           <div className="absolute -left-6 top-12 h-16 w-16 rounded-[1.75rem] bg-[var(--color-sun)]/75 blur-sm" />
           <Badge>Chicago season preview</Badge>
           <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-[0.92] tracking-[-0.04em] text-[var(--color-foreground)] sm:text-6xl lg:text-8xl">
-            No swiping. Just sign up and show up.
+            Turn your city into a campus.
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[color:rgba(37,34,30,0.78)] sm:text-xl">
-            Turn your city into your campus. Pick 4 activities. Meet the same people twice.
-            Let the city do the rest.
+            Find your people in familiar places. Common Area creates recurring, interest-driven
+            cohorts so local spots start to feel like common rooms again.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button href="#season">Preview the season</Button>
+            <Button href="/sign-up">Find your common area</Button>
             <Button href="#how-it-works" variant="secondary">
               See how it works
             </Button>
           </div>
           <p className="mt-5 text-sm font-medium text-[color:rgba(37,34,30,0.66)]">
-            Wally says: your couch misses you, but Chicago called.
+            No swiping. Just recurring cohorts, familiar faces, and a reason to put on shoes.
           </p>
         </div>
 
@@ -34,14 +34,14 @@ export function Hero() {
             <div className="mb-6 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent)]">
-                  Spring Chicago
+                  Chicago spring term
                 </p>
                 <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[var(--color-foreground)]">
-                  A social season built to repeat.
+                  A campus feeling after college.
                 </h2>
               </div>
               <div className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-[var(--color-foreground)] text-4xl text-[var(--color-background)] shadow-[0_20px_40px_rgba(37,34,30,0.18)]">
-                🐦
+                🐈
               </div>
             </div>
 
@@ -50,14 +50,14 @@ export function Hero() {
                 <p className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Your commitment</p>
                 <p className="mt-2 text-3xl font-semibold tracking-tight">$20</p>
                 <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.7)]">
-                  One seasonal deposit. One clear yes.
+                  A small deposit keeps the room from being empty.
                 </p>
               </div>
               <div className="rounded-[1.5rem] bg-white/80 p-4">
                 <p className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Your picks</p>
                 <p className="mt-2 text-3xl font-semibold tracking-tight">4 of 6</p>
                 <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.7)]">
-                  Curated Chicago plans, not infinite scrolling.
+                  Shared interests, not random matching.
                 </p>
               </div>
             </div>
@@ -67,7 +67,7 @@ export function Hero() {
                 Cohort logic
               </p>
               <p className="mt-2 text-lg font-medium leading-7">
-                About 15-20 people. Shared overlap. Enough structure to keep the second hello easier than the first.
+                About 15-20 people. Shared overlap. Enough consistency to make the city feel familiar.
               </p>
             </div>
           </div>

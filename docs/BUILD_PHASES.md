@@ -1,4 +1,4 @@
-# WhyNot Build Phases
+# Common Area Build Phases
 
 ## Quality Bar
 The project plan is complete only if a future implementation session can begin building without product ambiguity. Each phase below assumes the same MVP flow, entity names, stack, security assumptions, and implementation order described across the other planning docs.
@@ -33,11 +33,11 @@ Out of scope:
 
 ## 2. Landing Page And Brand System
 Purpose:
-- Create the public entry point and visual system for WhyNot.
+- Create the public entry point and visual system for Common Area.
 
 Goals:
 - Launch a strong landing page
-- Introduce Wally's brand voice visually and in copy
+- Introduce Crumbs' brand voice visually and in copy
 - Make current season discovery visible
 
 Main implementation tasks:

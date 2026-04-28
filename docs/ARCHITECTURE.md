@@ -1,7 +1,7 @@
-# WhyNot Architecture
+# Common Area Architecture
 
 ## Intended App Structure
-The project should be organized to keep routing, domain logic, and infrastructure concerns separate.
+The project should be organized to keep routing, domain logic, and infrastructure concerns separate. The current repo/folder may still be named `whynot`, but the visible product name is `Common Area`.
 
 ```text
 whynot/

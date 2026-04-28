@@ -9,16 +9,16 @@ export function SeasonPreview() {
         <div className="max-w-2xl">
           <Badge>Current season preview</Badge>
           <h2 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
-            This is what a WhyNot season feels like before you even log in.
+            This is what a Common Area season feels like before you even log in.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.74)]">
-            A season is not an endless feed. It is a short window of Chicago plans, local energy,
-            and a cohort built to make showing up feel easier the second time.
+            A season is not an endless feed. It is a short window of recurring Chicago plans, local
+            energy, and a cohort built to make familiar faces easier to find the second time.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button href="#activities">Browse example activities</Button>
-            <Button href="#faq" variant="secondary">
-              Read the FAQ
+            <Button href="#activities">Browse the season</Button>
+            <Button href="/sign-up" variant="secondary">
+              Save me a spot
             </Button>
           </div>
         </div>
@@ -43,7 +43,7 @@ export function SeasonPreview() {
               Core promise
             </p>
             <p className="mt-3 text-xl font-medium leading-8">
-              Turn your city into your campus.
+              Local spots become your campus buildings.
             </p>
           </div>
         </Card>

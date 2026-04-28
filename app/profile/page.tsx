@@ -10,7 +10,7 @@ export default async function ProfilePage() {
   return (
     <AppShell
       title="Profile foundation"
-      description="This page previews how Clerk user data will map into the future profiles table once Supabase arrives."
+      description="This page previews how Clerk user data will map into the future Common Area profiles table once Supabase arrives."
     >
       <Card className="max-w-3xl">
         <dl className="grid gap-4 sm:grid-cols-2">

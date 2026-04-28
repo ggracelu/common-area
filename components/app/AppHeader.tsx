@@ -9,10 +9,10 @@ export function AppHeader() {
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 text-[var(--color-foreground)]">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-xl shadow-[0_10px_25px_rgba(191,90,54,0.25)]">
-              🐦
+              🐈
             </span>
             <div>
-              <p className="text-lg font-semibold tracking-tight">WhyNot</p>
+              <p className="text-lg font-semibold tracking-tight">Common Area</p>
               <p className="text-sm text-[color:rgba(37,34,30,0.68)]">Authenticated shell</p>
             </div>
           </Link>
@@ -22,7 +22,7 @@ export function AppHeader() {
               href="/season"
               className="hidden rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-[var(--color-foreground)] sm:inline-flex"
             >
-              Season preview
+              Browse the season
             </Link>
             <UserButton />
           </div>

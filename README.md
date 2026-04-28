@@ -1,9 +1,9 @@
-# WhyNot
+# Common Area
 
-WhyNot is a seasonal, cohort-based social platform for Gen Z young adults in Chicago. The core promise is simple: no swiping, just sign up and show up.
+Common Area is a seasonal, cohort-based social platform for Gen Z young adults in Chicago. It turns the city into a campus through recurring, interest-driven cohorts hosted by local businesses.
 
 ## Project Overview
-This repository now includes the Phase 3 authentication foundation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, protected route scaffolding, and a minimal authenticated dashboard shell. Product data persistence is still intentionally deferred.
+This repository now includes the Phase 3 authentication foundation for Common Area. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, protected route scaffolding, and a minimal authenticated dashboard shell. Product data persistence is still intentionally deferred.
 
 Current scope:
 - Base Next.js app structure
@@ -24,6 +24,10 @@ Not implemented yet:
 
 ## Current Project Phase
 This repo is in Phase 3: Clerk auth and profile foundation.
+
+Brand note:
+- The visible product is now `Common Area`.
+- The repository and root folder remain named `whynot` for now to avoid unnecessary churn.
 
 See:
 - [AGENTS.md](./AGENTS.md)
@@ -100,6 +104,9 @@ These values are now required for local auth setup:
 Never commit real secrets. Follow the security and environment policies in [AGENTS.md](./AGENTS.md).
 
 Profile persistence is not implemented in this phase. Clerk user data is normalized into an in-memory preview shape only; the real `profiles` table integration will come later with Supabase.
+
+Mascot note:
+- Common Area's mascot is now Crumbs the Cat, the resident lounge cat who makes the product feel familiar, cozy, and lightly funny without undermining trust or clarity.
 
 ## Repo Context
 Before implementing features, read:

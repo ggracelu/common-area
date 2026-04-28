@@ -14,22 +14,22 @@ const onboardingChecklist = [
 const dashboardActions = [
   {
     title: "Browse season",
-    description: "Preview the current Chicago season and see how the experience is shaping up.",
+    description: "Preview the current Chicago season and see how the campus feeling is taking shape.",
     href: "/season",
   },
   {
     title: "Pick activities",
-    description: "This route is protected now and ready for the next phase.",
+    description: "This route is protected now and ready for the interest-driven season flow.",
     href: "/season/select",
   },
   {
     title: "View cohort",
-    description: "The destination is scaffolded so future cohort work has a home.",
+    description: "The destination is scaffolded so recurring cohort work has a home base.",
     href: "/cohort",
   },
   {
     title: "Open bingo card",
-    description: "The shell is in place even though the real bingo system comes later.",
+    description: "The shell is in place even though the real common-room rituals come later.",
     href: "/bingo",
   },
 ];
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
   return (
     <AppShell
       title={`Hi, ${greetingName}.`}
-      description="This is the authenticated WhyNot shell. Profile persistence, season state, and real onboarding logic will connect in later phases."
+      description="This is the authenticated Common Area shell. Profile persistence, season state, and real onboarding logic will connect in later phases."
     >
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <Card className="bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(248,226,196,0.82))]">
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
             ))}
           </ul>
           <p className="mt-6 text-sm font-medium text-[color:rgba(37,34,30,0.72)]">
-            Wally says: tiny steps count. Big pigeon energy starts here.
+            Crumbs says: showing up counts. Your spot is still here.
           </p>
         </Card>
 

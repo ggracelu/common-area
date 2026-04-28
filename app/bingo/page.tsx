@@ -5,7 +5,7 @@ export default function BingoPage() {
   return (
     <AppShell
       title="Bingo placeholder"
-      description="This protected route will later hold the seasonal bingo or scavenger-hunt card."
+      description="This protected route will later hold the seasonal bingo or scavenger-hunt rituals for the cohort."
     >
       <Card className="max-w-3xl">
         <p className="text-base leading-7 text-[color:rgba(37,34,30,0.72)]">

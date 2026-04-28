@@ -9,12 +9,12 @@ export function DepositSection() {
         <div>
           <Badge>Deposit explanation</Badge>
           <h2 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
-            A small deposit, so the social plan can be real.
+            A small deposit, so the common room stays full.
           </h2>
           <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.74)]">
-            WhyNot uses a $20 seasonal deposit as a commitment signal. This is not a marketplace
+            Common Area uses a $20 seasonal deposit as a commitment signal. This is not a marketplace
             checkout and not a subscription product. It is a lightweight social nudge that helps
-            cohorts form around people who actually intend to participate.
+            cohorts form around people who actually intend to come back.
           </p>
         </div>
         <div className="grid gap-5">

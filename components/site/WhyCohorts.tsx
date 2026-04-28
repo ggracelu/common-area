@@ -9,7 +9,7 @@ export function WhyCohorts() {
         <div className="max-w-3xl">
           <Badge>Why cohorts beat swiping</Badge>
           <h2 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
-            You do not need another app asking you to audition for strangers.
+            You do not need another app built around random strangers and one perfect first impression.
           </h2>
         </div>
 

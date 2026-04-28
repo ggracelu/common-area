@@ -15,9 +15,9 @@ export function AuthShell({ title, description, children }: AuthShellProps) {
         <section className="max-w-xl">
           <Link href="/" className="inline-flex items-center gap-3 text-[var(--color-foreground)]">
             <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)] text-xl shadow-[0_10px_25px_rgba(191,90,54,0.25)]">
-              🐦
+              🐈
             </span>
-            <span className="text-xl font-semibold tracking-tight">WhyNot</span>
+            <span className="text-xl font-semibold tracking-tight">Common Area</span>
           </Link>
           <Badge className="mt-8">Chicago season access</Badge>
           <h1 className="mt-5 text-5xl font-semibold tracking-tight sm:text-6xl">
@@ -27,7 +27,7 @@ export function AuthShell({ title, description, children }: AuthShellProps) {
             {description}
           </p>
           <p className="mt-8 text-sm font-medium text-[color:rgba(37,34,30,0.66)]">
-            No swiping. Just sign up and show up.
+            Turn your city into a campus.
           </p>
         </section>
 

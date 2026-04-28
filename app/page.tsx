@@ -5,9 +5,9 @@ import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import { Hero } from "@/components/site/Hero";
 import { HowItWorks } from "@/components/site/HowItWorks";
+import { CrumbsSection } from "@/components/site/CrumbsSection";
 import { SeasonPreview } from "@/components/site/SeasonPreview";
 import { SocialProof } from "@/components/site/SocialProof";
-import { WallySection } from "@/components/site/WallySection";
 import { WhyCohorts } from "@/components/site/WhyCohorts";
 
 export default function Home() {
@@ -21,7 +21,7 @@ export default function Home() {
         <WhyCohorts />
         <ActivityGrid />
         <SocialProof />
-        <WallySection />
+        <CrumbsSection />
         <DepositSection />
         <FAQ />
       </main>

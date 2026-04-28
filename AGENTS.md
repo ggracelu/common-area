@@ -1,16 +1,22 @@
-# WhyNot Agent Handbook
+# Common Area Agent Handbook
 
 ## Mission
-WhyNot helps Gen Z young adults in Chicago build real-world social momentum through repeated, low-pressure shared activities. The product replaces swiping and profile-heavy matching with seasonal participation, lightweight commitment, and structured group experiences.
+Common Area helps Gen Z young adults in Chicago build a campus feeling after college through recurring, interest-driven cohorts hosted by local businesses. The product replaces swiping, one-off meetups, and generic event browsing with repeated presence, familiar faces, and a social rhythm anchored in real neighborhood spaces.
 
 ## Product Summary
-WhyNot is a seasonal, cohort-based social platform for Chicago. Users discover the current season, sign up, pay a $20 seasonal deposit, choose 4 of 6 curated activities, and get assigned to a cohort of about 15-20 people with meaningful activity overlap. After assignment, they return to a shared dashboard for schedule context, cohort chat, and bingo/scavenger-hunt prompts.
+Common Area is a seasonal, cohort-based social platform for Chicago. Users discover the current season, sign up, pay a $20 seasonal deposit, choose 4 of 6 curated activities, and get assigned to a cohort of about 15-20 people with meaningful activity overlap. After assignment, they return to a shared dashboard for schedule context, cohort chat, and bingo/scavenger-hunt prompts.
 
-Core promise: no swiping, just sign up and show up.
+Core promise: turn your city into a campus.
+
+Important repository note:
+- The visible product name is now `Common Area`.
+- The repository and root folder may still be named `whynot` for now.
+- Do not rename package names, filesystem paths, or the GitHub repository unless explicitly requested.
 
 ## Target Audience
 - Gen Z young adults in Chicago
 - Users seeking friendship, community, and recurring low-pressure social interaction
+- Users who want a campus-like social rhythm after college
 - Users who are tired of swiping, awkward cold starts, or one-off social events with no follow-through
 
 ## MVP Success Criteria
@@ -62,6 +68,12 @@ Notes:
 - `types/` is for shared domain types.
 - `supabase/` is for migrations, policies, and local config once that work begins.
 
+Brand notes:
+- Crumbs the Cat is the mascot and tonal guide.
+- Crumbs is Common Area's resident lounge cat: cozy, observant, quietly funny, and low-pressure.
+- The product should feel warm, editorial, youthful, trustworthy, and communal.
+- The tone should be more campus common room than spontaneous dare.
+
 ## Default Commands
 Once the app exists, use these as the baseline local commands:
 
@@ -108,6 +120,7 @@ npm run build
 - Keep asynchronous flows idempotent where practical, especially for payments and assignment.
 - Avoid overengineering the MVP. Build the smallest durable version that fits the product docs.
 - Favor accessibility, fast page loads, and clear empty/loading/error states.
+- Preserve the Common Area positioning: recurring cohorts, familiar faces, shared interests, and local businesses as campus-like third places.
 
 ## RLS-First Database Rules
 - Public discovery data may be readable without auth only when intentionally marked public.

@@ -3,8 +3,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WhyNot",
-  description: "No swiping. Just sign up and show up.",
+  title: "Common Area",
+  description: "Turn your city into a campus.",
 };
 
 export default function RootLayout({

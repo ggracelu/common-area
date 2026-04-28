@@ -13,9 +13,9 @@ export async function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4 sm:px-8 lg:px-10">
         <Link href="/" className="flex items-center gap-3 text-[var(--color-foreground)]">
           <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-xl shadow-[0_10px_25px_rgba(191,90,54,0.25)]">
-            🐦
+            🐈
           </span>
-          <span className="text-lg font-semibold tracking-tight sm:text-xl">WhyNot</span>
+          <span className="text-lg font-semibold tracking-tight sm:text-xl">Common Area</span>
         </Link>
 
         {!isSignedIn ? (
@@ -40,11 +40,11 @@ export async function Header() {
                 </Link>
               </nav>
               <Button href="/sign-up" className="hidden sm:inline-flex">
-                Join the season
+                Join the Chicago season
               </Button>
             </div>
             <div className="md:hidden">
-              <Button href="/sign-up">Join</Button>
+              <Button href="/sign-up">Save me a spot</Button>
             </div>
           </>
         ) : (

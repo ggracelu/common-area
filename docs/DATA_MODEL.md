@@ -1,4 +1,6 @@
-# WhyNot Data Model
+# Common Area Data Model
+
+This document covers the data model for Common Area. The visible product has been rebranded, but the database entity names below intentionally stay unchanged for now.
 
 ## Modeling Principles
 - Supabase Postgres is the source of truth for app data.

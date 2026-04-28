@@ -3,7 +3,7 @@ import type { Activity, FaqItem, Highlight, NavLink, Step } from "@/types/site";
 export const navLinks: NavLink[] = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Season", href: "#season" },
-  { label: "Wally", href: "#wally" },
+  { label: "Crumbs", href: "#crumbs" },
   { label: "FAQ", href: "#faq" },
 ];
 
@@ -18,13 +18,13 @@ export const steps: Step[] = [
     eyebrow: "Step 2",
     title: "Pick 4 activities",
     description:
-      "Choose four curated plans built around real neighborhoods, real businesses, and real reasons to leave the house.",
+      "Choose four interest-driven plans built around real neighborhoods, real businesses, and real reasons to leave the house.",
   },
   {
     eyebrow: "Step 3",
-    title: "Meet the same people twice",
+    title: "Come back to familiar faces",
     description:
-      "Get placed into a cohort of 15-20 people with overlapping picks so the second hello feels easier than the first.",
+      "Get placed into a cohort of 15-20 people with overlapping picks so local spots start to feel like campus buildings instead of random venues.",
   },
 ];
 
@@ -63,30 +63,30 @@ export const exampleActivities: Activity[] = [
 
 export const cohortHighlights: Highlight[] = [
   {
-    title: "Repeated interaction beats first-impression theater",
+    title: "Repeated presence beats first-impression theater",
     description:
-      "WhyNot is designed around familiar faces, not perfect bios. You do not need to win the room in thirty seconds.",
+      "Common Area is designed around familiar faces, not perfect bios. You do not need to win the room in thirty seconds.",
   },
   {
-    title: "Chicago does the heavy lifting",
+    title: "Local businesses become the campus buildings",
     description:
-      "Neighborhood-led plans give people something to do, somewhere to go, and something concrete to talk about.",
+      "Neighborhood-led plans give people something to do, somewhere to return to, and something concrete to talk about.",
   },
   {
-    title: "Low pressure, not low intention",
+    title: "Low pressure, familiar, and interest-driven",
     description:
-      "The structure helps people actually show up, while the tone stays playful and welcoming.",
+      "The structure helps people actually show up, while the tone stays warm, grounded, and communal.",
   },
 ];
 
 export const depositHighlights: Highlight[] = [
   {
-    title: "$20 keeps the season real",
+    title: "$20 keeps the room from being empty",
     description:
       "The seasonal deposit is there to create commitment, reduce flaking, and help cohorts form around people who plan to participate.",
   },
   {
-    title: "One season, one simple decision",
+    title: "One season, one steady social rhythm",
     description:
       "No subscriptions, no endless unlocking. The MVP asks for one clear yes to one season in Chicago.",
   },
@@ -94,14 +94,14 @@ export const depositHighlights: Highlight[] = [
 
 export const faqs: FaqItem[] = [
   {
-    question: "Is WhyNot a dating app?",
+    question: "Is Common Area a dating app?",
     answer:
-      "No. WhyNot is a seasonal social platform for friendship, community, and repeated low-pressure interaction around local activities.",
+      "No. Common Area is a seasonal social platform for friendship, community, and repeated low-pressure interaction around local activities.",
   },
   {
     question: "Why cohorts instead of matching?",
     answer:
-      "Cohorts remove the pressure of one-to-one judgment and give people repeated chances to connect through shared plans.",
+      "Cohorts remove the pressure of one-to-one judgment and give people repeated chances to connect through shared interests and recurring plans.",
   },
   {
     question: "What happens after I pick activities?",
@@ -116,6 +116,6 @@ export const faqs: FaqItem[] = [
   {
     question: "Can I sign up right now?",
     answer:
-      "Not yet. This phase establishes the public brand and landing experience before auth, payments, and season flows are built.",
+      "Yes, you can create an account now. The deeper season, deposit, and cohort flows are still being built in later phases.",
   },
 ];
