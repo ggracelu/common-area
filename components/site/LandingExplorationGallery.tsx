@@ -13,6 +13,7 @@ import { SocialProof } from "@/components/site/SocialProof";
 import { WhyCohorts } from "@/components/site/WhyCohorts";
 import { MrmBrasilInspiredSite } from "@/components/site/explorations/MrmBrasilInspired";
 import { V12ScrapbookStudioSite } from "@/components/site/explorations/V12ScrapbookStudio";
+import { V13KitschComputerClubSite } from "@/components/site/explorations/V13KitschComputerClub";
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -135,6 +136,16 @@ export const explorationVersions = [
     palette: "White paper + warm cream + rust + butter + electric blue",
     typography: "Bold serif display + small calm sans body + italic serif as scrapbook texture.",
     motion: "Cursor glow + scrolling banner + photo zoom hover + reveal steps + collage lift.",
+  },
+  {
+    slug: "v13-kitsch-computer-club",
+    number: "13",
+    title: "V13 Kitsch Computer Club",
+    description:
+      "Early-computer nostalgia: typewriter-ish mono labels, bright system colors, scanlines, and maximal sticky-note + polaroid collage energy.",
+    palette: "White base + neon lime + red + electric blue + magenta",
+    typography: "Heavy system UI display + retro mono microcopy (90s game-ish).",
+    motion: "Single-color cursor glow + extra marquees + float + scanlines + zoom + wiggle.",
   },
 ] as const;
 
@@ -1812,6 +1823,7 @@ export function ExplorationSite({ slug }: { slug: ExplorationSlug }) {
   if (slug === "house-party-bulletin") return <HousePartyBulletinSite />;
   if (slug === "mrm-bw-overlap") return <MrmBrasilInspiredSite />;
   if (slug === "v12-scrapbook-studio") return <V12ScrapbookStudioSite />;
+  if (slug === "v13-kitsch-computer-club") return <V13KitschComputerClubSite />;
   return <YearbookWallSite />;
 }
 
