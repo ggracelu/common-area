@@ -1,36 +1,6 @@
 import { headers } from "next/headers";
-import { ActivityGrid } from "@/components/site/ActivityGrid";
-import { CrumbsSection } from "@/components/site/CrumbsSection";
-import { DepositSection } from "@/components/site/DepositSection";
-import { FAQ } from "@/components/site/FAQ";
-import { Footer } from "@/components/site/Footer";
-import { Header } from "@/components/site/Header";
-import { Hero } from "@/components/site/Hero";
-import { HowItWorks } from "@/components/site/HowItWorks";
 import { LandingExplorationGallery } from "@/components/site/LandingExplorationGallery";
-import { SeasonPreview } from "@/components/site/SeasonPreview";
-import { SocialProof } from "@/components/site/SocialProof";
-import { WhyCohorts } from "@/components/site/WhyCohorts";
-
-function MarketingLanding() {
-  return (
-    <>
-      <Header />
-      <main>
-        <Hero />
-        <HowItWorks />
-        <SeasonPreview />
-        <WhyCohorts />
-        <ActivityGrid />
-        <SocialProof />
-        <CrumbsSection />
-        <DepositSection />
-        <FAQ />
-      </main>
-      <Footer />
-    </>
-  );
-}
+import { V16CampusCrumbsSite } from "@/components/site/explorations/V16CampusCrumbs";
 
 export default async function Home() {
   const host = (await headers()).get("host") ?? "";
@@ -39,5 +9,5 @@ export default async function Home() {
     return <LandingExplorationGallery />;
   }
 
-  return <MarketingLanding />;
+  return <V16CampusCrumbsSite />;
 }

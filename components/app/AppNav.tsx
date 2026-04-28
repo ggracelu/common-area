@@ -26,11 +26,12 @@ export function AppNav() {
             key={link.href}
             href={link.href}
             prefetch={false}
-            className={`rounded-[var(--radius-button)] px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-full px-4 py-2 text-[0.72rem] font-black uppercase tracking-[0.22em] transition-colors ${
               isActive
-                ? "bg-[var(--color-foreground)] text-[var(--color-background)] shadow-[var(--shadow-button)]"
-                : "border border-[var(--color-line)] bg-white/65 text-[color:rgba(37,34,30,0.72)] hover:bg-white/85 hover:text-[var(--color-foreground)]"
+                ? "bg-black text-white shadow-[0_18px_55px_rgba(52,36,24,0.14)]"
+                : "border border-black/15 bg-white/70 text-black/65 hover:bg-white hover:text-black"
             }`}
+            style={{ fontFamily: "var(--v16-mono)" }}
           >
             {link.label}
           </Link>

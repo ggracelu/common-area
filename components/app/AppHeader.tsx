@@ -6,21 +6,25 @@ import { Button } from "@/components/ui/Button";
 
 export function AppHeader() {
   return (
-    <header className="border-b border-black/8 bg-[color:rgba(247,240,228,0.86)] backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl flex-col gap-5 px-6 py-5 sm:px-8 lg:px-10">
+    <header className="sticky top-0 z-20 border-b border-black/10 bg-white/82 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1520px] flex-col gap-5 px-5 py-5 md:px-10">
         <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3 text-[var(--color-foreground)]">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-accent)] text-xl shadow-[0_10px_25px_rgba(191,90,54,0.25)]">
-              🐈
+          <Link href="/" className="flex items-center gap-4">
+            <span className="v16-mark" aria-hidden="true">
+              CA
             </span>
             <div>
-              <p className="text-lg font-semibold tracking-tight">Common Area</p>
-              <p className="text-sm text-[color:rgba(37,34,30,0.68)]">Authenticated common room</p>
+              <p className="v16-topline">Common Area</p>
+              <p className="mt-1 text-sm text-black/55" style={{ fontFamily: "var(--v16-mono)" }}>
+                Authenticated common room
+              </p>
             </div>
           </Link>
 
           <div className="flex items-center gap-3">
-            <Badge variant="butter" className="hidden sm:inline-flex">Crumbs saved you a spot.</Badge>
+            <Badge variant="butter" className="hidden sm:inline-flex rounded-full px-4 py-2 font-[var(--v16-mono)]">
+              Crumbs saved you a spot.
+            </Badge>
             <Button href="/season" variant="secondary" size="sm" className="hidden sm:inline-flex">
               Browse the season
             </Button>
