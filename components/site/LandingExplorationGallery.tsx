@@ -16,6 +16,7 @@ import { V12ScrapbookStudioSite } from "@/components/site/explorations/V12Scrapb
 import { V13KitschComputerClubSite } from "@/components/site/explorations/V13KitschComputerClub";
 import { V14AdckerIndexSite } from "@/components/site/explorations/V14AdckerIndex";
 import { V15CampusArcadeSite } from "@/components/site/explorations/V15CampusArcade";
+import { V16CampusCrumbsSite } from "@/components/site/explorations/V16CampusCrumbs";
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -168,6 +169,16 @@ export const explorationVersions = [
     palette: "White base + neon lime + red + electric blue + magenta",
     typography: "Heavy system UI display + retro mono microcopy.",
     motion: "Single-color cursor glow + deeper scroll whoosh + collage zoom.",
+  },
+  {
+    slug: "v16-campus-crumbs",
+    number: "16",
+    title: "V16 Campus Crumbs",
+    description:
+      "V15 refined: hero collage fixed to 3 photos and Crumbs upgraded to a full-body pixel cat with lick/curl/nap micro-animations.",
+    palette: "White base + neon lime + red + electric blue + magenta",
+    typography: "Heavy system UI display + retro mono microcopy.",
+    motion: "Cursor glow + marquee + scanlines + scroll whoosh + Crumbs pose cycle (reduced-motion safe).",
   },
 ] as const;
 
@@ -1848,6 +1859,7 @@ export function ExplorationSite({ slug }: { slug: ExplorationSlug }) {
   if (slug === "v13-kitsch-computer-club") return <V13KitschComputerClubSite />;
   if (slug === "v14-adcker-index") return <V14AdckerIndexSite />;
   if (slug === "v15-campus-arcade") return <V15CampusArcadeSite />;
+  if (slug === "v16-campus-crumbs") return <V16CampusCrumbsSite />;
   return <YearbookWallSite />;
 }
 
