@@ -287,9 +287,9 @@ export function V16CampusCrumbsSite() {
 
       <section ref={heroRef} className="px-5 pb-16 pt-10 md:px-10 md:pb-24 md:pt-14" style={scrollStyle}>
         <div className="mx-auto max-w-[1520px]">
-          <div className="v16-hero-wrap">
-            <div className="v16-hero-grid">
-              <div className="v16-whoosh">
+          <div className="v15-hero-wrap v16-hero-wrap">
+            <div className="v15-hero-grid v16-hero-grid">
+              <div className="v15-whoosh v16-whoosh">
                 <p className="v16-kicker">
                   CHICAGO SEASON <span aria-hidden="true">•</span> COHORTS <span aria-hidden="true">•</span> CAMPUS ENERGY
                 </p>
@@ -368,7 +368,7 @@ export function V16CampusCrumbsSite() {
               </div>
             </div>
 
-            <div className="v16-scanlines" aria-hidden="true" />
+            <div className="v15-scanlines" aria-hidden="true" />
           </div>
         </div>
       </section>
