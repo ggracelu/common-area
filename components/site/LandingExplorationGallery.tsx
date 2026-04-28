@@ -14,6 +14,7 @@ import { WhyCohorts } from "@/components/site/WhyCohorts";
 import { MrmBrasilInspiredSite } from "@/components/site/explorations/MrmBrasilInspired";
 import { V12ScrapbookStudioSite } from "@/components/site/explorations/V12ScrapbookStudio";
 import { V13KitschComputerClubSite } from "@/components/site/explorations/V13KitschComputerClub";
+import { V14AdckerIndexSite } from "@/components/site/explorations/V14AdckerIndex";
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -146,6 +147,16 @@ export const explorationVersions = [
     palette: "White base + neon lime + red + electric blue + magenta",
     typography: "Heavy system UI display + retro mono microcopy (90s game-ish).",
     motion: "Single-color cursor glow + extra marquees + float + scanlines + zoom + wiggle.",
+  },
+  {
+    slug: "v14-adcker-index",
+    number: "14",
+    title: "V14 Adcker Index",
+    description:
+      "Adcker-inspired editorial minimalism: parentheses UI chrome, huge serif headlines, mono labels, and click-to-focus cards.",
+    palette: "Black/white base + selective neon pops",
+    typography: "Oversized serif display + mono UI labels + clean body.",
+    motion: "Scroll % counter + pulsing dot + menu overlay + hover zoom.",
   },
 ] as const;
 
@@ -1824,6 +1835,7 @@ export function ExplorationSite({ slug }: { slug: ExplorationSlug }) {
   if (slug === "mrm-bw-overlap") return <MrmBrasilInspiredSite />;
   if (slug === "v12-scrapbook-studio") return <V12ScrapbookStudioSite />;
   if (slug === "v13-kitsch-computer-club") return <V13KitschComputerClubSite />;
+  if (slug === "v14-adcker-index") return <V14AdckerIndexSite />;
   return <YearbookWallSite />;
 }
 
