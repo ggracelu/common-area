@@ -3,12 +3,12 @@
 WhyNot is a seasonal, cohort-based social platform for Gen Z young adults in Chicago. The core promise is simple: no swiping, just sign up and show up.
 
 ## Project Overview
-This repository is currently in the bootstrap and tooling phase. The app is scaffolded with Next.js App Router, TypeScript, Tailwind CSS, and ESLint, but no product features are implemented yet.
+This repository now includes the Phase 2 public landing page and initial brand system. The app is scaffolded with Next.js App Router, TypeScript, Tailwind CSS, and ESLint, with a polished frontend-only marketing experience and no backend product flows yet.
 
 Current scope:
 - Base Next.js app structure
 - Repo documentation and planning context
-- Minimal branded starter homepage
+- Public landing page and brand system
 - Environment template for future integrations
 
 Not implemented yet:
@@ -20,7 +20,7 @@ Not implemented yet:
 - Bingo prompts
 
 ## Current Project Phase
-This repo is in Phase 1: Bootstrap repo and tooling.
+This repo is in Phase 2: Landing page and brand system.
 
 See:
 - [AGENTS.md](./AGENTS.md)

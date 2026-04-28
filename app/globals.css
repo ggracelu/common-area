@@ -4,21 +4,29 @@
   --background: #f7f0e4;
   --foreground: #25221e;
   --accent: #bf5a36;
+  --sun: #f2c66d;
+  --sky: #bdd4e0;
+  --panel: #fffaf2;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent);
+  --color-sun: var(--sun);
+  --color-sky: var(--sky);
+  --color-panel: var(--panel);
   --font-sans: "Avenir Next", "Segoe UI", sans-serif;
   --font-mono: "SFMono-Regular", "SF Mono", "Consolas", monospace;
 }
 
 html {
   background:
-    radial-gradient(circle at top left, rgba(255, 211, 167, 0.78), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(191, 90, 54, 0.12), transparent 30%),
+    radial-gradient(circle at top left, rgba(255, 211, 167, 0.88), transparent 28%),
+    radial-gradient(circle at 85% 10%, rgba(189, 212, 224, 0.42), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(191, 90, 54, 0.16), transparent 30%),
     var(--background);
+  scroll-behavior: smooth;
 }
 
 body {
@@ -26,4 +34,12 @@ body {
   background: transparent;
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+* {
+  border-color: rgba(37, 34, 30, 0.1);
+}
+
+::selection {
+  background: rgba(191, 90, 54, 0.18);
 }
