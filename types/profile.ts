@@ -14,10 +14,9 @@ export type SelectionStatus = "not_started" | "in_progress" | "completed";
 export type ProfilePreview = {
   id: null;
   clerkUserId: string | null;
-  username: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  homeCity: string | null;
+  email: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
   onboardingStatus: OnboardingStatus;
   depositStatus: DepositStatus;
   selectionStatus: SelectionStatus;

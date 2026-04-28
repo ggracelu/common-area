@@ -37,8 +37,7 @@ const dashboardActions = [
 export default async function DashboardPage() {
   const user = await currentUser();
   const profilePreview = buildProfilePreviewFromClerkUser(user);
-  const greetingName =
-    profilePreview.firstName || profilePreview.username || "there";
+  const greetingName = profilePreview.displayName || "there";
 
   return (
     <AppShell

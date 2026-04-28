@@ -103,7 +103,7 @@ npm run build
 - Use stable UUIDs for season, activity, cohort, and other user-facing records.
 
 ## Security Rules
-- Never expose Supabase service role keys in client code.
+- Never expose `SUPABASE_SECRET_KEY` in client code.
 - Never expose Stripe secret keys in client code.
 - Never bypass RLS for user-facing browser access.
 - Treat payment and assignment internals as server-controlled workflows.
@@ -132,8 +132,8 @@ npm run build
 ## Environment Variable Policy
 - Public browser-safe environment variables must use the `NEXT_PUBLIC_` prefix.
 - Clerk publishable keys are client-safe; Clerk secret keys are server-only.
-- Supabase anon key may be exposed only for intended client usage.
-- Supabase service role keys are server-only.
+- Supabase publishable keys may be exposed only for intended client usage.
+- `SUPABASE_SECRET_KEY` is server-only.
 - Stripe publishable keys are client-safe; Stripe secret keys and webhook secrets are server-only.
 - Never commit real secrets.
 - Maintain `.env.example` or equivalent templates once the app is scaffolded.

@@ -19,20 +19,16 @@ export default async function ProfilePage() {
             <dd className="mt-1 text-base font-medium">{profilePreview.clerkUserId ?? "Unavailable"}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Username</dt>
-            <dd className="mt-1 text-base font-medium">{profilePreview.username ?? "Not set"}</dd>
+            <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Email</dt>
+            <dd className="mt-1 text-base font-medium">{profilePreview.email ?? "Not set"}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">First name</dt>
-            <dd className="mt-1 text-base font-medium">{profilePreview.firstName ?? "Not set"}</dd>
+            <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Display name</dt>
+            <dd className="mt-1 text-base font-medium">{profilePreview.displayName ?? "Not set"}</dd>
           </div>
           <div>
-            <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Last name</dt>
-            <dd className="mt-1 text-base font-medium">{profilePreview.lastName ?? "Not set"}</dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Home city</dt>
-            <dd className="mt-1 text-base font-medium">{profilePreview.homeCity ?? "Not set"}</dd>
+            <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Avatar url</dt>
+            <dd className="mt-1 break-all text-base font-medium">{profilePreview.avatarUrl ?? "Not set"}</dd>
           </div>
           <div>
             <dt className="text-sm font-medium text-[color:rgba(37,34,30,0.62)]">Onboarding status</dt>

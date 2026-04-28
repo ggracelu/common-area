@@ -43,7 +43,7 @@ Recommended responsibilities:
 
 ## Security Boundaries
 - Never trust client-reported payment completion.
-- Never use Supabase service role in client code.
+- Never use `SUPABASE_SECRET_KEY` in client code.
 - Never expose Stripe secret keys in client code.
 - All cohort assignment logic runs server-side.
 - The browser should not directly perform privileged database writes.
@@ -181,7 +181,7 @@ Implementation note:
 
 ## Architecture Rules
 - Never trust client-reported payment completion.
-- Never use Supabase service role in client code.
+- Never use `SUPABASE_SECRET_KEY` in client code.
 - All cohort assignment logic runs server-side.
 - Chat messages persist in Postgres before appearing in the UI.
 - Season, activity, cohort, and user-facing records should use stable UUIDs.

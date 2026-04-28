@@ -2,9 +2,13 @@ import type { AssignmentStatus, DepositStatus, OnboardingStatus, ProfilePreview,
 
 type ClerkUserLike = {
   id: string;
-  username: string | null;
   firstName: string | null;
   lastName: string | null;
+  fullName: string | null;
+  imageUrl?: string | null;
+  primaryEmailAddress?: {
+    emailAddress: string;
+  } | null;
 };
 
 function deriveOnboardingStatus(
@@ -37,10 +41,11 @@ export function buildProfilePreviewFromClerkUser(
   return {
     id: null,
     clerkUserId: user?.id ?? null,
-    username: user?.username ?? null,
-    firstName: user?.firstName ?? null,
-    lastName: user?.lastName ?? null,
-    homeCity: "Chicago",
+    email: user?.primaryEmailAddress?.emailAddress ?? null,
+    displayName:
+      user?.fullName ??
+      ([user?.firstName, user?.lastName].filter(Boolean).join(" ") || null),
+    avatarUrl: user?.imageUrl ?? null,
     onboardingStatus: deriveOnboardingStatus(
       depositStatus,
       selectionStatus,
