@@ -3,24 +3,27 @@
 WhyNot is a seasonal, cohort-based social platform for Gen Z young adults in Chicago. The core promise is simple: no swiping, just sign up and show up.
 
 ## Project Overview
-This repository now includes the Phase 2 public landing page and initial brand system. The app is scaffolded with Next.js App Router, TypeScript, Tailwind CSS, and ESLint, with a polished frontend-only marketing experience and no backend product flows yet.
+This repository now includes the Phase 3 authentication foundation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, protected route scaffolding, and a minimal authenticated dashboard shell. Product data persistence is still intentionally deferred.
 
 Current scope:
 - Base Next.js app structure
 - Repo documentation and planning context
 - Public landing page and brand system
+- Clerk authentication and protected route scaffolding
+- Minimal authenticated dashboard shell
 - Environment template for future integrations
 
 Not implemented yet:
-- Clerk auth
 - Supabase database logic
 - Stripe payment flow
+- Real season persistence
+- Activity selection
 - Cohort assignment
 - Chat
 - Bingo prompts
 
 ## Current Project Phase
-This repo is in Phase 2: Landing page and brand system.
+This repo is in Phase 3: Clerk auth and profile foundation.
 
 See:
 - [AGENTS.md](./AGENTS.md)
@@ -45,19 +48,37 @@ See:
 npm install
 ```
 
-2. Create a local env file when integrations are added later:
+2. Create a local env file:
 
 ```bash
 cp .env.example .env.local
 ```
 
-3. Start the development server:
+3. Add Clerk development keys and route values to `.env.local`:
+
+```bash
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+```
+
+4. Start the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open `http://localhost:3000`.
+5. Open `http://localhost:3000`.
+
+6. Test the auth flow:
+- Visit `/sign-up` to create a test user in Clerk
+- Visit `/sign-in` to authenticate
+- Confirm protected routes like `/dashboard` redirect unauthenticated users to sign in
+- Confirm the signed-in header shows `Dashboard`, `Season`, `Cohort`, `Bingo`, and the Clerk `UserButton`
 
 ## Available Commands
 - `npm run dev` starts the local development server
@@ -69,13 +90,16 @@ npm run dev
 ## Environment Variable Notes
 Environment placeholders live in [`.env.example`](./.env.example).
 
-These values are documented now but intentionally not wired up yet:
+These values are now required for local auth setup:
 - `NEXT_PUBLIC_APP_URL`
 - Clerk keys
+- Clerk auth route vars
 - Supabase keys
 - Stripe keys
 
 Never commit real secrets. Follow the security and environment policies in [AGENTS.md](./AGENTS.md).
+
+Profile persistence is not implemented in this phase. Clerk user data is normalized into an in-memory preview shape only; the real `profiles` table integration will come later with Supabase.
 
 ## Repo Context
 Before implementing features, read:
