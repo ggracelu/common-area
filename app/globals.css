@@ -193,6 +193,90 @@ button {
   }
 }
 
+.gallery-float-slow {
+  animation: gallery-float-slow 7s var(--ease-soft) infinite;
+}
+
+.gallery-marquee {
+  animation: gallery-marquee 22s linear infinite;
+}
+
+.gallery-draw-line {
+  transform-origin: left center;
+  animation: gallery-draw-line 4.8s var(--ease-soft) infinite;
+}
+
+.gallery-pulse {
+  animation: gallery-pulse 5.4s var(--ease-soft) infinite;
+}
+
+.gallery-wiggle {
+  animation: gallery-wiggle 4.8s var(--ease-soft) infinite;
+}
+
+@keyframes gallery-float-slow {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -10px;
+  }
+}
+
+@keyframes gallery-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes gallery-draw-line {
+  0% {
+    transform: scaleX(0.12);
+    opacity: 0.2;
+  }
+
+  45%,
+  70% {
+    transform: scaleX(1);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scaleX(0.12);
+    opacity: 0.2;
+  }
+}
+
+@keyframes gallery-pulse {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: scale(0.92);
+  }
+
+  50% {
+    opacity: 0.32;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes gallery-wiggle {
+  0%,
+  100% {
+    transform: rotate(-0.35deg);
+  }
+
+  50% {
+    transform: rotate(0.35deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -209,7 +293,13 @@ button {
 
   .lift-hover:hover,
   .scrap-tilt-left,
-  .scrap-tilt-right {
+  .scrap-tilt-right,
+  .gallery-float-slow,
+  .gallery-marquee,
+  .gallery-draw-line,
+  .gallery-pulse,
+  .gallery-wiggle {
     transform: none;
+    translate: 0 0;
   }
 }

@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:main": "next dev -p 3000",
+    "dev:gallery": "node scripts/gallery-proxy.mjs",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
