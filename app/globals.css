@@ -3684,15 +3684,26 @@ button {
 }
 
 .v16-root .v15-p-b {
-  right: 18px;
+  right: 0;
+  width: min(520px, 96%);
+  transform: translateX(-28px) rotate(1.1deg);
 }
 
 .v16-root .v15-marquee-track {
   font-family: var(--v16-mono, var(--font-mono));
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  font-size: 0.78rem;
   color: rgba(0, 0, 0, 0.62);
+}
+
+@media (max-width: 520px) {
+  .v16-root .v15-p-b {
+    left: 6%;
+    right: auto;
+    width: 92%;
+    transform: rotate(0.6deg);
+  }
 }
 
 .v16-marquee {
