@@ -197,8 +197,20 @@ button {
   animation: gallery-float-slow 7s var(--ease-soft) infinite;
 }
 
+.gallery-float-slower {
+  animation: gallery-float-slow 9.5s var(--ease-soft) infinite;
+}
+
 .gallery-marquee {
   animation: gallery-marquee 22s linear infinite;
+}
+
+.gallery-radio-ticker {
+  animation: gallery-radio-ticker 28s linear infinite;
+}
+
+.gallery-party-marquee {
+  animation: gallery-radio-ticker 20s linear infinite;
 }
 
 .gallery-draw-line {
@@ -214,6 +226,81 @@ button {
   animation: gallery-wiggle 4.8s var(--ease-soft) infinite;
 }
 
+.gallery-reveal-up {
+  animation: gallery-reveal-up 520ms var(--ease-soft) both;
+}
+
+.gallery-onair-dot {
+  height: 0.55rem;
+  width: 0.55rem;
+  border-radius: 999px;
+  background: #ff3b2e;
+  box-shadow: 0 0 0 0 rgba(255, 59, 46, 0.55);
+  animation: gallery-onair 1.35s var(--ease-soft) infinite;
+}
+
+.gallery-spotlight {
+  animation: gallery-spotlight 10s var(--ease-soft) infinite;
+}
+
+.gallery-fan-card {
+  transform-origin: 50% 30%;
+  transition:
+    transform var(--duration-base) var(--ease-soft),
+    box-shadow var(--duration-base) var(--ease-soft);
+}
+
+.gallery-fan-card:hover {
+  transform: rotate(calc((-4deg + (var(--fan-index) * 2deg)))) translateY(-4px);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.4);
+}
+
+.gallery-steam-stack {
+  position: relative;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.gallery-steam {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+  transform: translateX(-50%);
+  opacity: 0;
+  animation: gallery-steam 2.9s var(--ease-soft) infinite;
+}
+
+.gallery-steam-delay {
+  animation-delay: 0.6s;
+}
+
+.gallery-steam-delay2 {
+  animation-delay: 1.2s;
+}
+
+.gallery-pin-bob {
+  animation: gallery-pin-bob 3.6s var(--ease-soft) infinite;
+}
+
+.gallery-flyer-stack {
+  transition:
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+}
+
+.gallery-flyer-stack:hover {
+  transform: translateY(-6px) rotate(0deg);
+  box-shadow: 0 34px 90px rgba(26, 23, 22, 0.22);
+}
+
+.gallery-sticker-wiggle {
+  animation: gallery-sticker-wiggle 3.2s var(--ease-soft) infinite;
+}
+
 @keyframes gallery-float-slow {
   0%,
   100% {
@@ -226,6 +313,16 @@ button {
 }
 
 @keyframes gallery-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes gallery-radio-ticker {
   from {
     transform: translateX(0);
   }
@@ -277,6 +374,78 @@ button {
   }
 }
 
+@keyframes gallery-reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gallery-onair {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 59, 46, 0.35);
+    filter: saturate(1);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 59, 46, 0);
+    filter: saturate(1.15);
+  }
+}
+
+@keyframes gallery-spotlight {
+  0%,
+  100% {
+    transform: translateY(-6px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 0.9;
+  }
+}
+
+@keyframes gallery-steam {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.8);
+  }
+  25% {
+    opacity: 0.9;
+  }
+  70% {
+    opacity: 0.22;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-28px) scale(1.5);
+  }
+}
+
+@keyframes gallery-pin-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes gallery-sticker-wiggle {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -295,11 +464,22 @@ button {
   .scrap-tilt-left,
   .scrap-tilt-right,
   .gallery-float-slow,
+  .gallery-float-slower,
   .gallery-marquee,
+  .gallery-radio-ticker,
+  .gallery-party-marquee,
   .gallery-draw-line,
   .gallery-pulse,
-  .gallery-wiggle {
+  .gallery-wiggle,
+  .gallery-reveal-up,
+  .gallery-spotlight,
+  .gallery-pin-bob,
+  .gallery-sticker-wiggle {
     transform: none;
     translate: 0 0;
+  }
+
+  .gallery-onair-dot {
+    animation: none;
   }
 }
