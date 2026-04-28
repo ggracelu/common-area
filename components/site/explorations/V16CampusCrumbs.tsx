@@ -323,8 +323,9 @@ export function V16CampusCrumbsSite() {
               </div>
 
               <div className="relative">
-                <div className="v16-marquee" aria-hidden="true">
-                  <div className="v16-marquee-track">
+                {/* Intentionally reuse v15 hero classes for an identical look */}
+                <div className="v15-marquee" aria-hidden="true">
+                  <div className="v15-marquee-track">
                     <span>COMMON AREA</span>
                     <span>NO SWIPING</span>
                     <span>SHOW UP</span>
@@ -337,29 +338,29 @@ export function V16CampusCrumbsSite() {
                 </div>
 
                 {/* 3 photos total */}
-                <div className="v16-collage">
-                  <figure className="v16-polaroid v16-p-a">
-                    <img className="v16-img" src={u.vinyl} alt="A vinyl record on a record player under warm light." loading="lazy" decoding="async" />
-                    <figcaption className="v16-cap">Photo via Unsplash.</figcaption>
+                <div className="v15-collage">
+                  <figure className="v15-polaroid v15-p-a">
+                    <img className="v15-img" src={u.vinyl} alt="A vinyl record on a record player under warm light." loading="lazy" decoding="async" />
+                    <figcaption className="v15-cap">Photo via Unsplash.</figcaption>
                   </figure>
-                  <figure className="v16-polaroid v16-p-b">
-                    <img className="v16-img" src={u.bulletin} alt="A bulletin board packed with posters and flyers." loading="lazy" decoding="async" />
-                    <figcaption className="v16-cap">Photo via Unsplash.</figcaption>
+                  <figure className="v15-polaroid v15-p-b">
+                    <img className="v15-img" src={u.bulletin} alt="A bulletin board packed with posters and flyers." loading="lazy" decoding="async" />
+                    <figcaption className="v15-cap">Photo via Unsplash.</figcaption>
                   </figure>
-                  <figure className="v16-polaroid v16-p-c">
-                    <img className="v16-img" src={u.laughter} alt="Friends laughing together under warm string lights." loading="lazy" decoding="async" />
-                    <figcaption className="v16-cap">Photo via Unsplash.</figcaption>
+                  <figure className="v15-polaroid v15-p-c">
+                    <img className="v15-img" src={u.laughter} alt="Friends laughing together under warm string lights." loading="lazy" decoding="async" />
+                    <figcaption className="v15-cap">Photo via Unsplash.</figcaption>
                   </figure>
 
-                  <aside className="v16-sticky v16-s-1">
-                    <p className="v16-sticky-k">Crumbs note</p>
-                    <p className="v16-sticky-t">“No swiping. Just show up.”</p>
+                  <aside className="v15-sticky v15-s-1">
+                    <p className="v15-sticky-k">Crumbs note</p>
+                    <p className="v15-sticky-t">“No swiping. Just show up.”</p>
                   </aside>
 
-                  <div className="v16-icon-row" aria-label="Icons">
-                    <img src="/streamline/pixel/calendar.svg" alt="" className="v16-icon" aria-hidden="true" />
-                    <img src="/streamline/pixel/compass.svg" alt="" className="v16-icon" aria-hidden="true" />
-                    <img src="/streamline/pixel/pin.svg" alt="" className="v16-icon" aria-hidden="true" />
+                  <div className="v15-icon-row" aria-label="Icons">
+                    <img src="/streamline/pixel/calendar.svg" alt="" className="v15-icon" aria-hidden="true" />
+                    <img src="/streamline/pixel/compass.svg" alt="" className="v15-icon" aria-hidden="true" />
+                    <img src="/streamline/pixel/pin.svg" alt="" className="v15-icon" aria-hidden="true" />
                   </div>
                 </div>
               </div>
