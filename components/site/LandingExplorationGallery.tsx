@@ -11,6 +11,7 @@ import { HowItWorks } from "@/components/site/HowItWorks";
 import { SeasonPreview } from "@/components/site/SeasonPreview";
 import { SocialProof } from "@/components/site/SocialProof";
 import { WhyCohorts } from "@/components/site/WhyCohorts";
+import { MrmBrasilInspiredSite } from "@/components/site/explorations/MrmBrasilInspired";
 
 type CSSVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -113,6 +114,16 @@ export const explorationVersions = [
     palette: "Paper, neon-ish accents, ink, tape beige",
     typography: "Loud all-caps sans display + serif pull-quotes + casual body.",
     motion: "Sticker wiggle + flyer overlap lift + loud marquee announcements + collage hover transforms.",
+  },
+  {
+    slug: "mrm-bw-overlap",
+    number: "11",
+    title: "MRM BW Overlap",
+    description:
+      "A black/white base with loud accent pops and dense overlapping motion. Closely inspired by MRM Brasil’s homepage energy.",
+    palette: "Black/white + neon lime + red + electric blue",
+    typography: "System UI display (heavy) + mono microcopy + brutal hierarchy.",
+    motion: "Cursor layer + marquees + zoom/lift + in-view reveals + overlap stacks.",
   },
 ] as const;
 
@@ -1788,6 +1799,7 @@ export function ExplorationSite({ slug }: { slug: ExplorationSlug }) {
   if (slug === "campus-after-dark") return <CampusAfterDarkSite />;
   if (slug === "field-guide") return <FieldGuideSite />;
   if (slug === "house-party-bulletin") return <HousePartyBulletinSite />;
+  if (slug === "mrm-bw-overlap") return <MrmBrasilInspiredSite />;
   return <YearbookWallSite />;
 }
 
