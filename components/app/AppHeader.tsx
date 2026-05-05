@@ -25,8 +25,8 @@ export function AppHeader() {
             <Badge variant="butter" className="hidden sm:inline-flex rounded-full px-4 py-2 font-[var(--v16-mono)]">
               Crumbs saved you a spot.
             </Badge>
-            <Button href="/season" variant="secondary" size="sm" className="hidden sm:inline-flex">
-              Browse the season
+            <Button href="/bingo" variant="secondary" size="sm" className="hidden sm:inline-flex">
+              Open the bingo card
             </Button>
             <UserButton />
           </div>

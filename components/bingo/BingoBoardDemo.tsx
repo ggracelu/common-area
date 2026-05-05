@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Polaroid } from "@/components/ui/Polaroid";
+import { Crumbs } from "@/components/brand/Crumbs";
 import { demoData, getDemoBusiness, getDemoEvent } from "@/lib/demo-data";
 import {
   getBingoProgress,
@@ -40,7 +41,7 @@ function eventPaperColor(idx: number) {
 export function BingoBoardDemo() {
   const [state, setState] = useState(() => loadDemoState());
   const [open, setOpen] = useState<OpenTile>(null);
-  const [lastBonusStamp, setLastBonusStamp] = useState<{ tileId: string; at: number } | null>(null);
+  const [bonusStampFlashId, setBonusStampFlashId] = useState<string | null>(null);
   const tiles = demoData.bingoTiles;
   useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
 
@@ -58,7 +59,10 @@ export function BingoBoardDemo() {
     const next = toggleBingoTile(tileId);
     setState(next);
     if (!wasStamped && kind === "challenge") {
-      setLastBonusStamp({ tileId, at: Date.now() });
+      setBonusStampFlashId(tileId);
+      window.setTimeout(() => {
+        setBonusStampFlashId((current) => (current === tileId ? null : current));
+      }, 650);
     }
   }
 
@@ -74,6 +78,10 @@ export function BingoBoardDemo() {
         <p className="mt-2 text-sm leading-6 text-[color:rgba(37,34,30,0.72)]">
           $20 deposit → <span className="font-semibold">$5 discounts</span> off each event you complete. We match cohorts based on shared picks.
         </p>
+        <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs font-semibold text-black/70 shadow-[0_18px_55px_rgba(52,36,24,0.10)]">
+          <Crumbs size="md" pose="curious" expression="neutral" animated />
+          <span>Crumbs tip: pick overlap-y plans. Recognition happens on week 2.</span>
+        </div>
       </div>
 
       <div className="mx-auto w-full max-w-[760px]">
@@ -95,6 +103,64 @@ export function BingoBoardDemo() {
               "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.02),rgba(0,0,0,0.02)_1px,transparent_1px,transparent_6px)] before:opacity-40 before:content-['']",
             ].join(" ")}
           >
+            {/* Little shapes (stars + squiggles) */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+              <svg
+                className="scrap-shape scrap-shape-star scrap-shape-a"
+                viewBox="0 0 64 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M32 4l7.2 20.2L60 24.7 43.2 37l6.6 20.8L32 46.3 14.2 57.8 20.8 37 4 24.7l20.8-.5L32 4Z"
+                  stroke="rgba(0,0,0,0.55)"
+                  strokeWidth="2.4"
+                  fill="rgba(233,255,107,0.55)"
+                />
+              </svg>
+              <svg
+                className="scrap-shape scrap-shape-squig scrap-shape-b"
+                viewBox="0 0 120 56"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  className="scrap-squiggle-path"
+                  d="M6 36c10-16 22-16 32 0s22 16 32 0 22-16 32 0"
+                  stroke="rgba(26,92,255,0.55)"
+                  strokeWidth="4.2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <svg
+                className="scrap-shape scrap-shape-star scrap-shape-c"
+                viewBox="0 0 64 64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M32 6l6.4 17.9 18.6.4-15 11 5.7 18.3L32 43.5 16.3 53.6 22 35.3 7 24.3l18.6-.4L32 6Z"
+                  stroke="rgba(0,0,0,0.5)"
+                  strokeWidth="2.2"
+                  fill="rgba(255,47,184,0.18)"
+                />
+              </svg>
+              <svg
+                className="scrap-shape scrap-shape-squig scrap-shape-d"
+                viewBox="0 0 120 56"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  className="scrap-squiggle-path-2"
+                  d="M8 22c12 14 24 14 36 0s24-14 36 0 24 14 36 0"
+                  stroke="rgba(189,98,63,0.55)"
+                  strokeWidth="4.2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+
             {/* Tape corners */}
             <div aria-hidden="true" className="scrap-tape scrap-tape-tl" />
             <div aria-hidden="true" className="scrap-tape scrap-tape-tr" />
@@ -123,10 +189,7 @@ export function BingoBoardDemo() {
                 const isBonus = tile.kind === "challenge";
                 const isEvent = tile.kind === "event";
                 const stamped = state.bingo.completedTileIds.includes(tile.id);
-                const bonusJustStamped =
-                  Boolean(lastBonusStamp) &&
-                  lastBonusStamp!.tileId === tile.id &&
-                  Date.now() - lastBonusStamp!.at < 1400;
+                const bonusJustStamped = isBonus && bonusStampFlashId === tile.id;
                 const selected = tile.eventId ? state.selectedEventIds.includes(tile.eventId) : false;
                 const disabledSelect = isEvent && tile.eventId && !selected && !canSelectMore;
                 const isCenter = idx === 12 && isFree;
@@ -225,6 +288,8 @@ export function BingoBoardDemo() {
                 .scrap-sticker-a, .scrap-sticker-b { animation: none !important; }
                 .scrap-star { animation: none !important; }
                 .scrap-stamp-pop { animation: none !important; }
+                .scrap-shape { animation: none !important; }
+                .scrap-squiggle-path, .scrap-squiggle-path-2 { animation: none !important; stroke-dashoffset: 0 !important; }
               }
 
               /* Torn paper edge */
@@ -352,6 +417,55 @@ export function BingoBoardDemo() {
               @keyframes starPop {
                 0%, 100% { transform: scale(1) rotate(-2deg); }
                 50% { transform: scale(1.08) rotate(2deg); }
+              }
+
+              /* Shapes */
+              .scrap-shape{
+                position:absolute;
+                opacity: 0.9;
+                filter: drop-shadow(0 18px 45px rgba(52,36,24,0.16));
+                transform-origin: 50% 50%;
+              }
+              .scrap-shape-star{ width: 52px; height: 52px; }
+              .scrap-shape-squig{ width: 118px; height: 56px; }
+
+              .scrap-shape-a{ left: -6px; top: 92px; transform: rotate(-10deg); animation: shapeDriftA 6.8s ease-in-out infinite; }
+              .scrap-shape-b{ right: -26px; top: 112px; transform: rotate(8deg); animation: shapeDriftB 7.4s ease-in-out infinite; }
+              .scrap-shape-c{ right: 18px; bottom: 74px; transform: rotate(14deg); animation: shapeDriftC 8.2s ease-in-out infinite; }
+              .scrap-shape-d{ left: 10px; bottom: 36px; transform: rotate(-6deg); animation: shapeDriftB 7.9s ease-in-out infinite; }
+
+              @keyframes shapeDriftA{
+                0%,100%{ transform: translateY(0) rotate(-10deg) scale(1); opacity: 0.88; }
+                50%{ transform: translateY(-8px) rotate(-6deg) scale(1.03); opacity: 1; }
+              }
+              @keyframes shapeDriftB{
+                0%,100%{ transform: translateY(0) rotate(8deg) scale(1); opacity: 0.86; }
+                50%{ transform: translateY(-9px) rotate(5deg) scale(1.03); opacity: 1; }
+              }
+              @keyframes shapeDriftC{
+                0%,100%{ transform: translateY(0) rotate(14deg) scale(1); opacity: 0.86; }
+                50%{ transform: translateY(-7px) rotate(18deg) scale(1.02); opacity: 1; }
+              }
+
+              .scrap-squiggle-path{
+                stroke-dasharray: 120;
+                stroke-dashoffset: 120;
+                animation: squigDraw 4.8s ease-in-out infinite;
+              }
+              .scrap-squiggle-path-2{
+                stroke-dasharray: 120;
+                stroke-dashoffset: 0;
+                animation: squigDraw2 5.6s ease-in-out infinite;
+              }
+              @keyframes squigDraw{
+                0%{ stroke-dashoffset: 120; opacity: 0.45; }
+                45%{ stroke-dashoffset: 0; opacity: 0.9; }
+                100%{ stroke-dashoffset: -120; opacity: 0.45; }
+              }
+              @keyframes squigDraw2{
+                0%{ stroke-dashoffset: -120; opacity: 0.45; }
+                45%{ stroke-dashoffset: 0; opacity: 0.9; }
+                100%{ stroke-dashoffset: 120; opacity: 0.45; }
               }
             `}</style>
           </div>

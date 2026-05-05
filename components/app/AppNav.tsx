@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const appLinks = [
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Season", href: "/season" },
+  { label: "Season", href: "/bingo" },
   { label: "Cohort", href: "/cohort" },
   { label: "Bingo", href: "/bingo" },
   { label: "Profile", href: "/profile" },

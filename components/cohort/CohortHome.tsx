@@ -51,8 +51,8 @@ export function CohortHome() {
             on overlapping picks.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Button href="/season/select" variant="secondary">
-              Pick events
+            <Button href="/bingo" variant="secondary">
+              Pick experiences
             </Button>
             <Button
               variant="primary"

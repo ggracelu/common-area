@@ -5,7 +5,7 @@ export default function SignInPage() {
   return (
     <AuthShell
       title="Sign in to Common Area."
-      description="Come back to your dashboard, check your onboarding progress, and keep your Chicago social rhythm moving."
+      description="Your bingo card is your season passport: pick 4 experiences, collect stamps, then meet your cohort when matching drops."
     >
       <div className="flex justify-center py-4">
         <SignIn

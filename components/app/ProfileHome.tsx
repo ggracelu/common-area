@@ -88,8 +88,8 @@ export function ProfileHome() {
             <Button size="sm" variant="secondary" onClick={() => setPromptIndex((i) => i + 1)}>
               Shuffle prompt
             </Button>
-            <Button size="sm" variant="ghost" href="/season/select">
-              Pick events
+            <Button size="sm" variant="ghost" href="/bingo">
+              Pick experiences
             </Button>
           </div>
         </div>

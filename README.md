@@ -3,7 +3,7 @@
 Common Area is a seasonal, cohort-based social platform for Gen Z young adults in Chicago. It turns the city into a campus through recurring, interest-driven cohorts hosted by local businesses.
 
 ## Project Overview
-This repository includes the Phase 4 Supabase catalog foundation for Common Area plus Design System v1 implementation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, a real public season page backed by Supabase catalog data, and shared design tokens/primitives aligned with the Common Area brand direction.
+This repository includes the Phase 4 Supabase catalog foundation for Common Area plus Design System v1 implementation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, and shared design tokens/primitives aligned with the Common Area brand direction.
 
 **Demo product depth (client-only)**:
 - To make the signed-in experience feel real while backend flows are still incomplete, the app includes a **demo-only state layer** (local-only) and **centralized realistic mock data**.
@@ -17,15 +17,14 @@ Current scope:
 - Minimal authenticated dashboard shell
 - Supabase client utilities and catalog query helpers
 - Initial schema and seed data for profiles, seasons, activities, and season_activities
-- Public `/season` page backed by Supabase
 - Design system documentation in `docs/DESIGN_SYSTEM.md`
 - Shared UI primitives and global design tokens
 - Environment template for future integrations
-- Demo-only onboarding/product depth for `/dashboard`, `/season/select`, `/cohort`, `/cohort/chat`, `/bingo`, and `/profile` (local-only persistence)
+- Demo-only onboarding/product depth for `/dashboard`, `/cohort`, `/cohort/chat`, `/bingo`, and `/profile` (local-only persistence)
 
 Not implemented yet:
-- Stripe payment flow
-- Activity selection
+- Stripe payment flow (UI wired, server routes scaffolded, but only works when Stripe + Clerk + Supabase secrets are configured)
+- Activity selection (the demo flow currently uses `/bingo` as the season “passport”)
 - Cohort assignment
 - Chat
 - Bingo prompts
@@ -33,6 +32,7 @@ Not implemented yet:
 Demo note:
 - Activity selection, matching, bingo, and chat **are demo interactions only** right now.
 - Demo progress is stored in `localStorage` so the experience feels coherent while the real database-backed versions are built.
+ - Stripe endpoints exist (`/api/checkout`, `/api/webhooks/stripe`) but are **gated** and return `501` unless secrets are configured. The UI does not claim payment completion unless webhook-confirmed server state exists.
 
 Key files:
 - `lib/demo-data.ts`: centralized sample businesses, events, cohorts (60 users total), bingo tiles, and seeded chat messages
@@ -108,7 +108,7 @@ npm run dev
 - Visit `/sign-in` to authenticate
 - Confirm protected routes like `/dashboard` redirect unauthenticated users to sign in
 - Confirm the signed-in header shows `Dashboard`, `Season`, `Cohort`, `Bingo`, and the Clerk `UserButton`
-- Visit `/season` to confirm the active season and six activities load from Supabase
+- Visit `/bingo` to see the season’s experiences presented in the bingo card format
 
 ## Available Commands
 - `npm run dev` starts the local development server

@@ -5,7 +5,7 @@ export default function SignUpPage() {
   return (
     <AuthShell
       title="Join the season before the room fills up."
-      description="Create your account now. Real season signup, deposits, and activity selection come next, but the Common Area auth foundation is ready."
+      description="You’re joining a 6-week season. You’ll commit to 4 experiences, put down a $20 deposit, then get matched into a 20-person cohort based on overlap after the one-week signup window closes."
     >
       <div className="flex justify-center py-4">
         <SignUp
