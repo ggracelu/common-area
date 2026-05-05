@@ -137,3 +137,14 @@ Before implementing features, read:
 - [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 - [docs/DATA_MODEL.md](./docs/DATA_MODEL.md)
 - [docs/BUILD_PHASES.md](./docs/BUILD_PHASES.md)
+
+## Parallel Agent Workflow
+
+This project supports parallel development with multiple agents. See the following resources for coordination:
+
+- [docs/AGENT_HANDOFF.md](docs/AGENT_HANDOFF.md) - Multichat workflow, branch strategy, and handoff guide
+- [docs/QA_CHECKLIST.md](docs/QA_CHECKLIST.md) - Manual QA flows for all features
+- [docs/SECURITY_CHECKLIST.md](docs/SECURITY_CHECKLIST.md) - Security rules and checks
+- [.board/](.board/) - Ticket board with all feature tickets
+
+Before starting work, always read the relevant ticket in `.board/` and follow the agent handoff guide.

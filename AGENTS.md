@@ -178,3 +178,17 @@ Build in this order and do not skip foundational dependencies:
 - Preserve cross-file consistency in naming and workflow.
 - Do not introduce features that conflict with MVP non-goals.
 - When making schema or architecture choices, align them to the docs unless the user explicitly changes the plan.
+
+## Agent Handoff
+
+Agents must read the board ticket before modifying code, keep changes scoped, run lint/typecheck/build, and summarize touched files before handoff.
+
+See [docs/AGENT_HANDOFF.md](docs/AGENT_HANDOFF.md) for the complete multichat workflow guide, including:
+- Branch and worktree strategy
+- File ownership guidelines
+- How to avoid merge conflicts
+- How to write PR summaries
+- When to stop and ask the human
+- Exact commands for quality gates
+
+See [.board/](.board/) for all feature tickets with clear ownership, scope, and handoff notes.
