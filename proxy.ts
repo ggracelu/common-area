@@ -1,20 +1,9 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+// Temporary middleware - Clerk authentication disabled
+// Re-enable by restoring proxy.ts.backup and configuring Clerk keys
 
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/season/select(.*)",
-  "/cohort(.*)",
-  "/cohort/chat(.*)",
-  "/bingo(.*)",
-  "/profile(.*)",
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  // Only protect routes if Clerk is properly configured
-  if (isProtectedRoute(req) && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
-    await auth.protect();
-  }
-});
+export default function proxy() {
+  // Pass-through - no authentication
+}
 
 export const config = {
   matcher: [
