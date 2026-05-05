@@ -10,7 +10,8 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
+  // Only protect routes if Clerk is properly configured
+  if (isProtectedRoute(req) && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
     await auth.protect();
   }
 });
