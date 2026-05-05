@@ -1,10 +1,8 @@
-import { currentUser } from "@clerk/nextjs/server";
 import { AppShell } from "@/components/app/AppShell";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Sticker } from "@/components/ui/Sticker";
-import { buildProfilePreviewFromClerkUser } from "@/lib/profile";
 
 const onboardingChecklist = [
   "Profile created",
@@ -37,20 +35,16 @@ const dashboardActions = [
 ];
 
 export default async function DashboardPage() {
-  const user = await currentUser();
-  const profilePreview = buildProfilePreviewFromClerkUser(user);
-  const greetingName = profilePreview.displayName || "there";
-
   return (
     <AppShell
-      title={`Hi, ${greetingName}.`}
-      description="This is the authenticated Common Area shell. Profile persistence, season state, and real onboarding logic will connect in later phases."
+      title="Dashboard preview"
+      description="This is the Common Area app shell. Auth + profile persistence will snap in once Clerk server keys are configured in production."
     >
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <Card variant="scrapbook">
           <Badge variant="rust">Onboarding preview</Badge>
           <h2 className="mt-4 text-2xl font-semibold tracking-tight">
-            Current status: {profilePreview.onboardingStatus.replaceAll("_", " ")}
+            Current status: created
           </h2>
           <ul className="mt-6 grid gap-3">
             {onboardingChecklist.map((item, index) => (
