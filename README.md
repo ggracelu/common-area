@@ -3,7 +3,11 @@
 Common Area is a seasonal, cohort-based social platform for Gen Z young adults in Chicago. It turns the city into a campus through recurring, interest-driven cohorts hosted by local businesses.
 
 ## Project Overview
-This repository now includes the Phase 4 Supabase catalog foundation for Common Area plus Design System v1 implementation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, protected route scaffolding, a real public season page backed by Supabase catalog data, and shared design tokens/primitives aligned with the Common Area brand direction. Payments, cohort logic, chat, and bingo persistence are still intentionally deferred.
+This repository includes the Phase 4 Supabase catalog foundation for Common Area plus Design System v1 implementation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, a real public season page backed by Supabase catalog data, and shared design tokens/primitives aligned with the Common Area brand direction.
+
+**Demo product depth (client-only)**:
+- To make the signed-in experience feel real while backend flows are still incomplete, the app includes a **demo-only state layer** (local-only) and **centralized realistic mock data**.
+- This demo layer is intentionally explicit: it **does not claim real payments**, **does not claim webhook confirmation**, and **does not claim realtime chat**.
 
 Current scope:
 - Base Next.js app structure
@@ -17,6 +21,7 @@ Current scope:
 - Design system documentation in `docs/DESIGN_SYSTEM.md`
 - Shared UI primitives and global design tokens
 - Environment template for future integrations
+- Demo-only onboarding/product depth for `/dashboard`, `/season/select`, `/cohort`, `/cohort/chat`, `/bingo`, and `/profile` (local-only persistence)
 
 Not implemented yet:
 - Stripe payment flow
@@ -24,6 +29,14 @@ Not implemented yet:
 - Cohort assignment
 - Chat
 - Bingo prompts
+
+Demo note:
+- Activity selection, matching, bingo, and chat **are demo interactions only** right now.
+- Demo progress is stored in `localStorage` so the experience feels coherent while the real database-backed versions are built.
+
+Key files:
+- `lib/demo-data.ts`: centralized sample businesses, events, cohorts (60 users total), bingo tiles, and seeded chat messages
+- `lib/demo-state.ts`: local-only demo progress store (deposit toggle, selections, matching, bingo, chat composer)
 
 ## Current Project Phase
 This repo is in Phase 4 with the initial Common Area design system now implemented across the public landing page and authenticated placeholder shell.
