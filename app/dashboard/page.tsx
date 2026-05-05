@@ -5,6 +5,9 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Sticker } from "@/components/ui/Sticker";
 import { buildProfilePreviewFromClerkUser } from "@/lib/profile";
+import { getActiveSeason } from "@/lib/catalog";
+import { getDepositForUserAndSeason } from "@/lib/deposits";
+import { JoinSeasonButton } from "@/components/season/JoinSeasonButton";
 
 const onboardingChecklist = [
   "Profile created",
@@ -41,6 +44,41 @@ export default async function DashboardPage() {
   const profilePreview = buildProfilePreviewFromClerkUser(user);
   const greetingName = profilePreview.displayName || "there";
 
+  // Fetch deposit status
+  let depositStatus: "none" | "pending" | "paid" | "failed" | "refunded" = "none";
+  let depositId: string | null = null;
+
+  if (user?.id) {
+    const season = await getActiveSeason();
+    if (season) {
+      const deposit = await getDepositForUserAndSeason(user.id, season.id);
+      if (deposit) {
+        depositStatus = deposit.status;
+        depositId = deposit.id;
+      }
+    }
+  }
+
+  const depositStatusText = {
+    none: "Deposit pending",
+    pending: "Deposit started",
+    paid: "Deposit paid",
+    failed: "Deposit failed",
+    refunded: "Deposit refunded",
+  }[depositStatus];
+
+  const depositBadgeVariant: "sticker" | "neutral" | "butter" | "moss" | "rust" | "sky" = (() => {
+    switch (depositStatus) {
+      case "paid":
+        return "moss";
+      case "failed":
+      case "refunded":
+        return "rust";
+      default:
+        return "neutral";
+    }
+  })();
+
   return (
     <AppShell
       title={`Hi, ${greetingName}.`}
@@ -52,6 +90,19 @@ export default async function DashboardPage() {
           <h2 className="mt-4 text-2xl font-semibold tracking-tight">
             Current status: {profilePreview.onboardingStatus.replaceAll("_", " ")}
           </h2>
+          <div className="mt-6">
+            <Badge variant={depositBadgeVariant}>{depositStatusText}</Badge>
+            {depositStatus === "paid" && (
+              <p className="mt-3 text-sm text-[color:rgba(37,34,30,0.72)]">
+                Next step: Pick activities
+              </p>
+            )}
+            {depositStatus === "failed" && (
+              <div className="mt-3">
+                <JoinSeasonButton />
+              </div>
+            )}
+          </div>
           <ul className="mt-6 grid gap-3">
             {onboardingChecklist.map((item, index) => (
               <li

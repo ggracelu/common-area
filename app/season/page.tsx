@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Sticker } from "@/components/ui/Sticker";
+import { JoinSeasonButton } from "@/components/season/JoinSeasonButton";
 import { getActiveSeasonWithActivities } from "@/lib/catalog";
 
 function formatSeasonDates(start: string | null, end: string | null) {
@@ -109,7 +110,7 @@ export default async function SeasonPage() {
                     {state.season.tagline ?? "Turn your city into a campus."}
                   </p>
                   <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <Button href="/sign-up">Join the Chicago season</Button>
+                    <JoinSeasonButton />
                     <Button href="/sign-in" variant="secondary">
                       Sign in
                     </Button>

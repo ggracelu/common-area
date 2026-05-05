@@ -17,9 +17,10 @@ Current scope:
 - Design system documentation in `docs/DESIGN_SYSTEM.md`
 - Shared UI primitives and global design tokens
 - Environment template for future integrations
+- Stripe deposit flow with webhook-confirmed payment state
+- Deposits table with RLS policies
 
 Not implemented yet:
-- Stripe payment flow
 - Activity selection
 - Cohort assignment
 - Chat
@@ -75,6 +76,8 @@ NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SECRET_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 ```
 
 4. Start the development server:
@@ -87,6 +90,7 @@ npm run dev
 
 6. Apply the initial Supabase schema manually:
 - Run the SQL in `supabase/migrations/202604280001_catalog_foundation.sql`
+- Run the SQL in `supabase/migrations/202604280002_deposits.sql`
 - Then run `supabase/seed.sql`
 - You can do this in the Supabase SQL editor or your preferred database workflow
 
@@ -96,6 +100,30 @@ npm run dev
 - Confirm protected routes like `/dashboard` redirect unauthenticated users to sign in
 - Confirm the signed-in header shows `Dashboard`, `Season`, `Cohort`, `Bingo`, and the Clerk `UserButton`
 - Visit `/season` to confirm the active season and six activities load from Supabase
+- Test the Stripe deposit flow by clicking "Join the Chicago season"
+
+## Stripe Testing
+
+### Local Test Card
+For local testing, use Stripe's test card number:
+- Card number: `4242 4242 4242 4242`
+- Expiry: Any future date (e.g., `12/34`)
+- CVC: Any 3 digits (e.g., `123`)
+- ZIP: Any 5 digits (e.g., `12345`)
+
+### Webhook Testing
+Payment state is confirmed only through verified Stripe webhooks. Never trust client query params like `?deposit=success` as proof of payment.
+
+To test webhooks locally:
+1. Install the Stripe CLI: `stripe login` then `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
+2. Copy the webhook secret from the CLI output
+3. Add it to `.env.local` as `STRIPE_WEBHOOK_SECRET`
+4. Test the checkout flow and watch webhook events in the CLI
+
+The webhook handler processes:
+- `checkout.session.completed` - Marks deposit as paid
+- `checkout.session.expired` - Marks deposit as failed
+- `payment_intent.payment_failed` - Marks deposit as failed
 
 ## Available Commands
 - `npm run dev` starts the local development server
