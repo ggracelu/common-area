@@ -5,7 +5,7 @@ export default async function BingoPage() {
   return (
     <AppShell
       title="Bingo"
-      description="A scrapbooky 3×3 passport of event stamps + bonus side quests. Demo progress is local-only."
+      description="Select any 4 experiences. Your bingo card is the mechanism for discovery, sign-up, and bonus gamification."
     >
       <BingoBoardDemo />
     </AppShell>
