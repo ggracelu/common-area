@@ -73,7 +73,8 @@ export function Crumbs({
   reducedMotion: propReducedMotion,
   className = "",
 }: CrumbsProps) {
-  const reduced = propReducedMotion ?? useReducedMotion();
+  const reducedFromMedia = useReducedMotion();
+  const reduced = propReducedMotion ?? reducedFromMedia;
   const { pose: cyclePose, expression: cycleExpression } = usePoseCycle(animated && !reduced);
 
   const pose = propPose ?? cyclePose;
