@@ -1,0 +1,194 @@
+/* Crumbs the Cat Mascot Styles */
+
+/* Base mascot container */
+.crumbs-mascot {
+  display: inline-block;
+  position: relative;
+  line-height: 0;
+}
+
+/* Static state for reduced motion */
+.crumbs-static .crumbs-pose,
+.crumbs-static .crumbs-tail,
+.crumbs-static .crumbs-zzz {
+  animation: none !important;
+}
+
+/* Pose transitions */
+.crumbs-pose {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.crumbs-pose-sit,
+.crumbs-pose-curl,
+.crumbs-pose-nap,
+.crumbs-pose-stretch,
+.crumbs-pose-yawn,
+.crumbs-pose-play,
+.crumbs-pose-curious,
+.crumbs-pose-sleepy {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.crumbs-pose-sit { opacity: 1; }
+.crumbs-pose-curl { opacity: 0; }
+.crumbs-pose-nap { opacity: 0; }
+.crumbs-pose-stretch { opacity: 0; }
+.crumbs-pose-yawn { opacity: 0; }
+.crumbs-pose-play { opacity: 0; }
+.crumbs-pose-curious { opacity: 0; }
+.crumbs-pose-sleepy { opacity: 0; }
+
+/* Tail animations */
+@keyframes tailWagSlow {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+@keyframes tailWagFast {
+  0%, 100% { transform: rotate(-12deg); }
+  50% { transform: rotate(12deg); }
+}
+
+.crumbs-tail-slow {
+  animation: tailWagSlow 2s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+.crumbs-tail-fast {
+  animation: tailWagFast 0.8s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+/* Zzz animation */
+@keyframes zzzFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  20% {
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scale(1.1);
+  }
+}
+
+@keyframes zzzFloatSlow {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  25% {
+    opacity: 0.85;
+  }
+  75% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(1.1);
+  }
+}
+
+.crumbs-zzz .crumbs-z-1 {
+  animation: zzzFloat 3s ease-out infinite;
+  animation-delay: 0s;
+}
+
+.crumbs-zzz .crumbs-z-2 {
+  animation: zzzFloat 3s ease-out infinite;
+  animation-delay: 1s;
+}
+
+.crumbs-zzz .crumbs-z-3 {
+  animation: zzzFloat 3s ease-out infinite;
+  animation-delay: 2s;
+}
+
+.crumbs-zzz-slow .crumbs-z-1 {
+  animation: zzzFloatSlow 4s ease-out infinite;
+  animation-delay: 0s;
+}
+
+.crumbs-zzz-slow .crumbs-z-2 {
+  animation: zzzFloatSlow 4s ease-out infinite;
+  animation-delay: 1.5s;
+}
+
+.crumbs-zzz-slow .crumbs-z-3 {
+  animation: zzzFloatSlow 4s ease-out infinite;
+  animation-delay: 3s;
+}
+
+/* Crumbs copy styling */
+.crumbs-copy {
+  font-style: italic;
+  color: rgba(10, 10, 10, 0.7);
+}
+
+/* Size variants */
+.crumbs-mascot[data-size="sm"] {
+  font-size: 0.75rem;
+}
+
+.crumbs-mascot[data-size="md"] {
+  font-size: 1rem;
+}
+
+.crumbs-mascot[data-size="lg"] {
+  font-size: 1.5rem;
+}
+
+.crumbs-mascot[data-size="xl"] {
+  font-size: 2rem;
+}
+
+/* Hover effect for interactive Crumbs */
+.crumbs-mascot:hover .crumbs-pose {
+  filter: brightness(1.05);
+}
+
+/* Focus styles for accessibility */
+.crumbs-mascot:focus-visible {
+  outline: 2px solid #1A5CFF;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Print styles */
+@media print {
+  .crumbs-mascot {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .crumbs-mascot .crumbs-pose,
+  .crumbs-mascot .crumbs-tail,
+  .crumbs-mascot .crumbs-zzz {
+    animation: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .crumbs-mascot svg {
+    filter: contrast(1.2);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .crumbs-copy {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
