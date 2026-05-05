@@ -133,7 +133,17 @@ export function DashboardDemo() {
         <Sticker className="mt-7">Showing up counts.</Sticker>
       </Card>
 
-      {canSeeMatching ? <PostcardMatchAnimation status={effectiveStatus as any} /> : null}
+      {canSeeMatching ? (
+        <PostcardMatchAnimation
+          status={
+            effectiveStatus === "mailing" ||
+            effectiveStatus === "pending" ||
+            effectiveStatus === "assigned"
+              ? effectiveStatus
+              : "pending"
+          }
+        />
+      ) : null}
     </main>
   );
 }

@@ -16,49 +16,56 @@ function pixelRects(rows: string[], pixel: number, palette: Record<string, strin
   return rects;
 }
 
+// Same limited palette + grid as `Crumbs` (hard edges, readable tabby read).
 const palette = {
   ".": "transparent",
-  G: "#0a0a0a",
-  K: "#c7c7c7",
-  W: "#f5f1ea",
-  P: "#8d8d8d",
-  B: "#1A5CFF", // screen glow
-  Y: "#E9FF6B", // highlight
+  G: "#121212",
+  K: "#c8c8c8",
+  L: "#adadad",
+  W: "#f3ece4",
+  P: "#5a5a5a",
+  R: "#3a3a3a",
+  E: "#e8b9be",
+  N: "#d9959c",
+  B: "#1A5CFF",
+  Y: "#E9FF6B",
 } satisfies Record<string, string>;
 
-// 20x14 frames. Glasses + laptop, subtle paw movement.
+// 22×15 frames: tabby M + cheek stripes, blackout shades, laptop; B-frame adds key highlight.
 const frameA = [
-  "....................",
-  ".....GGGGGGGG.......",
-  "....GKKKKKKKKG......",
-  "...GKKPPKKPPKKG.....",
-  "...GKKGGGGGGKKG.....",
-  "...GKKGWWWWGKKG.....",
-  "....GKKGGGGKKG......",
-  ".....GGKKKKGG.......",
-  "........GG..........",
-  "...GGGGGGGGGGGG.....",
-  "..GWWWWWWWWWWWWG....",
-  "..GWWBBBBBBBBWWG....",
-  "...GGGGGGGGGGGG.....",
-  "....................",
+  "......................",
+  "......GGG......GGG....",
+  ".....GEEKG....GEEKG...",
+  ".....GKPPKGGGGKPPKG...",
+  "....GGKKPPKKKKPPKKGG..",
+  "....GGGGGGGGGGGGGG....",
+  "...GKKKKWNWWNWKKKKKG..",
+  "...GKKKKKNPPNKKKKKKG..",
+  "....GKKKKKKLLKKKKG....",
+  ".....GGKKKKKKKKGG.....",
+  ".........GG...........",
+  "..GGGGGGGGGGGG........",
+  ".GWWWWWWWWWWWWG.......",
+  ".GWWBBBBBBBBWWG.......",
+  "..GGGGGGGGGGGG........",
 ];
 
 const frameB = [
-  "....................",
-  ".....GGGGGGGG.......",
-  "....GKKKKKKKKG......",
-  "...GKKPPKKPPKKG.....",
-  "...GKKGGGGGGKKG.....",
-  "...GKKGWWWWGKKG.....",
-  "....GKKGGGGKKG......",
-  ".....GGKKKKGG.......",
-  "........GG..........",
-  "...GGGGGGGGGGGG.....",
-  "..GWWWWWWWWWWWWG....",
-  "..GWWBBBBBBBBWWG....",
-  "...GGGGGGGGGGGG.....",
-  "........Y...........",
+  "......................",
+  "......GGG......GGG....",
+  ".....GEEKG....GEEKG...",
+  ".....GKPPKGGGGKPPKG...",
+  "....GGKKPPKKKKPPKKGG..",
+  "....GGGGGGGGGGGGGG....",
+  "...GKKKKWNWWNWKKKKKG..",
+  "...GKKKKKNPPNKKKKKKG..",
+  "....GKKKKKKLLKKKKG....",
+  ".....GGKKKKKKKKGG.....",
+  ".........GG...........",
+  "..GGGGGGGGGGGG........",
+  ".GWWWWWWWWWWWWG.......",
+  ".GWWBBBBBBBBWWG.......",
+  "..GGGGGGYGGGGG........",
 ];
 
 export function CrumbsTyping({ size = 80 }: { size?: number }) {
