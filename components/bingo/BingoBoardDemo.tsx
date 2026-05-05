@@ -45,7 +45,9 @@ export function BingoBoardDemo() {
   const [open, setOpen] = useState<OpenTile>(null);
   const [bonusStampFlashId, setBonusStampFlashId] = useState<string | null>(null);
   const [eggClicks, setEggClicks] = useState(0);
-  const [submitPhase, setSubmitPhase] = useState<"card" | "folding" | "envelope" | "paid">("card");
+  const [submitPhase, setSubmitPhase] = useState<
+    "card" | "fold1" | "fold2" | "insert" | "stripe"
+  >("card");
   const tiles = demoData.bingoTiles;
   useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
 
@@ -74,8 +76,10 @@ export function BingoBoardDemo() {
 
   function onSubmit() {
     if (selectedCount < required) return;
-    setSubmitPhase("folding");
-    window.setTimeout(() => setSubmitPhase("envelope"), 700);
+    setSubmitPhase("fold1");
+    window.setTimeout(() => setSubmitPhase("fold2"), 520);
+    window.setTimeout(() => setSubmitPhase("insert"), 980);
+    window.setTimeout(() => setSubmitPhase("stripe"), 1500);
   }
 
   return (
@@ -117,7 +121,6 @@ export function BingoBoardDemo() {
               "relative mx-auto overflow-hidden rounded-[2.2rem] border border-black/12 p-4 shadow-[0_28px_95px_rgba(52,36,24,0.14)]",
               "bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(247,240,228,0.78))]",
               "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.02),rgba(0,0,0,0.02)_1px,transparent_1px,transparent_6px)] before:opacity-40 before:content-['']",
-              submitPhase === "folding" ? "scrap-folding" : "",
             ].join(" ")}
           >
             {/* Little shapes (stars + squiggles) */}
@@ -467,120 +470,210 @@ export function BingoBoardDemo() {
       {submitPhase !== "card" ? (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
-          <div className="absolute left-1/2 top-1/2 w-[min(92vw,42rem)] -translate-x-1/2 -translate-y-1/2 p-3">
-            <div className="relative overflow-hidden rounded-[2rem] border border-black/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(247,240,228,0.92))] p-6 shadow-[0_28px_95px_rgba(0,0,0,0.22)]">
-              <Badge variant="neutral">Submit</Badge>
-              <h3 className="mt-4 text-3xl font-black tracking-tight">Envelope time.</h3>
-              <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">
-                Secure your spot by paying the <span className="font-semibold">$20 deposit</span>. Then you’re all set — we’ll notify you once your cohort is finalized after Summer 2026 sign-ups close.
-              </p>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:items-end">
-                <div className="rounded-[1.8rem] border border-black/10 bg-white/75 p-5">
-                  <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Deposit</p>
-                  <p className="mt-2 text-lg font-semibold">
-                    Status: <span className="font-black">{state.depositStatus}</span>
-                  </p>
-                  <p className="mt-2 text-sm text-black/60">
-                    Stripe is a mockup unless secrets are configured. We don’t claim payment without webhook-confirmed server state.
-                  </p>
-                </div>
-
-                <div className="grid gap-2">
-                  <JoinSeasonButton />
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      const next = setDepositStatus("paid");
-                      setState(next);
-                      setSubmitPhase("paid");
-                    }}
-                  >
-                    Mock: mark deposit paid
-                  </Button>
-                </div>
+          {/* Step-by-step folding + envelope insert */}
+          <div className="pointer-events-none absolute left-1/2 top-1/2 w-[min(92vw,44rem)] -translate-x-1/2 -translate-y-1/2 p-3">
+            <div className="relative mx-auto h-[360px] w-full">
+              <div className={`scrap-fold-stage ${submitPhase}`}>
+                <div className="scrap-fold-card" />
+                <div className="scrap-fold-top" />
+                <div className="scrap-fold-bottom" />
+                <div className="scrap-fold-envelope" />
               </div>
+            </div>
+          </div>
 
-              {state.depositStatus === "paid" ? (
-                <div className="mt-6 grid gap-3">
-                  <Sticker>You’re all set. Matching happens after sign-ups close.</Sticker>
-                  <div className="flex flex-col gap-3 sm:flex-row">
+          {/* Stripe prompt appears after insert */}
+          {submitPhase === "stripe" ? (
+            <div className="absolute left-1/2 top-1/2 w-[min(92vw,42rem)] -translate-x-1/2 -translate-y-1/2 p-3">
+              <div className="relative overflow-hidden rounded-[2rem] border border-black/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(247,240,228,0.94))] p-6 shadow-[0_28px_95px_rgba(0,0,0,0.22)]">
+                <Badge variant="neutral">Deposit</Badge>
+                <h3 className="mt-4 text-3xl font-black tracking-tight">Secure your spot.</h3>
+                <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">
+                  Pay the <span className="font-semibold">$20 deposit</span>. You’re all set — we’ll notify you once your cohort is finalized after Summer 2026 sign-ups close.
+                </p>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:items-end">
+                  <div className="rounded-[1.8rem] border border-black/10 bg-white/75 p-5">
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Status</p>
+                    <p className="mt-2 text-lg font-semibold">
+                      {state.depositStatus === "paid" ? "Paid" : state.depositStatus === "pending" ? "Pending" : "Not started"}
+                    </p>
+                    <p className="mt-2 text-sm text-black/60">
+                      This is a mockup unless secrets are configured. No payment claims without webhook-confirmed server state.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-2">
+                    <JoinSeasonButton />
                     <Button
-                      variant="primary"
-                      disabled={!readyToMail}
+                      variant="secondary"
                       onClick={() => {
-                        const next = mailPostcardForMatching();
+                        const next = setDepositStatus("paid");
                         setState(next);
-                        window.location.href = "/cohort";
                       }}
                     >
-                      Mail my envelope
-                    </Button>
-                    <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
-                      Back to card
+                      Mock: mark deposit paid
                     </Button>
                   </div>
                 </div>
-              ) : (
-                <div className="mt-6">
-                  <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
-                    Not yet
-                  </Button>
-                </div>
-              )}
 
-              <div aria-hidden="true" className="pointer-events-none absolute -right-8 -bottom-10">
-                <div className="scrap-envelope" />
+                {state.depositStatus === "paid" ? (
+                  <div className="mt-6 grid gap-3">
+                    <Sticker>Matching will run after sign-ups close.</Sticker>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <Button
+                        variant="primary"
+                        disabled={!readyToMail}
+                        onClick={() => {
+                          const next = mailPostcardForMatching();
+                          setState(next);
+                          window.location.href = "/dashboard";
+                        }}
+                      >
+                        Start matching
+                      </Button>
+                      <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
+                        Back to card
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-6">
+                    <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
+                      Not yet
+                    </Button>
+                  </div>
+                )}
               </div>
-
-              <style>{`
-                .scrap-folding{
-                  transform-origin: 50% 20%;
-                  animation: foldToEnvelope 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
-                }
-                @keyframes foldToEnvelope{
-                  0%{ transform: rotateX(0deg) scale(1); filter: saturate(1); }
-                  100%{ transform: rotateX(72deg) scale(0.86); filter: saturate(0.95); }
-                }
-                .scrap-envelope{
-                  width: 240px;
-                  height: 170px;
-                  border-radius: 28px;
-                  border: 1px solid rgba(0,0,0,0.14);
-                  background:
-                    linear-gradient(135deg, rgba(255,255,255,0.9), rgba(242,231,216,0.95));
-                  box-shadow: 0 28px 95px rgba(0,0,0,0.18);
-                  position: relative;
-                  transform: rotate(-8deg);
-                  opacity: 0.95;
-                }
-                .scrap-envelope:before{
-                  content: '';
-                  position: absolute;
-                  left: 16px;
-                  right: 16px;
-                  top: 18px;
-                  bottom: 18px;
-                  border-radius: 20px;
-                  border: 1px dashed rgba(0,0,0,0.16);
-                  opacity: 0.65;
-                }
-                .scrap-envelope:after{
-                  content:'';
-                  position:absolute;
-                  left: 16px;
-                  right: 16px;
-                  top: 54px;
-                  height: 1px;
-                  background: rgba(0,0,0,0.14);
-                  transform: rotate(-2deg);
-                }
-                @media (prefers-reduced-motion: reduce){
-                  .scrap-folding{ animation: none !important; transform: none !important; }
-                }
-              `}</style>
             </div>
-          </div>
+          ) : null}
+
+          <style>{`
+            @media (prefers-reduced-motion: reduce){
+              .scrap-fold-stage, .scrap-fold-card, .scrap-fold-top, .scrap-fold-bottom { animation:none !important; transition:none !important; }
+            }
+
+            .scrap-fold-stage{
+              position:absolute;
+              left: 50%;
+              top: 50%;
+              width: min(520px, 86vw);
+              height: 320px;
+              transform: translate(-50%,-50%);
+              perspective: 1200px;
+              filter: drop-shadow(0 28px 95px rgba(0,0,0,0.22));
+            }
+
+            .scrap-fold-card{
+              position:absolute;
+              inset: 0;
+              border-radius: 34px;
+              border: 1px solid rgba(0,0,0,0.14);
+              background:
+                linear-gradient(135deg, rgba(255,255,255,0.92), rgba(247,240,228,0.92));
+              box-shadow: 0 18px 55px rgba(52,36,24,0.16);
+            }
+            .scrap-fold-card:before{
+              content:'';
+              position:absolute;
+              inset: 18px;
+              border-radius: 24px;
+              border: 1px dashed rgba(0,0,0,0.16);
+              opacity: 0.55;
+            }
+
+            .scrap-fold-top, .scrap-fold-bottom{
+              position:absolute;
+              left: 0;
+              right: 0;
+              height: 50%;
+              border-radius: 34px;
+              background:
+                linear-gradient(135deg, rgba(255,255,255,0.82), rgba(242,231,216,0.90));
+              border: 1px solid rgba(0,0,0,0.12);
+              transform-style: preserve-3d;
+              opacity: 0;
+            }
+            .scrap-fold-top{ top: 0; transform-origin: top center; border-bottom: none; }
+            .scrap-fold-bottom{ bottom: 0; transform-origin: bottom center; border-top: none; }
+
+            .scrap-fold-envelope{
+              position:absolute;
+              left: 50%;
+              top: 62%;
+              width: min(460px, 84vw);
+              height: 210px;
+              transform: translate(-50%, -50%);
+              border-radius: 32px;
+              border: 1px solid rgba(0,0,0,0.14);
+              background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(242,231,216,0.98));
+              box-shadow: 0 28px 95px rgba(0,0,0,0.18);
+              opacity: 0;
+            }
+            .scrap-fold-envelope:before{
+              content:'';
+              position:absolute;
+              left: 18px; right: 18px; top: 18px; bottom: 18px;
+              border-radius: 24px;
+              border: 1px dashed rgba(0,0,0,0.16);
+              opacity: 0.6;
+            }
+            .scrap-fold-envelope:after{
+              content:'';
+              position:absolute;
+              left: 0; right: 0; top: 56px; height: 1px;
+              background: rgba(0,0,0,0.14);
+              transform: rotate(-1.2deg);
+            }
+
+            .scrap-fold-stage.fold1 .scrap-fold-top{
+              opacity: 1;
+              animation: foldTop 520ms cubic-bezier(0.22,1,0.36,1) both;
+            }
+            .scrap-fold-stage.fold2 .scrap-fold-top{
+              opacity: 1;
+              transform: rotateX(160deg);
+            }
+            .scrap-fold-stage.fold2 .scrap-fold-bottom{
+              opacity: 1;
+              animation: foldBottom 520ms cubic-bezier(0.22,1,0.36,1) both;
+            }
+            .scrap-fold-stage.insert .scrap-fold-top,
+            .scrap-fold-stage.insert .scrap-fold-bottom{
+              opacity: 1;
+              transform: rotateX(160deg);
+            }
+            .scrap-fold-stage.insert .scrap-fold-envelope{
+              opacity: 1;
+              animation: envelopePop 240ms ease-out both;
+            }
+            .scrap-fold-stage.insert .scrap-fold-card{
+              animation: slideIntoEnvelope 520ms cubic-bezier(0.22,1,0.36,1) both;
+            }
+            .scrap-fold-stage.stripe{
+              opacity: 0;
+              transform: translate(-50%,-50%) scale(0.98);
+              transition: opacity 220ms ease;
+            }
+
+            @keyframes foldTop{
+              0%{ transform: rotateX(0deg); }
+              100%{ transform: rotateX(160deg); }
+            }
+            @keyframes foldBottom{
+              0%{ transform: rotateX(0deg); }
+              100%{ transform: rotateX(-160deg); }
+            }
+            @keyframes envelopePop{
+              from{ transform: translate(-50%,-50%) scale(0.96); }
+              to{ transform: translate(-50%,-50%) scale(1); }
+            }
+            @keyframes slideIntoEnvelope{
+              0%{ transform: translateY(0) scale(1); opacity: 1; }
+              100%{ transform: translateY(70px) scale(0.82); opacity: 0.15; }
+            }
+          `}</style>
         </div>
       ) : null}
 
