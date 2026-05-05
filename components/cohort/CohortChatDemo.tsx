@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
-import { Crumbs } from "@/components/brand/Crumbs";
 import { demoData, getDemoChatThread, getDemoUser } from "@/lib/demo-data";
 import { addChatMessage, loadDemoState } from "@/lib/demo-state";
 
@@ -51,10 +50,6 @@ export function CohortChatDemo() {
             <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
               Seeded messages are part of the demo. Anything you send is saved on this device only — not persisted or realtime.
             </p>
-            <div className="mt-5 inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs font-semibold text-black/70">
-              <Crumbs size="md" pose="curl" expression="sleepy" animated />
-              <span>Crumbs moderates by falling asleep mid-thread.</span>
-            </div>
           </div>
           <Sticker>Say hi. Then leave after an hour.</Sticker>
         </div>

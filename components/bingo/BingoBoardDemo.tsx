@@ -5,7 +5,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Polaroid } from "@/components/ui/Polaroid";
+import { Sticker } from "@/components/ui/Sticker";
 import { Crumbs } from "@/components/brand/Crumbs";
+import { JoinSeasonButton } from "@/components/season/JoinSeasonButton";
 import { demoData, getDemoBusiness, getDemoEvent } from "@/lib/demo-data";
 import {
   getBingoProgress,
@@ -42,6 +44,8 @@ export function BingoBoardDemo() {
   const [state, setState] = useState(() => loadDemoState());
   const [open, setOpen] = useState<OpenTile>(null);
   const [bonusStampFlashId, setBonusStampFlashId] = useState<string | null>(null);
+  const [eggClicks, setEggClicks] = useState(0);
+  const [submitPhase, setSubmitPhase] = useState<"card" | "folding" | "envelope" | "paid">("card");
   const tiles = demoData.bingoTiles;
   useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
 
@@ -49,6 +53,8 @@ export function BingoBoardDemo() {
   const selectedCount = state.selectedEventIds.length;
   const canSelectMore = selectedCount < required;
   const readyToMail = state.depositStatus === "paid" && selectedCount >= required;
+  const canDoBonusChallenges = state.matching.status === "assigned";
+  const showCrumbsEgg = eggClicks >= 5;
 
   const openTile = open ? tiles.find((t) => t.id === open.tileId) ?? null : null;
   const openEvent = openTile?.eventId ? getDemoEvent(openTile.eventId) : null;
@@ -66,6 +72,12 @@ export function BingoBoardDemo() {
     }
   }
 
+  function onSubmit() {
+    if (selectedCount < required) return;
+    setSubmitPhase("folding");
+    window.setTimeout(() => setSubmitPhase("envelope"), 700);
+  }
+
   return (
     <div className="mx-auto grid max-w-[980px] gap-4">
       <div className="mx-auto w-full max-w-[760px] text-center">
@@ -78,10 +90,15 @@ export function BingoBoardDemo() {
         <p className="mt-2 text-sm leading-6 text-[color:rgba(37,34,30,0.72)]">
           $20 deposit → <span className="font-semibold">$5 discounts</span> off each event you complete. We match cohorts based on shared picks.
         </p>
-        <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs font-semibold text-black/70 shadow-[0_18px_55px_rgba(52,36,24,0.10)]">
-          <Crumbs size="md" pose="curious" expression="neutral" animated />
-          <span>Crumbs tip: pick overlap-y plans. Recognition happens on week 2.</span>
-        </div>
+        <button
+          type="button"
+          className="mt-4 inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs font-semibold text-black/70 shadow-[0_18px_55px_rgba(52,36,24,0.10)]"
+          onClick={() => setEggClicks((n) => n + 1)}
+          aria-label="Bingo card note"
+        >
+          <span>Tip: pick overlap-y plans. Recognition happens on week 2.</span>
+          {showCrumbsEgg ? <Crumbs size="sm" pose="sit" expression="neutral" animated /> : null}
+        </button>
       </div>
 
       <div className="mx-auto w-full max-w-[760px]">
@@ -99,8 +116,8 @@ export function BingoBoardDemo() {
             className={[
               "relative mx-auto overflow-hidden rounded-[2.2rem] border border-black/12 p-4 shadow-[0_28px_95px_rgba(52,36,24,0.14)]",
               "bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(247,240,228,0.78))]",
-              "scrap-torn",
               "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.02),rgba(0,0,0,0.02)_1px,transparent_1px,transparent_6px)] before:opacity-40 before:content-['']",
+              submitPhase === "folding" ? "scrap-folding" : "",
             ].join(" ")}
           >
             {/* Little shapes (stars + squiggles) */}
@@ -193,6 +210,7 @@ export function BingoBoardDemo() {
                 const selected = tile.eventId ? state.selectedEventIds.includes(tile.eventId) : false;
                 const disabledSelect = isEvent && tile.eventId && !selected && !canSelectMore;
                 const isCenter = idx === 12 && isFree;
+                const lockedBonus = isBonus && !canDoBonusChallenges;
 
                 const paperClass = isBonus
                   ? "bg-[color:rgba(40,40,40,0.10)]"
@@ -204,7 +222,11 @@ export function BingoBoardDemo() {
                   <button
                     key={tile.id}
                     type="button"
-                    onClick={() => setOpen({ tileId: tile.id })}
+                    onClick={() => {
+                      if (lockedBonus) return;
+                      setOpen({ tileId: tile.id });
+                    }}
+                    disabled={lockedBonus}
                     className={[
                       "group relative aspect-square overflow-hidden rounded-[1.25rem] border border-black/12 p-3 text-left shadow-[0_14px_38px_rgba(52,36,24,0.12)]",
                       "transition-transform hover:-translate-y-[2px] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]",
@@ -215,6 +237,7 @@ export function BingoBoardDemo() {
                         ? "border-[3px] border-[var(--color-accent-dark)] shadow-[0_18px_55px_rgba(26,92,255,0.20)] ring-2 ring-[color:rgba(233,255,107,0.65)]"
                         : "",
                       disabledSelect ? "opacity-70" : "",
+                      lockedBonus ? "opacity-60 cursor-not-allowed" : "",
                     ].join(" ")}
                   >
                     <div className="relative z-10 flex h-full flex-col justify-between">
@@ -249,9 +272,11 @@ export function BingoBoardDemo() {
                               Stamped
                             </span>
                           ) : null}
-                          <span className="rounded-full bg-black/10 px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black/75">
-                            {tile.stampLabel}
-                          </span>
+                          {lockedBonus ? (
+                            <span className="rounded-full bg-black/10 px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black/70">
+                              Locked
+                            </span>
+                          ) : null}
                         </div>
                       )}
                     </div>
@@ -290,49 +315,6 @@ export function BingoBoardDemo() {
                 .scrap-stamp-pop { animation: none !important; }
                 .scrap-shape { animation: none !important; }
                 .scrap-squiggle-path, .scrap-squiggle-path-2 { animation: none !important; stroke-dashoffset: 0 !important; }
-              }
-
-              /* Torn paper edge */
-              .scrap-torn{
-                clip-path: polygon(
-                  0% 6%,
-                  4% 3%,
-                  10% 5%,
-                  16% 2%,
-                  22% 5%,
-                  28% 3%,
-                  34% 5%,
-                  40% 2%,
-                  46% 4%,
-                  52% 2%,
-                  58% 5%,
-                  64% 3%,
-                  70% 5%,
-                  76% 2%,
-                  82% 5%,
-                  88% 3%,
-                  94% 5%,
-                  100% 2%,
-                  100% 100%,
-                  94% 97%,
-                  88% 99%,
-                  82% 96%,
-                  76% 99%,
-                  70% 96%,
-                  64% 99%,
-                  58% 96%,
-                  52% 99%,
-                  46% 96%,
-                  40% 99%,
-                  34% 96%,
-                  28% 99%,
-                  22% 96%,
-                  16% 99%,
-                  10% 96%,
-                  4% 99%,
-                  0% 96%
-                );
-                box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
               }
 
               /* Tape corners */
@@ -475,12 +457,132 @@ export function BingoBoardDemo() {
       <div className="mx-auto flex w-full max-w-[760px] justify-center pt-1">
         <Button
           variant="primary"
-          disabled={!readyToMail}
-          onClick={() => setState(mailPostcardForMatching())}
+          disabled={selectedCount < required}
+          onClick={onSubmit}
         >
           Ready to submit
         </Button>
       </div>
+
+      {submitPhase !== "card" ? (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/35 backdrop-blur-[2px]" />
+          <div className="absolute left-1/2 top-1/2 w-[min(92vw,42rem)] -translate-x-1/2 -translate-y-1/2 p-3">
+            <div className="relative overflow-hidden rounded-[2rem] border border-black/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(247,240,228,0.92))] p-6 shadow-[0_28px_95px_rgba(0,0,0,0.22)]">
+              <Badge variant="neutral">Submit</Badge>
+              <h3 className="mt-4 text-3xl font-black tracking-tight">Envelope time.</h3>
+              <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">
+                Secure your spot by paying the <span className="font-semibold">$20 deposit</span>. Then you’re all set — we’ll notify you once your cohort is finalized after Summer 2026 sign-ups close.
+              </p>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:items-end">
+                <div className="rounded-[1.8rem] border border-black/10 bg-white/75 p-5">
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Deposit</p>
+                  <p className="mt-2 text-lg font-semibold">
+                    Status: <span className="font-black">{state.depositStatus}</span>
+                  </p>
+                  <p className="mt-2 text-sm text-black/60">
+                    Stripe is a mockup unless secrets are configured. We don’t claim payment without webhook-confirmed server state.
+                  </p>
+                </div>
+
+                <div className="grid gap-2">
+                  <JoinSeasonButton />
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      const next = setDepositStatus("paid");
+                      setState(next);
+                      setSubmitPhase("paid");
+                    }}
+                  >
+                    Mock: mark deposit paid
+                  </Button>
+                </div>
+              </div>
+
+              {state.depositStatus === "paid" ? (
+                <div className="mt-6 grid gap-3">
+                  <Sticker>You’re all set. Matching happens after sign-ups close.</Sticker>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button
+                      variant="primary"
+                      disabled={!readyToMail}
+                      onClick={() => {
+                        const next = mailPostcardForMatching();
+                        setState(next);
+                        window.location.href = "/cohort";
+                      }}
+                    >
+                      Mail my envelope
+                    </Button>
+                    <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
+                      Back to card
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-6">
+                  <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
+                    Not yet
+                  </Button>
+                </div>
+              )}
+
+              <div aria-hidden="true" className="pointer-events-none absolute -right-8 -bottom-10">
+                <div className="scrap-envelope" />
+              </div>
+
+              <style>{`
+                .scrap-folding{
+                  transform-origin: 50% 20%;
+                  animation: foldToEnvelope 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+                }
+                @keyframes foldToEnvelope{
+                  0%{ transform: rotateX(0deg) scale(1); filter: saturate(1); }
+                  100%{ transform: rotateX(72deg) scale(0.86); filter: saturate(0.95); }
+                }
+                .scrap-envelope{
+                  width: 240px;
+                  height: 170px;
+                  border-radius: 28px;
+                  border: 1px solid rgba(0,0,0,0.14);
+                  background:
+                    linear-gradient(135deg, rgba(255,255,255,0.9), rgba(242,231,216,0.95));
+                  box-shadow: 0 28px 95px rgba(0,0,0,0.18);
+                  position: relative;
+                  transform: rotate(-8deg);
+                  opacity: 0.95;
+                }
+                .scrap-envelope:before{
+                  content: '';
+                  position: absolute;
+                  left: 16px;
+                  right: 16px;
+                  top: 18px;
+                  bottom: 18px;
+                  border-radius: 20px;
+                  border: 1px dashed rgba(0,0,0,0.16);
+                  opacity: 0.65;
+                }
+                .scrap-envelope:after{
+                  content:'';
+                  position:absolute;
+                  left: 16px;
+                  right: 16px;
+                  top: 54px;
+                  height: 1px;
+                  background: rgba(0,0,0,0.14);
+                  transform: rotate(-2deg);
+                }
+                @media (prefers-reduced-motion: reduce){
+                  .scrap-folding{ animation: none !important; transform: none !important; }
+                }
+              `}</style>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {openTile ? (
         <div className="fixed inset-0 z-50">
@@ -539,7 +641,7 @@ export function BingoBoardDemo() {
                 ) : null}
                 <Button
                   variant={state.bingo.completedTileIds.includes(openTile.id) ? "secondary" : "sticker"}
-                  disabled={openTile.kind === "free"}
+                  disabled={openTile.kind === "free" || (openTile.kind === "challenge" && !canDoBonusChallenges)}
                   onClick={() => stampTile(openTile.id, openTile.kind)}
                 >
                   {openTile.kind === "free"

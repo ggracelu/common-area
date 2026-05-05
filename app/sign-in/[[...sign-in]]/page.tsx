@@ -1,12 +1,9 @@
 import { SignIn } from "@clerk/nextjs";
-import { AuthShell } from "@/components/site/AuthShell";
+import { MinimalAuthShell } from "@/components/site/MinimalAuthShell";
 
 export default function SignInPage() {
   return (
-    <AuthShell
-      title="Sign in to Common Area."
-      description="Your bingo card is your season passport: pick 4 experiences, collect stamps, then meet your cohort when matching drops."
-    >
+    <MinimalAuthShell title="Sign in.">
       <div className="flex justify-center py-4">
         <SignIn
           path="/sign-in"
@@ -27,6 +24,6 @@ export default function SignInPage() {
           }}
         />
       </div>
-    </AuthShell>
+    </MinimalAuthShell>
   );
 }
