@@ -3,6 +3,7 @@ import type { Activity, FaqItem, Highlight, NavLink, Step } from "@/types/site";
 export const navLinks: NavLink[] = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Season", href: "#season" },
+  { label: "Third Places", href: "#third-places" },
   { label: "Crumbs", href: "#crumbs" },
   { label: "FAQ", href: "#faq" },
 ];
