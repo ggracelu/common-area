@@ -105,7 +105,7 @@ export type DemoCohort = {
   whyThisCohortWorks: string[];
 };
 
-export type DemoBingoTileKind = "event" | "challenge";
+export type DemoBingoTileKind = "event" | "challenge" | "free";
 
 export type DemoBingoTile = {
   id: string;
@@ -115,6 +115,12 @@ export type DemoBingoTile = {
   points: number;
   eventId?: string;
   stampLabel: string;
+  photo?: {
+    url: string;
+    alt: string;
+    title: string;
+    caption?: string;
+  };
 };
 
 export type DemoChatMessage = {
@@ -631,81 +637,256 @@ const cohorts: DemoCohort[] = [
 ];
 
 const bingoTiles: DemoBingoTile[] = [
+  // 5x5 board, row-major. Center (index 12) is the Free space.
+  // Activities (6 total) are color-coded and count toward the 4 picks.
+  // Bonus challenges are gray.
+
+  // Row 1
   {
     id: "tile_evt_pottery",
     kind: "event",
-    title: "Show up to Pottery After Dark",
-    description: "Make something crooked. Be proud anyway.",
+    title: "Pottery After Dark",
+    description: "Wheel basics + glaze snacks. Crooked is allowed.",
     points: 25,
     eventId: "evt_pottery_after_dark",
     stampLabel: "CLAY HANDS",
   },
   {
-    id: "tile_evt_cafe",
+    id: "tile_bonus_walk_home_song",
+    kind: "challenge",
+    title: "Find someone’s embarrassing walk-home song",
+    description: "No judging (some judging).",
+    points: 10,
+    stampLabel: "AUDIO LORE",
+    photo: {
+      url: "https://images.unsplash.com/photo-1520975897531-0b89b4d8b3a0?auto=format&fit=crop&w=2200&q=80",
+      alt: "A pair of headphones on a table.",
+      title: "Audio lore",
+      caption: "Photo via Unsplash.",
+    },
+  },
+  {
+    id: "tile_bonus_weird_dessert",
+    kind: "challenge",
+    title: "Split one weird dessert",
+    description: "Leadership. Community. Sugar.",
+    points: 10,
+    stampLabel: "DESSERT QUEST",
+    photo: {
+      url: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=2200&q=80",
+      alt: "A dessert on a plate.",
+      title: "Dessert quest",
+      caption: "Photo via Unsplash.",
+    },
+  },
+  {
+    id: "tile_evt_mural_walk",
     kind: "event",
-    title: "Do the Café Crawl",
-    description: "Three cups. One afternoon. No pressure to be interesting on demand.",
+    title: "Mural Walk: Pilsen Lines",
+    description: "Walk-and-talk with color and context.",
+    points: 20,
+    eventId: "evt_pilsen_mural_walk",
+    stampLabel: "CITY STROLL",
+  },
+  {
+    id: "tile_bonus_tote_bags",
+    kind: "challenge",
+    title: "Spot the 14 tote bag person",
+    description: "Bonus if they justify every one.",
+    points: 8,
+    stampLabel: "TOTE SPOTTER",
+    photo: {
+      url: "https://images.unsplash.com/photo-1520975661595-6453be3f7070?auto=format&fit=crop&w=2200&q=80",
+      alt: "A tote bag hanging from a chair.",
+      title: "Tote spotter",
+      caption: "Photo via Unsplash.",
+    },
+  },
+
+  // Row 2
+  {
+    id: "tile_bonus_campus_cat",
+    kind: "challenge",
+    title: "Name a campus café cat",
+    description: "Write it down. Important research.",
+    points: 8,
+    stampLabel: "CAT NAMING",
+  },
+  {
+    id: "tile_evt_cafe_crawl",
+    kind: "event",
+    title: "Café Crawl",
+    description: "Three cups. One afternoon.",
     points: 20,
     eventId: "evt_cafe_crawl",
     stampLabel: "CAFFEINATED",
   },
   {
-    id: "tile_evt_comedy",
-    kind: "event",
-    title: "Go to Small Room Comedy",
-    description: "Laugh together. It counts as bonding.",
-    points: 20,
-    eventId: "evt_small_room_comedy",
-    stampLabel: "LOL RECEIPT",
-  },
-  {
-    id: "tile_challenge_walk_home_song",
+    id: "tile_bonus_chaotic_meal",
     kind: "challenge",
-    title: "Find someone’s embarrassing walk-home song",
-    description: "The more unhinged, the better. No judging (some judging).",
-    points: 15,
-    stampLabel: "AUDIO LORE",
-  },
-  {
-    id: "tile_challenge_weird_dessert",
-    kind: "challenge",
-    title: "Convince the table to split one weird dessert",
-    description: "This is leadership. This is community.",
-    points: 15,
-    stampLabel: "DESSERT QUEST",
-  },
-  {
-    id: "tile_challenge_tote_bag",
-    kind: "challenge",
-    title: "Spot the person most likely to own 14 tote bags",
-    description: "Bonus if they can justify every single one.",
+    title: "Reveal chaotic comfort meal",
+    description: "Cereal at 10pm counts.",
     points: 10,
-    stampLabel: "TOTE SPOTTER",
+    stampLabel: "MEAL LORE",
+    photo: {
+      url: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=2200&q=80",
+      alt: "A cozy meal on a table.",
+      title: "Chaotic comfort meal",
+      caption: "Photo via Unsplash.",
+    },
   },
   {
-    id: "tile_challenge_campus_cat_name",
-    kind: "challenge",
-    title: "Ask: what would you name a campus café cat?",
-    description: "Write it down. This is important research.",
-    points: 10,
-    stampLabel: "CAT NAMING",
-  },
-  {
-    id: "tile_challenge_side_quest",
+    id: "tile_bonus_side_quest",
     kind: "challenge",
     title: "Start a side quest",
-    description: "Tiny mission. Gentle stakes. Dramatic narration optional.",
-    points: 20,
+    description: "Tiny mission. Gentle stakes.",
+    points: 15,
     stampLabel: "SIDE QUEST",
   },
   {
     id: "tile_evt_board_games",
     kind: "event",
-    title: "Play Board Game Night",
-    description: "Pick your emergency side-quest role and commit to it.",
+    title: "Board Game Night",
+    description: "No rules lawyers allowed.",
     points: 20,
     eventId: "evt_board_game_bracket",
     stampLabel: "GAME NIGHT",
+  },
+
+  // Row 3
+  {
+    id: "tile_bonus_farmers_market_cry",
+    kind: "challenge",
+    title: "Find who cries at a farmers market",
+    description: "Respectfully.",
+    points: 8,
+    stampLabel: "SOFT HEART",
+  },
+  {
+    id: "tile_bonus_neighbor_rec",
+    kind: "challenge",
+    title: "Trade niche Chicago recs",
+    description: "Gatekeeping banned.",
+    points: 10,
+    stampLabel: "REC SWAP",
+  },
+  {
+    id: "tile_free_space",
+    kind: "free",
+    title: "FREE SPACE",
+    description: "Comes with joining a cohort.",
+    points: 0,
+    stampLabel: "JOINED",
+  },
+  {
+    id: "tile_bonus_hometown_lore",
+    kind: "challenge",
+    title: "Extract hometown lore",
+    description: "Deeply unserious required.",
+    points: 10,
+    stampLabel: "LORE DROP",
+  },
+  {
+    id: "tile_evt_bookshop",
+    kind: "event",
+    title: "Bookshop Browsing",
+    description: "Bulletin board spotting encouraged.",
+    points: 20,
+    eventId: "evt_bookstore_browsing",
+    stampLabel: "PAPER FIND",
+  },
+
+  // Row 4
+  {
+    id: "tile_bonus_which_room",
+    kind: "challenge",
+    title: "Claim a fictional room",
+    description: "Be specific. Be dramatic.",
+    points: 8,
+    stampLabel: "ROOM CLAIM",
+  },
+  {
+    id: "tile_evt_flower_bar",
+    kind: "event",
+    title: "Flower Bar Craft Night",
+    description: "Make something pretty on purpose.",
+    points: 20,
+    eventId: "evt_flower_bar_mess",
+    stampLabel: "STEM TIME",
+  },
+  {
+    id: "tile_bonus_snack_style",
+    kind: "challenge",
+    title: "Snack = communication style",
+    description: "This is science now.",
+    points: 8,
+    stampLabel: "SNACK SCI",
+  },
+  {
+    id: "tile_bonus_dorm_pack",
+    kind: "challenge",
+    title: "Dorm-room starter pack object",
+    description: "One object. No explanation.",
+    points: 8,
+    stampLabel: "STARTER PACK",
+  },
+  {
+    id: "tile_bonus_make_a_note",
+    kind: "challenge",
+    title: "Leave a note on a bulletin board",
+    description: "Flyer-wall energy.",
+    points: 12,
+    stampLabel: "BULLETIN",
+    photo: {
+      url: "https://images.unsplash.com/photo-1455885666463-38ecf1b5d55f?auto=format&fit=crop&w=2200&q=80",
+      alt: "A bulletin board layered with notes and flyers.",
+      title: "Bulletin board",
+      caption: "Photo via Unsplash.",
+    },
+  },
+
+  // Row 5
+  {
+    id: "tile_evt_pasta",
+    kind: "event",
+    title: "Weeknight Pasta",
+    description: "Pairs. Noodles. Laughs.",
+    points: 25,
+    eventId: "evt_weeknight_pasta",
+    stampLabel: "PASTA MODE",
+  },
+  {
+    id: "tile_bonus_table_role",
+    kind: "challenge",
+    title: "Assign table roles",
+    description: "Navigator, hype, snack finder…",
+    points: 10,
+    stampLabel: "ROLES",
+  },
+  {
+    id: "tile_evt_comedy",
+    kind: "event",
+    title: "Small Room Comedy",
+    description: "Laughing counts as bonding.",
+    points: 20,
+    eventId: "evt_small_room_comedy",
+    stampLabel: "LOL RECEIPT",
+  },
+  {
+    id: "tile_bonus_weird_title",
+    kind: "challenge",
+    title: "Find a weird book title",
+    description: "Read it aloud confidently.",
+    points: 10,
+    stampLabel: "WEIRD TITLE",
+  },
+  {
+    id: "tile_bonus_silly_club",
+    kind: "challenge",
+    title: "Invent a fake student club",
+    description: "Name + mission statement.",
+    points: 12,
+    stampLabel: "CLUB FAIR",
   },
 ];
 

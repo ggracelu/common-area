@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { Sticker } from "@/components/ui/Sticker";
+import { Polaroid } from "@/components/ui/Polaroid";
 import { demoData, getDemoBusiness, getDemoEvent } from "@/lib/demo-data";
 import {
   getBingoProgress,
@@ -25,17 +25,14 @@ function formatDateTime(startsAtISO: string, durationMinutes: number) {
   return `${dateFmt.format(start)} • ${timeFmt.format(start)}–${timeFmt.format(end)}`;
 }
 
-function tileColor(idx: number) {
+function eventPaperColor(idx: number) {
   const colors = [
-    "bg-[color:rgba(233,255,107,0.85)]",
+    "bg-[color:rgba(233,255,107,0.90)]",
+    "bg-[color:rgba(255,184,0,0.26)]",
     "bg-[color:rgba(26,92,255,0.18)]",
     "bg-[color:rgba(255,47,184,0.16)]",
-    "bg-[color:rgba(255,184,0,0.22)]",
     "bg-[color:rgba(191,90,54,0.18)]",
-    "bg-[color:rgba(191,212,223,0.55)]",
-    "bg-[color:rgba(103,114,85,0.18)]",
-    "bg-[color:rgba(232,194,184,0.42)]",
-    "bg-[color:rgba(255,59,46,0.12)]",
+    "bg-[color:rgba(191,212,223,0.60)]",
   ];
   return colors[idx % colors.length]!;
 }
@@ -44,7 +41,7 @@ export function BingoBoardDemo() {
   const [state, setState] = useState(() => loadDemoState());
   const [open, setOpen] = useState<OpenTile>(null);
   const tiles = demoData.bingoTiles;
-  const progress = useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
+  useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
 
   const required = demoData.season.requiredEventCount;
   const selectedCount = state.selectedEventIds.length;
@@ -56,152 +53,220 @@ export function BingoBoardDemo() {
   const openBusiness = openEvent ? getDemoBusiness(openEvent.businessId) : null;
 
   return (
-    <div className="grid gap-6">
-      <Card variant="scrapbook" className="relative overflow-hidden">
-        <div className="relative z-10">
-          <Badge variant="butter">Bingo card</Badge>
-          <h2 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
-            Select any {required} experiences.
-          </h2>
-          <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.74)]">
-            Your $20 deposit becomes <span className="font-semibold">$5 discounts</span> off each event you complete.
-            You’ll be matched with a cohort based on shared interests — aka the experiences you pick in common.
-          </p>
+    <div className="mx-auto grid max-w-[980px] gap-4">
+      <div className="mx-auto w-full max-w-[760px] text-center">
+        <p className="text-[0.72rem] font-black uppercase tracking-[0.22em] text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
+          Summer 2026 bingo card
+        </p>
+        <h2 className="mt-2 text-2xl font-black tracking-tight text-black sm:text-3xl">
+          Select any {required} experiences.
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[color:rgba(37,34,30,0.72)]">
+          $20 deposit → <span className="font-semibold">$5 discounts</span> off each event you complete. We match cohorts based on shared picks.
+        </p>
+      </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-[1.6rem] bg-white/80 p-5">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Selected</p>
-              <p className="mt-3 text-2xl font-semibold">
-                {selectedCount} / {required}
-              </p>
-              <p className="mt-2 text-sm text-black/60">Pick {required} experiences to join the cohort.</p>
-            </div>
-            <div className="rounded-[1.6rem] bg-white/80 p-5">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Deposit</p>
-              <p className="mt-3 text-2xl font-semibold">{state.depositStatus === "paid" ? "Paid" : "$20"}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mx-auto w-full max-w-[760px]">
+        <div className="relative mx-auto">
+          {/* Sticker-ish decorations */}
+          <div aria-hidden="true" className="pointer-events-none absolute -left-4 -top-5 hidden sm:block">
+            <div className="scrap-sticker scrap-sticker-a">BONUS</div>
+          </div>
+          <div aria-hidden="true" className="pointer-events-none absolute -right-6 -bottom-6 hidden sm:block">
+            <div className="scrap-sticker scrap-sticker-b">SHOW UP</div>
+          </div>
+
+          {/* Craft board */}
+          <div
+            className={[
+              "relative mx-auto overflow-hidden rounded-[2.2rem] border border-black/12 p-4 shadow-[0_28px_95px_rgba(52,36,24,0.14)]",
+              "bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(247,240,228,0.78))]",
+              "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.02),rgba(0,0,0,0.02)_1px,transparent_1px,transparent_6px)] before:opacity-40 before:content-['']",
+            ].join(" ")}
+          >
+            <div className="relative z-10 flex items-center justify-between gap-2 px-1 pb-3">
+              <span className="rounded-full bg-black/5 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-black/70">
+                {selectedCount}/{required} selected
+              </span>
+              <div className="flex items-center gap-2">
                 <Button
                   size="sm"
-                  variant={state.depositStatus === "paid" ? "secondary" : "primary"}
-                  onClick={() => setState(setDepositStatus("paid"))}
+                  variant={state.depositStatus === "paid" ? "secondary" : "sticker"}
+                  onClick={() => setState(setDepositStatus(state.depositStatus === "paid" ? "pending" : "paid"))}
                 >
-                  Mark paid (demo)
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setState(setDepositStatus("pending"))}>
-                  Pending
+                  {state.depositStatus === "paid" ? "Deposit: paid" : "Deposit: mark paid (demo)"}
                 </Button>
               </div>
             </div>
-            <div className="rounded-[1.6rem] bg-white/80 p-5">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Bonus stamps</p>
-              <p className="mt-3 text-2xl font-semibold">{progress.completed}</p>
-              <p className="mt-2 text-sm text-black/60">Complete challenges for extra points.</p>
-              <div className="mt-4">
-                <Button
-                  size="sm"
-                  variant="primary"
-                  disabled={!readyToMail}
-                  onClick={() => setState(mailPostcardForMatching())}
-                >
-                  Send to matching
-                </Button>
-              </div>
-            </div>
-          </div>
-          <Sticker className="mt-7">Click a square. It pops open like a real scrapbooking disaster.</Sticker>
-        </div>
 
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-28 -top-28 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(233,255,107,0.45),transparent_62%)]"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-28 -bottom-28 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,47,184,0.20),transparent_62%)]"
-        />
-      </Card>
+            {/* 5x5 grid */}
+            <div className="relative z-10 grid grid-cols-5 gap-2">
+              {tiles.map((tile, idx) => {
+                const isFree = tile.kind === "free";
+                const isBonus = tile.kind === "challenge";
+                const isEvent = tile.kind === "event";
+                const stamped = state.bingo.completedTileIds.includes(tile.id);
+                const selected = tile.eventId ? state.selectedEventIds.includes(tile.eventId) : false;
+                const disabledSelect = isEvent && tile.eventId && !selected && !canSelectMore;
+                const isCenter = idx === 12 && isFree;
 
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-0 rounded-[2.4rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.55),rgba(247,240,228,0.55))]" />
-        <div className="relative rounded-[2.4rem] border border-black/10 bg-[color:rgba(255,255,255,0.70)] p-5 shadow-[0_28px_95px_rgba(52,36,24,0.10)] sm:p-7">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60" style={{ fontFamily: "var(--font-mono)" }}>
-              Construction-paper bingo
-            </p>
-            <span className="rounded-full bg-black/5 px-3 py-1 text-[0.72rem] font-black uppercase tracking-[0.22em] text-black/70">
-              {selectedCount}/{required} selected
-            </span>
-          </div>
+                const paperClass = isBonus
+                  ? "bg-[color:rgba(40,40,40,0.10)]"
+                  : isFree
+                    ? "bg-[color:rgba(255,255,255,0.82)]"
+                    : eventPaperColor(idx);
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            {tiles.map((tile, idx) => {
-              const stamped = state.bingo.completedTileIds.includes(tile.id);
-              const selected = tile.eventId ? state.selectedEventIds.includes(tile.eventId) : false;
-              const disabledSelect = tile.kind === "event" && tile.eventId && !selected && !canSelectMore;
+                return (
+                  <button
+                    key={tile.id}
+                    type="button"
+                    onClick={() => setOpen({ tileId: tile.id })}
+                    className={[
+                      "group relative aspect-square overflow-hidden rounded-[1.25rem] border border-black/12 p-3 text-left shadow-[0_14px_38px_rgba(52,36,24,0.12)]",
+                      "transition-transform hover:-translate-y-[2px] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]",
+                      paperClass,
+                      "before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.55),transparent_58%)] before:content-['']",
+                      disabledSelect ? "opacity-70" : "",
+                    ].join(" ")}
+                  >
+                    <div className="relative z-10 flex h-full flex-col justify-between">
+                      <div>
+                        <p className="text-[0.62rem] font-black uppercase tracking-[0.22em] text-black/65">
+                          {isFree ? "Free" : isEvent ? "Activity" : "Bonus"}
+                        </p>
+                        <p className={`mt-2 font-black leading-5 text-black ${isCenter ? "text-base" : "text-[0.82rem]"}`}>
+                          {tile.title}
+                        </p>
+                        <p className="mt-1 text-[0.7rem] leading-4 text-black/70 line-clamp-2">
+                          {tile.description}
+                        </p>
+                      </div>
 
-              return (
-                <button
-                  key={tile.id}
-                  type="button"
-                  onClick={() => setOpen({ tileId: tile.id })}
-                  className={[
-                    "group relative overflow-hidden rounded-[1.6rem] border border-black/12 p-5 text-left shadow-[0_18px_55px_rgba(52,36,24,0.10)] transition-transform",
-                    "hover:-translate-y-[2px] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]",
-                    tileColor(idx),
-                    "before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.55),transparent_55%)] before:content-['']",
-                    disabledSelect ? "opacity-70" : "",
-                  ].join(" ")}
-                >
-                  <div className="relative z-10">
-                    <p className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-black/70">
-                      {tile.kind === "event" ? "Experience" : "Bonus"} • {tile.points} pts
-                    </p>
-                    <p className="mt-3 text-lg font-black leading-7 text-black">{tile.title}</p>
-                    <p className="mt-2 text-sm leading-6 text-black/70">{tile.description}</p>
-
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-black/10 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-black/80">
-                        {tile.stampLabel}
-                      </span>
-                      {selected ? (
-                        <span className="rounded-full bg-black px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-white">
-                          Selected
-                        </span>
-                      ) : null}
-                      {stamped ? (
-                        <span className="rounded-full bg-white/80 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-black">
-                          Stamped
-                        </span>
-                      ) : null}
+                      {isCenter ? (
+                        <div className="mt-2">
+                          <div className="scrap-star" aria-hidden="true" />
+                          <p className="mt-2 text-[0.68rem] font-black uppercase tracking-[0.22em] text-black/70">
+                            Joined
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                          {selected ? (
+                            <span className="rounded-full bg-black px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-white">
+                              Selected
+                            </span>
+                          ) : null}
+                          {stamped ? (
+                            <span className="rounded-full bg-white/80 px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black">
+                              Stamped
+                            </span>
+                          ) : null}
+                          <span className="rounded-full bg-black/10 px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black/75">
+                            {tile.stampLabel}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  {stamped ? (
-                    <span
-                      aria-hidden="true"
-                      className="pointer-events-none absolute right-4 top-4 -rotate-12 rounded-[0.9rem] border border-black/60 bg-white/85 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-black shadow-[0_12px_30px_rgba(52,36,24,0.12)]"
-                      style={{ fontFamily: "var(--font-mono)" }}
-                    >
-                      OK
-                    </span>
-                  ) : null}
+                    {isCenter ? (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute right-2 top-2 -rotate-6 rounded-[0.85rem] border border-black/60 bg-[color:rgba(255,184,0,0.65)] px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black shadow-[0_12px_30px_rgba(52,36,24,0.18)]"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        FREE
+                      </span>
+                    ) : stamped ? (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute right-2 top-2 -rotate-12 rounded-[0.85rem] border border-black/60 bg-white/85 px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black shadow-[0_12px_30px_rgba(52,36,24,0.12)]"
+                        style={{ fontFamily: "var(--font-mono)" }}
+                      >
+                        OK
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
 
-                  <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -bottom-10 -right-10 h-28 w-28 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.55),transparent_60%)] transition-transform group-hover:scale-110"
-                  />
-                </button>
-              );
-            })}
+            <style>{`
+              @media (prefers-reduced-motion: reduce) {
+                .group { transition: none !important; }
+                .group:hover { transform: none !important; }
+                .scrap-sticker-a, .scrap-sticker-b { animation: none !important; }
+                .scrap-star { animation: none !important; }
+              }
+              .scrap-sticker {
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                border-radius: 999px;
+                border: 1px solid rgba(0,0,0,0.16);
+                padding: 10px 14px;
+                font-size: 0.72rem;
+                font-weight: 900;
+                text-transform: uppercase;
+                letter-spacing: 0.22em;
+                box-shadow: 0 18px 55px rgba(52,36,24,0.14);
+                font-family: var(--font-mono);
+              }
+              .scrap-sticker-a {
+                background: rgba(40,40,40,0.10);
+                transform: rotate(-8deg);
+                animation: stickerFloatA 6.5s ease-in-out infinite;
+              }
+              .scrap-sticker-b {
+                background: rgba(233,255,107,0.70);
+                transform: rotate(10deg);
+                animation: stickerFloatB 7.2s ease-in-out infinite;
+              }
+              @keyframes stickerFloatA {
+                0%, 100% { transform: translateY(0) rotate(-8deg); }
+                50% { transform: translateY(-6px) rotate(-6deg); }
+              }
+              @keyframes stickerFloatB {
+                0%, 100% { transform: translateY(0) rotate(10deg); }
+                50% { transform: translateY(-7px) rotate(8deg); }
+              }
+              .scrap-star {
+                width: 54px;
+                height: 54px;
+                margin-top: 6px;
+                background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.9), rgba(255,184,0,0.92));
+                clip-path: polygon(
+                  50% 0%,
+                  61% 35%,
+                  98% 35%,
+                  68% 57%,
+                  79% 91%,
+                  50% 70%,
+                  21% 91%,
+                  32% 57%,
+                  2% 35%,
+                  39% 35%
+                );
+                border: 1px solid rgba(0,0,0,0.22);
+                box-shadow: 0 18px 55px rgba(52,36,24,0.18);
+                animation: starPop 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+              }
+              @keyframes starPop {
+                0%, 100% { transform: scale(1) rotate(-2deg); }
+                50% { transform: scale(1.08) rotate(2deg); }
+              }
+            `}</style>
           </div>
-
-          <style>{`
-            @media (prefers-reduced-motion: reduce) {
-              .group { transition: none !important; }
-              .group:hover { transform: none !important; }
-            }
-          `}</style>
         </div>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-[760px] justify-center pt-1">
+        <Button
+          variant="primary"
+          disabled={!readyToMail}
+          onClick={() => setState(mailPostcardForMatching())}
+        >
+          Ready to submit: lock in my event choices and officially join a Summer 2026 cohort
+        </Button>
       </div>
 
       {openTile ? (
@@ -212,12 +277,12 @@ export function BingoBoardDemo() {
             onClick={() => setOpen(null)}
             className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
           />
-          <div className="absolute left-1/2 top-1/2 w-[min(92vw,46rem)] -translate-x-1/2 -translate-y-1/2 p-3">
+          <div className="absolute left-1/2 top-1/2 w-[min(92vw,52rem)] -translate-x-1/2 -translate-y-1/2 p-3">
             <div className="relative overflow-hidden rounded-[2rem] border border-black/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(247,240,228,0.92))] p-6 shadow-[0_28px_95px_rgba(0,0,0,0.22)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <Badge variant={openTile.kind === "event" ? "butter" : "sky"}>
-                    {openTile.kind === "event" ? "Experience" : "Bonus challenge"}
+                  <Badge variant={openTile.kind === "event" ? "butter" : openTile.kind === "free" ? "neutral" : "sky"}>
+                    {openTile.kind === "event" ? "Activity" : openTile.kind === "free" ? "Free space" : "Bonus challenge"}
                   </Badge>
                   <h3 className="mt-4 text-3xl font-black tracking-tight">{openTile.title}</h3>
                   <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">{openTile.description}</p>
@@ -227,8 +292,10 @@ export function BingoBoardDemo() {
                 </Button>
               </div>
 
-              {openEvent ? (
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-6 grid gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+                <div className="grid gap-4">
+                  {openEvent ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-[1.5rem] border border-black/10 bg-white/80 p-4">
                     <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Hosted by</p>
                     <p className="mt-2 text-base font-semibold text-black">{openBusiness?.name ?? "Local host"}</p>
@@ -241,10 +308,10 @@ export function BingoBoardDemo() {
                     </p>
                     <p className="mt-1 text-sm text-black/60">{openEvent.cost} • Capacity {openEvent.capacity}</p>
                   </div>
-                </div>
-              ) : null}
+                    </div>
+                  ) : null}
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <div className="flex flex-col gap-3 sm:flex-row">
                 {openTile.kind === "event" && openTile.eventId ? (
                   <Button
                     variant={state.selectedEventIds.includes(openTile.eventId) ? "secondary" : "primary"}
@@ -259,23 +326,99 @@ export function BingoBoardDemo() {
                 ) : null}
                 <Button
                   variant={state.bingo.completedTileIds.includes(openTile.id) ? "secondary" : "sticker"}
+                  disabled={openTile.kind === "free"}
                   onClick={() => setState(toggleBingoTile(openTile.id))}
                 >
-                  {state.bingo.completedTileIds.includes(openTile.id) ? "Unstamp" : "Stamp this square"}
+                  {openTile.kind === "free"
+                    ? "Free space"
+                    : state.bingo.completedTileIds.includes(openTile.id)
+                      ? "Unstamp"
+                      : "Stamp this square"}
                 </Button>
                 <Button href="/cohort" variant="ghost">
                   Go to cohort
                 </Button>
-              </div>
+                  </div>
 
               {!state.selectedEventIds.includes(openTile.eventId ?? "") && !canSelectMore && openTile.kind === "event" ? (
                 <p className="mt-4 text-sm text-black/60">You already selected {required}. Remove one to add another.</p>
               ) : null}
+                </div>
 
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle_at_center,rgba(26,92,255,0.20),transparent_62%)]"
-              />
+                <div className="relative">
+                  <div className="absolute -left-6 -top-6 hidden lg:block">
+                    <Polaroid
+                      title={openTile.photo?.title ?? (openBusiness ? `${openBusiness.name}` : "Common Area moment")}
+                      caption={openTile.photo?.caption ?? (openEvent ? "Photo via Unsplash." : "Photo via Unsplash.")}
+                      tilt="left"
+                      className="w-[320px]"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={
+                          openTile.photo?.url ??
+                          openEvent?.imageUrl ??
+                          openBusiness?.imageUrl ??
+                          "https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=2200&q=80"
+                        }
+                        alt={
+                          openTile.photo?.alt ??
+                          (openEvent ? `Photo representing ${openEvent.title}` : "Photo via Unsplash.")
+                        }
+                        loading="lazy"
+                        decoding="async"
+                        className="h-56 w-full object-cover"
+                      />
+                    </Polaroid>
+                  </div>
+
+                  <div className="lg:pt-[280px]">
+                    <Card variant="paper" className="relative overflow-hidden">
+                      <Badge variant="neutral">Sticker notes</Badge>
+                      <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">
+                        Tap this square in the card to select an experience, or stamp a bonus challenge for extra cred.
+                      </p>
+                      <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6">
+                        <div className="scrap-mini-sticker">WOW</div>
+                      </div>
+                      <div aria-hidden="true" className="pointer-events-none absolute -left-6 -bottom-6">
+                        <div className="scrap-mini-sticker scrap-mini-sticker-2">OK</div>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+
+              <style>{`
+                .scrap-mini-sticker{
+                  display:inline-flex;
+                  align-items:center;
+                  justify-content:center;
+                  width: 54px;
+                  height: 54px;
+                  border-radius: 14px;
+                  border: 1px solid rgba(0,0,0,0.18);
+                  background: rgba(255,47,184,0.18);
+                  box-shadow: 0 18px 55px rgba(52,36,24,0.14);
+                  font-family: var(--font-mono);
+                  font-weight: 900;
+                  letter-spacing: 0.18em;
+                  transform: rotate(-8deg);
+                  animation: miniStickerFloat 5.8s ease-in-out infinite;
+                }
+                .scrap-mini-sticker-2{
+                  background: rgba(233,255,107,0.55);
+                  transform: rotate(10deg);
+                  animation-duration: 6.6s;
+                }
+                @keyframes miniStickerFloat{
+                  0%,100%{ transform: translateY(0) rotate(-8deg); }
+                  50%{ transform: translateY(-7px) rotate(-5deg); }
+                }
+                @media (prefers-reduced-motion: reduce){
+                  .scrap-mini-sticker{ animation:none !important; }
+                }
+              `}</style>
             </div>
           </div>
         </div>
