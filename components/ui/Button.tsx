@@ -1,12 +1,14 @@
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import Link from "next/link";
 
 type ButtonProps = {
-  href: string;
   children: ReactNode;
+  href?: string;
   variant?: "primary" | "secondary" | "ghost" | "sticker";
   size?: "sm" | "md" | "lg";
   className?: string;
+  onClick?: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
+  disabled?: boolean;
 };
 
 export function Button({
@@ -15,6 +17,8 @@ export function Button({
   variant = "primary",
   size = "md",
   className = "",
+  onClick,
+  disabled,
 }: ButtonProps) {
   const baseClasses =
     "lift-hover inline-flex items-center justify-center rounded-[var(--radius-button)] border text-sm font-semibold uppercase tracking-[0.18em] transition-all focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:ring-offset-2 focus:ring-offset-[var(--color-background)]";
@@ -36,9 +40,19 @@ export function Button({
       "border-[color:rgba(32,28,26,0.08)] bg-[var(--color-butter)] text-[var(--color-foreground)] shadow-[0_10px_24px_rgba(52,36,24,0.12)] hover:bg-[color:rgba(242,203,113,0.9)]",
   }[variant];
 
+  const classes = `${baseClasses} ${sizeClasses} ${variantClasses} ${className}`.trim();
+
+  if (href) {
+    return (
+      <Link href={href} className={classes}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <Link href={href} className={`${baseClasses} ${sizeClasses} ${variantClasses} ${className}`.trim()}>
+    <button type="button" className={classes} onClick={onClick} disabled={disabled}>
       {children}
-    </Link>
+    </button>
   );
 }
