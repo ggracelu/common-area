@@ -40,6 +40,7 @@ function eventPaperColor(idx: number) {
 export function BingoBoardDemo() {
   const [state, setState] = useState(() => loadDemoState());
   const [open, setOpen] = useState<OpenTile>(null);
+  const [lastBonusStamp, setLastBonusStamp] = useState<{ tileId: string; at: number } | null>(null);
   const tiles = demoData.bingoTiles;
   useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
 
@@ -51,6 +52,15 @@ export function BingoBoardDemo() {
   const openTile = open ? tiles.find((t) => t.id === open.tileId) ?? null : null;
   const openEvent = openTile?.eventId ? getDemoEvent(openTile.eventId) : null;
   const openBusiness = openEvent ? getDemoBusiness(openEvent.businessId) : null;
+
+  function stampTile(tileId: string, kind: (typeof tiles)[number]["kind"]) {
+    const wasStamped = state.bingo.completedTileIds.includes(tileId);
+    const next = toggleBingoTile(tileId);
+    setState(next);
+    if (!wasStamped && kind === "challenge") {
+      setLastBonusStamp({ tileId, at: Date.now() });
+    }
+  }
 
   return (
     <div className="mx-auto grid max-w-[980px] gap-4">
@@ -81,9 +91,16 @@ export function BingoBoardDemo() {
             className={[
               "relative mx-auto overflow-hidden rounded-[2.2rem] border border-black/12 p-4 shadow-[0_28px_95px_rgba(52,36,24,0.14)]",
               "bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(247,240,228,0.78))]",
+              "scrap-torn",
               "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.02),rgba(0,0,0,0.02)_1px,transparent_1px,transparent_6px)] before:opacity-40 before:content-['']",
             ].join(" ")}
           >
+            {/* Tape corners */}
+            <div aria-hidden="true" className="scrap-tape scrap-tape-tl" />
+            <div aria-hidden="true" className="scrap-tape scrap-tape-tr" />
+            <div aria-hidden="true" className="scrap-tape scrap-tape-bl" />
+            <div aria-hidden="true" className="scrap-tape scrap-tape-br" />
+
             <div className="relative z-10 flex items-center justify-between gap-2 px-1 pb-3">
               <span className="rounded-full bg-black/5 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-black/70">
                 {selectedCount}/{required} selected
@@ -106,6 +123,10 @@ export function BingoBoardDemo() {
                 const isBonus = tile.kind === "challenge";
                 const isEvent = tile.kind === "event";
                 const stamped = state.bingo.completedTileIds.includes(tile.id);
+                const bonusJustStamped =
+                  Boolean(lastBonusStamp) &&
+                  lastBonusStamp!.tileId === tile.id &&
+                  Date.now() - lastBonusStamp!.at < 1400;
                 const selected = tile.eventId ? state.selectedEventIds.includes(tile.eventId) : false;
                 const disabledSelect = isEvent && tile.eventId && !selected && !canSelectMore;
                 const isCenter = idx === 12 && isFree;
@@ -126,6 +147,10 @@ export function BingoBoardDemo() {
                       "transition-transform hover:-translate-y-[2px] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]",
                       paperClass,
                       "before:absolute before:inset-0 before:bg-[radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.55),transparent_58%)] before:content-['']",
+                      isBonus ? "scrap-bonus" : "",
+                      selected
+                        ? "border-[3px] border-[var(--color-accent-dark)] shadow-[0_18px_55px_rgba(26,92,255,0.20)] ring-2 ring-[color:rgba(233,255,107,0.65)]"
+                        : "",
                       disabledSelect ? "opacity-70" : "",
                     ].join(" ")}
                   >
@@ -179,7 +204,10 @@ export function BingoBoardDemo() {
                     ) : stamped ? (
                       <span
                         aria-hidden="true"
-                        className="pointer-events-none absolute right-2 top-2 -rotate-12 rounded-[0.85rem] border border-black/60 bg-white/85 px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black shadow-[0_12px_30px_rgba(52,36,24,0.12)]"
+                        className={[
+                          "pointer-events-none absolute right-2 top-2 -rotate-12 rounded-[0.85rem] border border-black/60 bg-white/85 px-2 py-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-black shadow-[0_12px_30px_rgba(52,36,24,0.12)]",
+                          isBonus && bonusJustStamped ? "scrap-stamp-pop" : "",
+                        ].join(" ")}
                         style={{ fontFamily: "var(--font-mono)" }}
                       >
                         OK
@@ -196,7 +224,78 @@ export function BingoBoardDemo() {
                 .group:hover { transform: none !important; }
                 .scrap-sticker-a, .scrap-sticker-b { animation: none !important; }
                 .scrap-star { animation: none !important; }
+                .scrap-stamp-pop { animation: none !important; }
               }
+
+              /* Torn paper edge */
+              .scrap-torn{
+                clip-path: polygon(
+                  0% 6%,
+                  4% 3%,
+                  10% 5%,
+                  16% 2%,
+                  22% 5%,
+                  28% 3%,
+                  34% 5%,
+                  40% 2%,
+                  46% 4%,
+                  52% 2%,
+                  58% 5%,
+                  64% 3%,
+                  70% 5%,
+                  76% 2%,
+                  82% 5%,
+                  88% 3%,
+                  94% 5%,
+                  100% 2%,
+                  100% 100%,
+                  94% 97%,
+                  88% 99%,
+                  82% 96%,
+                  76% 99%,
+                  70% 96%,
+                  64% 99%,
+                  58% 96%,
+                  52% 99%,
+                  46% 96%,
+                  40% 99%,
+                  34% 96%,
+                  28% 99%,
+                  22% 96%,
+                  16% 99%,
+                  10% 96%,
+                  4% 99%,
+                  0% 96%
+                );
+                box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+              }
+
+              /* Tape corners */
+              .scrap-tape{
+                position:absolute;
+                width: 96px;
+                height: 28px;
+                background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(242,203,113,0.22));
+                border: 1px solid rgba(0,0,0,0.10);
+                box-shadow: 0 18px 55px rgba(52,36,24,0.12);
+                opacity: 0.85;
+                filter: saturate(0.95);
+              }
+              .scrap-tape-tl{ left: 18px; top: 12px; transform: rotate(-12deg); }
+              .scrap-tape-tr{ right: 18px; top: 12px; transform: rotate(12deg); }
+              .scrap-tape-bl{ left: 18px; bottom: 12px; transform: rotate(10deg); }
+              .scrap-tape-br{ right: 18px; bottom: 12px; transform: rotate(-10deg); }
+
+              /* Bonus stamp pop */
+              .scrap-stamp-pop{
+                animation: stampPop 520ms cubic-bezier(0.22, 1, 0.36, 1);
+              }
+              @keyframes stampPop{
+                0%{ transform: translateY(-6px) rotate(-18deg) scale(0.78); opacity: 0; filter: blur(1px); }
+                60%{ transform: translateY(0) rotate(-12deg) scale(1.08); opacity: 1; filter: blur(0px); }
+                100%{ transform: translateY(0) rotate(-12deg) scale(1); opacity: 1; }
+              }
+
               .scrap-sticker {
                 display:inline-flex;
                 align-items:center;
@@ -265,7 +364,7 @@ export function BingoBoardDemo() {
           disabled={!readyToMail}
           onClick={() => setState(mailPostcardForMatching())}
         >
-          Ready to submit: lock in my event choices and officially join a Summer 2026 cohort
+          Ready to submit
         </Button>
       </div>
 
@@ -327,7 +426,7 @@ export function BingoBoardDemo() {
                 <Button
                   variant={state.bingo.completedTileIds.includes(openTile.id) ? "secondary" : "sticker"}
                   disabled={openTile.kind === "free"}
-                  onClick={() => setState(toggleBingoTile(openTile.id))}
+                  onClick={() => stampTile(openTile.id, openTile.kind)}
                 >
                   {openTile.kind === "free"
                     ? "Free space"
