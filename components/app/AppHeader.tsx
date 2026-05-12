@@ -28,6 +28,13 @@ export function AppHeader() {
             <Button href="/bingo" variant="secondary" size="sm" className="hidden sm:inline-flex">
               Open the bingo card
             </Button>
+            {/* TODO: remove — temp mascot lab */}
+            <Link
+              href="/crumbs-lab"
+              className="shrink-0 rounded-full border border-black/12 bg-white/90 px-3 py-1.5 text-[0.7rem] font-semibold tracking-tight text-black/75 hover:bg-white"
+            >
+              Crumbs lab
+            </Link>
             <UserButton />
           </div>
         </div>

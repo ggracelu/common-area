@@ -99,6 +99,84 @@ export async function createOrReusePendingDepositForCheckout({
   return mapDeposit(data as DepositRow);
 }
 
+export async function markDepositPaidForDemo({
+  clerkUserId,
+  seasonId,
+  profileId,
+}: {
+  clerkUserId: string;
+  seasonId: string;
+  profileId: string;
+}): Promise<Deposit> {
+  const supabase = createSupabaseAdminClient();
+  const existing = await getDepositForUserAndSeason(clerkUserId, seasonId);
+
+  if (existing?.status === "paid") {
+    return existing;
+  }
+
+  if (existing) {
+    const { data, error } = await supabase
+      .from("deposits")
+      .update({
+        profile_id: profileId,
+        status: "paid",
+        paid_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .select(
+        "id, profile_id, season_id, clerk_user_id, stripe_checkout_session_id, stripe_payment_intent_id, amount_cents, currency, status, paid_at, failed_at, refunded_at, created_at, updated_at",
+      )
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to mark demo deposit paid: ${error.message}`);
+    }
+
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ onboarding_status: "selection_pending" })
+      .eq("id", profileId);
+
+    if (profileError) {
+      throw new Error(`Failed to advance onboarding after demo deposit: ${profileError.message}`);
+    }
+
+    return mapDeposit(data as DepositRow);
+  }
+
+  const { data, error } = await supabase
+    .from("deposits")
+    .insert({
+      clerk_user_id: clerkUserId,
+      season_id: seasonId,
+      profile_id: profileId,
+      amount_cents: 2000,
+      currency: "usd",
+      status: "paid",
+      paid_at: new Date().toISOString(),
+    })
+    .select(
+      "id, profile_id, season_id, clerk_user_id, stripe_checkout_session_id, stripe_payment_intent_id, amount_cents, currency, status, paid_at, failed_at, refunded_at, created_at, updated_at",
+    )
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create demo deposit: ${error.message}`);
+  }
+
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ onboarding_status: "selection_pending" })
+    .eq("id", profileId);
+
+  if (profileError) {
+    throw new Error(`Failed to advance onboarding after demo deposit: ${profileError.message}`);
+  }
+
+  return mapDeposit(data as DepositRow);
+}
+
 export async function markDepositPaidFromStripeWebhook({
   depositId,
   stripeCheckoutSessionId,
@@ -109,6 +187,16 @@ export async function markDepositPaidFromStripeWebhook({
   stripePaymentIntentId: string;
 }): Promise<void> {
   const supabase = createSupabaseAdminClient();
+
+  const { data: deposit, error: loadError } = await supabase
+    .from("deposits")
+    .select("profile_id")
+    .eq("id", depositId)
+    .maybeSingle();
+
+  if (loadError) {
+    throw new Error(`Failed to load deposit before paid update: ${loadError.message}`);
+  }
 
   const { error } = await supabase
     .from("deposits")
@@ -122,6 +210,18 @@ export async function markDepositPaidFromStripeWebhook({
 
   if (error) {
     throw new Error(`Failed to mark deposit as paid: ${error.message}`);
+  }
+
+  const profileId = (deposit as { profile_id: string | null } | null)?.profile_id;
+  if (profileId) {
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update({ onboarding_status: "selection_pending" })
+      .eq("id", profileId);
+
+    if (profileError) {
+      throw new Error(`Failed to advance onboarding after deposit: ${profileError.message}`);
+    }
   }
 }
 

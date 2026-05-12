@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -8,17 +9,30 @@ import { Polaroid } from "@/components/ui/Polaroid";
 import { Sticker } from "@/components/ui/Sticker";
 import { Crumbs } from "@/components/brand/Crumbs";
 import { JoinSeasonButton } from "@/components/season/JoinSeasonButton";
+import { saveDemoActivitySelectionsAction } from "@/app/actions/activity-selections";
 import { demoData, getDemoBusiness, getDemoEvent } from "@/lib/demo-data";
+import type { OnboardingSnapshot } from "@/types/onboarding";
 import {
   getBingoProgress,
   loadDemoState,
   mailPostcardForMatching,
+  markSelectionsCommitted,
   setDepositStatus,
   toggleBingoTile,
   toggleSelectedEvent,
 } from "@/lib/demo-state";
 
 type OpenTile = { tileId: string } | null;
+
+function formatSavedClock(iso: string) {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime()) || d.getUTCFullYear() < 2020) return "—";
+    return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(d);
+  } catch {
+    return "—";
+  }
+}
 
 function formatDateTime(startsAtISO: string, durationMinutes: number) {
   const start = new Date(startsAtISO);
@@ -40,23 +54,91 @@ function eventPaperColor(idx: number) {
   return colors[idx % colors.length]!;
 }
 
-export function BingoBoardDemo() {
-  const [state, setState] = useState(() => loadDemoState());
+type BingoBoardDemoProps = {
+  clerkUserId?: string | null;
+  /** When set (including `[]`), hydrates picks from Supabase for signed-in users. */
+  serverSelections?: string[];
+  syncSelectionsToServer?: boolean;
+  serverOnboarding?: OnboardingSnapshot | null;
+};
+
+function mergeServerSelections(local: ReturnType<typeof loadDemoState>, serverSelections: string[] | undefined) {
+  if (serverSelections !== undefined) {
+    return { ...local, selectedEventIds: serverSelections };
+  }
+  return local;
+}
+
+export function BingoBoardDemo({
+  clerkUserId = null,
+  serverSelections,
+  syncSelectionsToServer = false,
+  serverOnboarding = null,
+}: BingoBoardDemoProps) {
+  const { userId: authUserId } = useAuth();
+  const storageUserId = clerkUserId ?? authUserId ?? null;
+
+  const [state, setState] = useState(() =>
+    mergeServerSelections(loadDemoState(storageUserId), serverSelections),
+  );
   const [open, setOpen] = useState<OpenTile>(null);
   const [bonusStampFlashId, setBonusStampFlashId] = useState<string | null>(null);
   const [eggClicks, setEggClicks] = useState(0);
   const [submitPhase, setSubmitPhase] = useState<
     "card" | "fold1" | "fold2" | "insert" | "stripe"
   >("card");
+  const [selectionSaveStatus, setSelectionSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const skipFirstRemoteSave = useRef(true);
   const tiles = demoData.bingoTiles;
   useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
 
   const required = demoData.season.requiredEventCount;
   const selectedCount = state.selectedEventIds.length;
   const canSelectMore = selectedCount < required;
-  const readyToMail = state.depositStatus === "paid" && selectedCount >= required;
-  const canDoBonusChallenges = state.matching.status === "assigned";
+  const serverAuthoritative = Boolean(serverOnboarding?.configured);
+  const selectionLocked = serverAuthoritative
+    ? Boolean(serverOnboarding?.selectionLocked)
+    : Boolean(state.selectionsCommittedAtISO);
+  const isCommitted = selectionLocked;
+  const depositPaid = serverAuthoritative
+    ? serverOnboarding?.depositStatus === "paid"
+    : state.depositStatus === "paid";
+  const readyToMail = depositPaid && selectedCount >= required;
+  const canDoBonusChallenges = serverAuthoritative
+    ? serverOnboarding?.assignmentStatus === "assigned"
+    : state.matching.status === "assigned";
   const showCrumbsEgg = eggClicks >= 5;
+
+  const serverSelectionsKey = serverSelections === undefined ? "none" : serverSelections.join("|");
+
+  useEffect(() => {
+    skipFirstRemoteSave.current = true;
+    const id = window.setTimeout(() => {
+      setState(mergeServerSelections(loadDemoState(storageUserId), serverSelections));
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [storageUserId, serverSelectionsKey]);
+
+  useEffect(() => {
+    if (!syncSelectionsToServer) return;
+    if (skipFirstRemoteSave.current) {
+      skipFirstRemoteSave.current = false;
+      return;
+    }
+    const t = window.setTimeout(() => {
+      setSelectionSaveStatus("saving");
+      void (async () => {
+        const res = await saveDemoActivitySelectionsAction(state.selectedEventIds);
+        if (res.ok) {
+          setSelectionSaveStatus("saved");
+          window.setTimeout(() => setSelectionSaveStatus("idle"), 2000);
+        } else {
+          setSelectionSaveStatus("error");
+        }
+      })();
+    }, 520);
+    return () => window.clearTimeout(t);
+  }, [state.selectedEventIds, syncSelectionsToServer]);
 
   const openTile = open ? tiles.find((t) => t.id === open.tileId) ?? null : null;
   const openEvent = openTile?.eventId ? getDemoEvent(openTile.eventId) : null;
@@ -64,7 +146,7 @@ export function BingoBoardDemo() {
 
   function stampTile(tileId: string, kind: (typeof tiles)[number]["kind"]) {
     const wasStamped = state.bingo.completedTileIds.includes(tileId);
-    const next = toggleBingoTile(tileId);
+    const next = toggleBingoTile(tileId, storageUserId);
     setState(next);
     if (!wasStamped && kind === "challenge") {
       setBonusStampFlashId(tileId);
@@ -79,51 +161,128 @@ export function BingoBoardDemo() {
     setSubmitPhase("fold1");
     window.setTimeout(() => setSubmitPhase("fold2"), 520);
     window.setTimeout(() => setSubmitPhase("insert"), 980);
-    window.setTimeout(() => setSubmitPhase("stripe"), 1500);
+    window.setTimeout(() => {
+      setSubmitPhase("stripe");
+      setState(markSelectionsCommitted(storageUserId));
+    }, 1500);
   }
+
+  const selectedEventsPreview = useMemo(
+    () => state.selectedEventIds.map((id) => getDemoEvent(id)).filter(Boolean),
+    [state.selectedEventIds],
+  );
 
   return (
     <div className="mx-auto grid max-w-[980px] gap-4">
       <div className="mx-auto w-full max-w-[760px] text-center">
-        <p className="text-[0.72rem] font-black uppercase tracking-[0.22em] text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
-          Summer 2026 bingo card
+        <p
+          className={[
+            "text-[0.72rem] font-black uppercase tracking-[0.22em]",
+            isCommitted ? "text-emerald-800/90" : "text-amber-900/70",
+          ].join(" ")}
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          {isCommitted ? "Locked-in passport" : "Draft signup card"}
         </p>
         <h2 className="mt-2 text-2xl font-black tracking-tight text-black sm:text-3xl">
-          Select any {required} experiences.
+          {isCommitted ? `Your ${required} selections` : `Pick any ${required} experiences`}
         </h2>
         <p className="mt-2 text-sm leading-6 text-[color:rgba(37,34,30,0.72)]">
-          $20 deposit → <span className="font-semibold">$5 discounts</span> off each event you complete. We match cohorts based on shared picks.
+          {isCommitted ? (
+            <>
+              These picks are saved on this device and styled as your <span className="font-semibold">locked passport</span>.
+              Bonus squares unlock after cohort assignment.
+            </>
+          ) : (
+            <>
+              $20 deposit → <span className="font-semibold">$5 discounts</span> off each event you complete. We match
+              cohorts based on shared picks.
+            </>
+          )}
         </p>
-        <button
-          type="button"
-          className="mt-4 inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs font-semibold text-black/70 shadow-[0_18px_55px_rgba(52,36,24,0.10)]"
-          onClick={() => setEggClicks((n) => n + 1)}
-          aria-label="Bingo card note"
-        >
-          <span>Tip: pick overlap-y plans. Recognition happens on week 2.</span>
-          {showCrumbsEgg ? <Crumbs size="sm" pose="sit" expression="neutral" animated /> : null}
-        </button>
+        <p className="mt-2 text-xs font-semibold text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
+          {isCommitted ? "Locked in · " : "Autosaved · "}
+          {formatSavedClock(state.updatedAtISO)}
+          {isCommitted ? "" : " · tap a tile, add to your 4—no submit required to save picks"}
+        </p>
+        {syncSelectionsToServer ? (
+          <p className="mt-3 text-xs font-semibold text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
+            {selectionSaveStatus === "saving"
+              ? "Saving picks to your account…"
+              : selectionSaveStatus === "saved"
+                ? "Saved to your account."
+                : selectionSaveStatus === "error"
+                  ? "Couldn’t save picks—check connection or try again."
+                  : "Selections autosave to your account."}
+          </p>
+        ) : null}
+        {!isCommitted ? (
+          <button
+            type="button"
+            className="mt-4 inline-flex items-center gap-3 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs font-semibold text-black/70 shadow-[0_18px_55px_rgba(52,36,24,0.10)]"
+            onClick={() => setEggClicks((n) => n + 1)}
+            aria-label="Bingo card note"
+          >
+            <span>Tip: pick overlap-y plans. Recognition happens on week 2.</span>
+            {showCrumbsEgg ? <Crumbs size="sm" pose="sit" expression="neutral" animated /> : null}
+          </button>
+        ) : null}
       </div>
+
+      {isCommitted && selectedEventsPreview.length > 0 ? (
+        <div className="mx-auto w-full max-w-[760px] rounded-[1.5rem] border-2 border-emerald-800/25 bg-[linear-gradient(135deg,rgba(236,253,245,0.92),rgba(255,255,255,0.95))] p-5 text-left shadow-[0_18px_55px_rgba(16,185,129,0.12)]">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-900/80" style={{ fontFamily: "var(--font-mono)" }}>
+            Your selections
+          </p>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            {selectedEventsPreview.map((evt) => (
+              <li
+                key={evt!.id}
+                className="rounded-[1.1rem] border border-black/8 bg-[color:rgba(247,240,228,0.65)] px-4 py-3 text-sm font-semibold text-black"
+              >
+                {evt!.title}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <div className="mx-auto w-full max-w-[760px]">
         <div className="relative mx-auto">
           {/* Sticker-ish decorations */}
-          <div aria-hidden="true" className="pointer-events-none absolute -left-4 -top-5 hidden sm:block">
-            <div className="scrap-sticker scrap-sticker-a">BONUS</div>
-          </div>
-          <div aria-hidden="true" className="pointer-events-none absolute -right-6 -bottom-6 hidden sm:block">
-            <div className="scrap-sticker scrap-sticker-b">SHOW UP</div>
-          </div>
+          {!isCommitted ? (
+            <>
+              <div aria-hidden="true" className="pointer-events-none absolute -left-4 -top-5 hidden sm:block">
+                <div className="scrap-sticker scrap-sticker-a">BONUS</div>
+              </div>
+              <div aria-hidden="true" className="pointer-events-none absolute -right-6 -bottom-6 hidden sm:block">
+                <div className="scrap-sticker scrap-sticker-b">SHOW UP</div>
+              </div>
+            </>
+          ) : null}
 
           {/* Craft board */}
           <div
             className={[
-              "relative mx-auto overflow-hidden rounded-[2.2rem] border border-black/12 p-4 shadow-[0_28px_95px_rgba(52,36,24,0.14)]",
-              "bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(247,240,228,0.78))]",
-              "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.02),rgba(0,0,0,0.02)_1px,transparent_1px,transparent_6px)] before:opacity-40 before:content-['']",
+              "relative mx-auto overflow-hidden rounded-[2.2rem] border p-4 shadow-[0_28px_95px_rgba(52,36,24,0.14)]",
+              isCommitted
+                ? "border-2 border-emerald-800/30 bg-[linear-gradient(145deg,rgba(255,255,255,0.97),rgba(236,253,245,0.75))] shadow-[0_24px_70px_rgba(16,185,129,0.14)] ring-1 ring-emerald-600/15"
+                : "border-2 border-dashed border-amber-900/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.72),rgba(255,251,235,0.85))]",
+              !isCommitted
+                ? "before:absolute before:inset-0 before:bg-[repeating-linear-gradient(0deg,rgba(0,0,0,0.02),rgba(0,0,0,0.02)_1px,transparent_1px,transparent_6px)] before:opacity-40 before:content-['']"
+                : "",
             ].join(" ")}
           >
+            {isCommitted ? (
+              <div
+                className="absolute right-4 top-4 z-20 rounded-full border border-emerald-800/25 bg-emerald-50 px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.18em] text-emerald-900 shadow-sm"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                Saved
+              </div>
+            ) : null}
             {/* Little shapes (stars + squiggles) */}
+            {!isCommitted ? (
             <div aria-hidden="true" className="pointer-events-none absolute inset-0">
               <svg
                 className="scrap-shape scrap-shape-star scrap-shape-a"
@@ -180,12 +339,17 @@ export function BingoBoardDemo() {
                 />
               </svg>
             </div>
+            ) : null}
 
             {/* Tape corners */}
-            <div aria-hidden="true" className="scrap-tape scrap-tape-tl" />
-            <div aria-hidden="true" className="scrap-tape scrap-tape-tr" />
-            <div aria-hidden="true" className="scrap-tape scrap-tape-bl" />
-            <div aria-hidden="true" className="scrap-tape scrap-tape-br" />
+            {!isCommitted ? (
+              <>
+                <div aria-hidden="true" className="scrap-tape scrap-tape-tl" />
+                <div aria-hidden="true" className="scrap-tape scrap-tape-tr" />
+                <div aria-hidden="true" className="scrap-tape scrap-tape-bl" />
+                <div aria-hidden="true" className="scrap-tape scrap-tape-br" />
+              </>
+            ) : null}
 
             <div className="relative z-10 flex items-center justify-between gap-2 px-1 pb-3">
               <span className="rounded-full bg-black/5 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-black/70">
@@ -195,7 +359,9 @@ export function BingoBoardDemo() {
                 <Button
                   size="sm"
                   variant={state.depositStatus === "paid" ? "secondary" : "sticker"}
-                  onClick={() => setState(setDepositStatus(state.depositStatus === "paid" ? "pending" : "paid"))}
+                  onClick={() =>
+                    setState(setDepositStatus(state.depositStatus === "paid" ? "pending" : "paid", storageUserId))
+                  }
                 >
                   {state.depositStatus === "paid" ? "Deposit: paid" : "Deposit: mark paid (demo)"}
                 </Button>
@@ -211,7 +377,8 @@ export function BingoBoardDemo() {
                 const stamped = state.bingo.completedTileIds.includes(tile.id);
                 const bonusJustStamped = isBonus && bonusStampFlashId === tile.id;
                 const selected = tile.eventId ? state.selectedEventIds.includes(tile.eventId) : false;
-                const disabledSelect = isEvent && tile.eventId && !selected && !canSelectMore;
+                const disabledSelect =
+                  isEvent && tile.eventId && !selected && (!canSelectMore || isCommitted);
                 const isCenter = idx === 12 && isFree;
                 const lockedBonus = isBonus && !canDoBonusChallenges;
 
@@ -457,15 +624,13 @@ export function BingoBoardDemo() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[760px] justify-center pt-1">
-        <Button
-          variant="primary"
-          disabled={selectedCount < required}
-          onClick={onSubmit}
-        >
-          Ready to submit
-        </Button>
-      </div>
+      {!isCommitted ? (
+        <div className="mx-auto flex w-full max-w-[760px] justify-center pt-1">
+          <Button variant="primary" disabled={selectedCount < required} onClick={onSubmit}>
+            Ready to submit
+          </Button>
+        </div>
+      ) : null}
 
       {submitPhase !== "card" ? (
         <div className="fixed inset-0 z-50">
@@ -509,7 +674,7 @@ export function BingoBoardDemo() {
                     <Button
                       variant="secondary"
                       onClick={() => {
-                        const next = setDepositStatus("paid");
+                        const next = setDepositStatus("paid", storageUserId);
                         setState(next);
                       }}
                     >
@@ -526,7 +691,7 @@ export function BingoBoardDemo() {
                         variant="primary"
                         disabled={!readyToMail}
                         onClick={() => {
-                          const next = mailPostcardForMatching();
+                          const next = mailPostcardForMatching(storageUserId);
                           setState(next);
                           window.location.href = "/dashboard";
                         }}
@@ -721,16 +886,23 @@ export function BingoBoardDemo() {
 
                   <div className="flex flex-col gap-3 sm:flex-row">
                 {openTile.kind === "event" && openTile.eventId ? (
-                  <Button
-                    variant={state.selectedEventIds.includes(openTile.eventId) ? "secondary" : "primary"}
-                    disabled={!state.selectedEventIds.includes(openTile.eventId) && !canSelectMore}
-                    onClick={() => {
-                      const next = toggleSelectedEvent(openTile.eventId!, required);
-                      setState(next);
-                    }}
-                  >
-                    {state.selectedEventIds.includes(openTile.eventId) ? "Remove from my 4" : "Select (counts toward 4)"}
-                  </Button>
+                  isCommitted ? (
+                    <p className="text-sm font-medium text-black/65">
+                      Your four experiences are saved and locked in. You can still stamp bonus squares after your cohort is
+                      assigned.
+                    </p>
+                  ) : (
+                    <Button
+                      variant={state.selectedEventIds.includes(openTile.eventId) ? "secondary" : "primary"}
+                      disabled={!state.selectedEventIds.includes(openTile.eventId) && !canSelectMore}
+                      onClick={() => {
+                        const next = toggleSelectedEvent(openTile.eventId!, storageUserId, required);
+                        setState(next);
+                      }}
+                    >
+                      {state.selectedEventIds.includes(openTile.eventId) ? "Remove from my 4" : "Select (counts toward 4)"}
+                    </Button>
+                  )
                 ) : null}
                 <Button
                   variant={state.bingo.completedTileIds.includes(openTile.id) ? "secondary" : "sticker"}

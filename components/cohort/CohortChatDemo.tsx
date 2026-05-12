@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -14,9 +15,19 @@ function formatTime(iso: string) {
 }
 
 export function CohortChatDemo() {
-  const [state, setState] = useState(() => loadDemoState());
+  const { userId } = useAuth();
+  const storageUserId = userId ?? null;
+
+  const [state, setState] = useState(() => loadDemoState(storageUserId));
   const [draft, setDraft] = useState("");
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      setState(loadDemoState(storageUserId));
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [storageUserId]);
 
   const cohortId = state.matching.cohortId ?? demoData.cohorts[0].id;
   const thread = getDemoChatThread(cohortId);
@@ -98,7 +109,7 @@ export function CohortChatDemo() {
             <Button
               variant="primary"
               onClick={() => {
-                const next = addChatMessage(cohortId, draft);
+                const next = addChatMessage(cohortId, draft, storageUserId);
                 setState(next);
                 setDraft("");
               }}

@@ -120,6 +120,32 @@ values
     '2026-07-28T18:30:00-05:00',
     '2026-07-28T21:30:00-05:00',
     22
+  ),
+  (
+    'Bookshop browsing in Lincoln Square',
+    'bookshop-browsing-lincoln-square',
+    'Browse shelves, spot bulletin-board flyers, and leave with a new micro-obsession.',
+    'Margin Notes Books',
+    'Lincoln Square',
+    '4732 N Western Ave, Chicago, IL',
+    'Social',
+    'Curiosity with a side of paper textures',
+    '2026-06-16T23:30:00-05:00',
+    '2026-06-17T01:15:00-05:00',
+    28
+  ),
+  (
+    'Flower bar workshop in Ravenswood',
+    'flower-bar-ravenswood',
+    'Hands-busy arranging with stems, trades, and bouquets that feel like personality tests.',
+    'Petals & Pins Studio',
+    'Ravenswood',
+    '1812 W Lawrence Ave, Chicago, IL',
+    'Workshop',
+    'Hands busy, nervous system calmer',
+    '2026-06-17T23:00:00-05:00',
+    '2026-06-18T00:40:00-05:00',
+    20
   )
 on conflict (slug) do update
 set
@@ -147,7 +173,9 @@ from (
     ('comedy-show-old-town', 3),
     ('mural-walk-pilsen', 4),
     ('coffee-crawl-wicker-park', 5),
-    ('board-game-night-lakeview', 6)
+    ('board-game-night-lakeview', 6),
+    ('bookshop-browsing-lincoln-square', 7),
+    ('flower-bar-ravenswood', 8)
 ) as items(activity_slug, display_order)
 join public.seasons s
   on s.slug = 'chicago-summer-2026'

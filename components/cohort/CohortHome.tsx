@@ -1,13 +1,22 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
+import { CohortRevealLetter } from "@/components/cohort/CohortRevealLetter";
 import { PostcardMatchAnimation } from "@/components/cohort/PostcardMatchAnimation";
 import { demoData, getDemoEvent, getDemoUser } from "@/lib/demo-data";
-import { loadDemoState, mailPostcardForMatching, tickMatchingForward } from "@/lib/demo-state";
+import { cohortPeopleAdjective } from "@/lib/cohort-reveal-copy";
+import {
+  loadDemoState,
+  mailPostcardForMatching,
+  markCohortRevealSeen,
+  tickMatchingForward,
+} from "@/lib/demo-state";
+import type { OnboardingSnapshot } from "@/types/onboarding";
 
 function chunk<T>(arr: T[], size: number) {
   const out: T[][] = [];
@@ -15,17 +24,72 @@ function chunk<T>(arr: T[], size: number) {
   return out;
 }
 
-export function CohortHome() {
-  const [state, setState] = useState(() => loadDemoState());
+type CohortHomeProps = {
+  serverOnboarding?: OnboardingSnapshot | null;
+};
+
+export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
+  const { userId } = useAuth();
+  const storageUserId = userId ?? null;
+
+  const [state, setState] = useState(() => loadDemoState(storageUserId));
 
   useEffect(() => {
-    const interval = window.setInterval(() => setState(tickMatchingForward()), 750);
-    return () => window.clearInterval(interval);
-  }, []);
+    const id = window.setTimeout(() => {
+      setState(loadDemoState(storageUserId));
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [storageUserId]);
 
-  const cohort = state.matching.cohortId
-    ? demoData.cohorts.find((c) => c.id === state.matching.cohortId) ?? null
-    : null;
+  useEffect(() => {
+    const interval = window.setInterval(() => setState(tickMatchingForward(storageUserId)), 750);
+    return () => window.clearInterval(interval);
+  }, [storageUserId]);
+
+  const serverAuthoritative = Boolean(serverOnboarding?.configured);
+  const cohort = serverAuthoritative
+    ? serverOnboarding?.cohortDemoId
+      ? demoData.cohorts.find((c) => c.id === serverOnboarding.cohortDemoId) ?? null
+      : null
+    : state.matching.cohortId
+      ? demoData.cohorts.find((c) => c.id === state.matching.cohortId) ?? null
+      : null;
+
+  const matchingInProgress = serverAuthoritative
+    ? serverOnboarding?.assignmentStatus === "pending"
+    : !cohort && (state.matching.status === "mailing" || state.matching.status === "pending");
+
+  const cohortRevealUnlocked = serverAuthoritative
+    ? Boolean(serverOnboarding?.cohortRevealSeen)
+    : state.futureCohortLetterPreviewDone;
+
+  const showCohortLetter =
+    cohort &&
+    (serverAuthoritative
+      ? serverOnboarding?.assignmentStatus === "assigned"
+      : state.matching.status === "assigned") &&
+    !state.seenCohortRevealIds.includes(cohort.id);
+
+  const letterEvents = useMemo(() => {
+    if (!cohort) return { a: "", b: "" };
+    const fromPicks = state.selectedEventIds
+      .map((id) => getDemoEvent(id))
+      .filter(Boolean)
+      .slice(0, 2);
+    if (fromPicks.length >= 2) {
+      return { a: fromPicks[0]!.title, b: fromPicks[1]!.title };
+    }
+    const featured = cohort.featuredEventIds
+      .map((id) => getDemoEvent(id))
+      .filter(Boolean)
+      .slice(0, 2);
+    return {
+      a: featured[0]?.title ?? "your picks",
+      b: featured[1]?.title ?? "shared plans",
+    };
+  }, [cohort, state.selectedEventIds]);
+
+  const peopleAdjective = cohort ? cohortPeopleAdjective(cohort.vibeTags) : "great";
 
   const members = useMemo(() => {
     if (!cohort) return [];
@@ -40,7 +104,59 @@ export function CohortHome() {
   const readyToMail =
     state.depositStatus === "paid" && state.selectedEventIds.length >= demoData.season.requiredEventCount;
 
+  if (cohort && (serverAuthoritative ? serverOnboarding?.assignmentStatus === "assigned" : state.matching.status === "assigned") && !cohortRevealUnlocked) {
+    return (
+      <div className="grid gap-6">
+        <Card variant="paper">
+          <Badge variant="neutral">Matching</Badge>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight">Cohort matching is in progress.</h2>
+          <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
+            In this demo, your cohort letter only unlocks after you open it under{" "}
+            <span className="font-semibold">Dashboard → Future</span>. Then you can come back here for your full roster.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button href="/dashboard" variant="primary">
+              Open dashboard (Future tab)
+            </Button>
+            <Button href="/bingo" variant="secondary">
+              View your selections
+            </Button>
+          </div>
+          <Sticker className="mt-6">Crumbs is holding the envelope until you peek in Future.</Sticker>
+        </Card>
+
+        <PostcardMatchAnimation status="pending" />
+      </div>
+    );
+  }
+
   if (!cohort) {
+    if (matchingInProgress) {
+      return (
+        <div className="grid gap-6">
+          <Card variant="paper">
+            <Badge variant="neutral">Matching</Badge>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight">Cohort matching is in progress.</h2>
+            <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
+              We’re grouping people using overlapping picks. You’ll get your cohort letter as soon as your match is
+              ready—no need to send anything again.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Button href="/bingo" variant="secondary">
+                View your selections
+              </Button>
+              <Button href="/dashboard" variant="ghost">
+                Back to dashboard
+              </Button>
+            </div>
+            <Sticker className="mt-6">Crumbs is “sorting.” (He’s napping nearby.)</Sticker>
+          </Card>
+
+          <PostcardMatchAnimation status={state.matching.status} />
+        </div>
+      );
+    }
+
     return (
       <div className="grid gap-6">
         <Card variant="paper">
@@ -57,7 +173,7 @@ export function CohortHome() {
             <Button
               variant="primary"
               disabled={!readyToMail}
-              onClick={() => setState(mailPostcardForMatching())}
+              onClick={() => setState(mailPostcardForMatching(storageUserId))}
             >
               Send postcard to matching
             </Button>
@@ -71,6 +187,21 @@ export function CohortHome() {
         </Card>
 
         <PostcardMatchAnimation status={state.matching.status} />
+      </div>
+    );
+  }
+
+  if (showCohortLetter) {
+    return (
+      <div className="grid gap-6">
+        <CohortRevealLetter
+          cohortId={cohort.id}
+          cohortName={cohort.name}
+          eventTitleA={letterEvents.a}
+          eventTitleB={letterEvents.b}
+          peopleAdjective={peopleAdjective}
+          onComplete={() => setState(markCohortRevealSeen(cohort.id, storageUserId))}
+        />
       </div>
     );
   }

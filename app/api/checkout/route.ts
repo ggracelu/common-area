@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { getStripe } from "@/lib/stripe";
 import { getActiveSeason } from "@/lib/catalog";
 import { createOrReusePendingDepositForCheckout } from "@/lib/deposits";
+import { ensureProfileForClerk } from "@/lib/profile-sync";
 
 export async function POST() {
   // Safety: if secrets aren't configured, don't attempt server auth/payment.
@@ -26,10 +27,16 @@ export async function POST() {
       return NextResponse.json({ error: "No active season" }, { status: 400 });
     }
 
+    const user = await currentUser();
+    const profileId = await ensureProfileForClerk(clerkUserId, {
+      email: user?.primaryEmailAddress?.emailAddress ?? null,
+      displayName: user?.fullName ?? user?.username ?? user?.firstName ?? null,
+    });
+
     const deposit = await createOrReusePendingDepositForCheckout({
       clerkUserId,
       seasonId: season.id,
-      profileId: null,
+      profileId,
     });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

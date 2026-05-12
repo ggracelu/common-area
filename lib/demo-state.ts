@@ -16,6 +16,15 @@ export type DemoAppState = {
   updatedAtISO: string;
   depositStatus: DemoDepositStatus;
   selectedEventIds: string[];
+  /** Set after the user completes the bingo submit flow (deposit / matching step). */
+  selectionsCommittedAtISO: string | null;
+  /** Cohort ids for which the envelope letter reveal has been dismissed. */
+  seenCohortRevealIds: string[];
+  /**
+   * Set after finishing the Future-tab cohort letter on `/dashboard`. Demo only: unlocks the full
+   * `/cohort` experience; until then, assignment stays “in progress” outside Future preview.
+   */
+  futureCohortLetterPreviewDone: boolean;
   matching: {
     status: DemoMatchingStatus;
     mailedAtISO: string | null;
@@ -30,13 +39,26 @@ export type DemoAppState = {
   };
 };
 
-const STORAGE_KEY = "common-area:demo-state:v1";
+/** Legacy single key (pre–per-user isolation). Migrated once into `:anon`. */
+const LEGACY_DEMO_STORAGE_KEY = "common-area:demo-state:v1";
+
+/**
+ * localStorage key for demo state. Signed-in users each get their own bucket so picks/matching
+ * do not leak across Clerk accounts on the same browser.
+ */
+export function demoStorageKey(userId: string | null | undefined): string {
+  if (userId) return `${LEGACY_DEMO_STORAGE_KEY}:user:${userId}`;
+  return `${LEGACY_DEMO_STORAGE_KEY}:anon`;
+}
 
 const defaultState: DemoAppState = {
   version: 1,
   updatedAtISO: new Date(0).toISOString(),
   depositStatus: "not_started",
   selectedEventIds: [],
+  selectionsCommittedAtISO: null,
+  seenCohortRevealIds: [],
+  futureCohortLetterPreviewDone: false,
   matching: {
     status: "not_started",
     mailedAtISO: null,
@@ -58,51 +80,90 @@ function safeParse(json: string | null): DemoAppState | null {
     if (!parsed || typeof parsed !== "object") return null;
     const state = parsed as Partial<DemoAppState>;
     if (state.version !== 1) return null;
-    return { ...defaultState, ...state } as DemoAppState;
+    const merged = { ...defaultState, ...state } as DemoAppState;
+    if (!Array.isArray(merged.seenCohortRevealIds)) {
+      merged.seenCohortRevealIds = [];
+    }
+    if (merged.selectionsCommittedAtISO === undefined) {
+      merged.selectionsCommittedAtISO = null;
+    }
+    merged.futureCohortLetterPreviewDone =
+      typeof state.futureCohortLetterPreviewDone === "boolean"
+        ? state.futureCohortLetterPreviewDone
+        : false;
+    merged.matching = { ...defaultState.matching, ...(state.matching ?? {}) };
+    merged.bingo = { ...defaultState.bingo, ...(state.bingo ?? {}) };
+    merged.chat = { ...defaultState.chat, ...(state.chat ?? {}) };
+    return merged;
   } catch {
     return null;
   }
 }
 
-export function loadDemoState(): DemoAppState {
+function readDemoStorageRaw(userId: string | null | undefined): string | null {
+  if (typeof window === "undefined") return null;
+  const key = demoStorageKey(userId);
+  let raw = window.localStorage.getItem(key);
+  if (!raw && (userId == null || userId === "")) {
+    raw = window.localStorage.getItem(LEGACY_DEMO_STORAGE_KEY);
+    if (raw) {
+      window.localStorage.setItem(key, raw);
+      window.localStorage.removeItem(LEGACY_DEMO_STORAGE_KEY);
+    }
+  }
+  return raw;
+}
+
+/** @param userId Clerk user id when signed in; omit or null for the anonymous device bucket. */
+export function loadDemoState(userId: string | null | undefined = null): DemoAppState {
   if (typeof window === "undefined") return defaultState;
-  const parsed = safeParse(window.localStorage.getItem(STORAGE_KEY));
+  const parsed = safeParse(readDemoStorageRaw(userId));
   return parsed ?? defaultState;
 }
 
-export function saveDemoState(next: DemoAppState) {
+export function saveDemoState(next: DemoAppState, userId: string | null | undefined = null) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  window.localStorage.setItem(demoStorageKey(userId), JSON.stringify(next));
 }
 
-export function updateDemoState(updater: (prev: DemoAppState) => DemoAppState) {
-  const prev = loadDemoState();
+export function updateDemoState(
+  updater: (prev: DemoAppState) => DemoAppState,
+  userId: string | null | undefined = null,
+) {
+  const prev = loadDemoState(userId);
   const next = updater(prev);
   const stamped: DemoAppState = { ...next, updatedAtISO: new Date().toISOString() };
-  saveDemoState(stamped);
+  saveDemoState(stamped, userId);
   return stamped;
 }
 
-export function resetDemoState() {
+export function resetDemoState(userId: string | null | undefined = null) {
   if (typeof window === "undefined") return;
-  window.localStorage.removeItem(STORAGE_KEY);
+  window.localStorage.removeItem(demoStorageKey(userId));
+  if (userId == null || userId === "") {
+    window.localStorage.removeItem(LEGACY_DEMO_STORAGE_KEY);
+  }
 }
 
-export function toggleDepositPaid(paid: boolean) {
+export function toggleDepositPaid(paid: boolean, userId: string | null | undefined = null) {
   return updateDemoState((prev) => ({
     ...prev,
     depositStatus: paid ? "paid" : "pending",
-  }));
+  }), userId);
 }
 
-export function setDepositStatus(status: DemoDepositStatus) {
+export function setDepositStatus(status: DemoDepositStatus, userId: string | null | undefined = null) {
   return updateDemoState((prev) => ({
     ...prev,
     depositStatus: status,
-  }));
+  }), userId);
 }
 
-export function toggleSelectedEvent(eventId: string, limit = demoData.season.requiredEventCount) {
+export function toggleSelectedEvent(
+  eventId: string,
+  userId: string | null | undefined = null,
+  limit = demoData.season.requiredEventCount,
+) {
   return updateDemoState((prev) => {
     const exists = prev.selectedEventIds.includes(eventId);
     if (exists) {
@@ -112,14 +173,14 @@ export function toggleSelectedEvent(eventId: string, limit = demoData.season.req
       return prev;
     }
     return { ...prev, selectedEventIds: [...prev.selectedEventIds, eventId] };
-  });
+  }, userId);
 }
 
-export function clearSelections() {
-  return updateDemoState((prev) => ({ ...prev, selectedEventIds: [] }));
+export function clearSelections(userId: string | null | undefined = null) {
+  return updateDemoState((prev) => ({ ...prev, selectedEventIds: [] }), userId);
 }
 
-export function toggleBingoTile(tileId: string) {
+export function toggleBingoTile(tileId: string, userId: string | null | undefined = null) {
   return updateDemoState((prev) => {
     const completed = prev.bingo.completedTileIds.includes(tileId);
     return {
@@ -130,12 +191,12 @@ export function toggleBingoTile(tileId: string) {
           : [...prev.bingo.completedTileIds, tileId],
       },
     };
-  });
+  }, userId);
 }
 
-export function addChatMessage(cohortId: string, body: string) {
+export function addChatMessage(cohortId: string, body: string, userId: string | null | undefined = null) {
   const trimmed = body.trim();
-  if (!trimmed) return loadDemoState();
+  if (!trimmed) return loadDemoState(userId);
 
   return updateDemoState((prev) => {
     const bucket = prev.chat.messagesByCohortId[cohortId] ?? [];
@@ -153,7 +214,7 @@ export function addChatMessage(cohortId: string, body: string) {
         },
       },
     };
-  });
+  }, userId);
 }
 
 export function getAssignedCohort(state: DemoAppState): DemoCohort | null {
@@ -161,7 +222,8 @@ export function getAssignedCohort(state: DemoAppState): DemoCohort | null {
   return getDemoCohort(state.matching.cohortId);
 }
 
-function inferCohortFromSelections(selectedEventIds: string[]) {
+/** Demo-only: which cohort bucket fits the user’s picks (same logic as assignment). */
+export function inferCohortFromSelections(selectedEventIds: string[]): string {
   const picked = selectedEventIds
     .map((id) => demoData.events.find((evt) => evt.id === id))
     .filter(Boolean);
@@ -180,7 +242,7 @@ function inferCohortFromSelections(selectedEventIds: string[]) {
   return "coh_city_strollers";
 }
 
-export function mailPostcardForMatching() {
+export function mailPostcardForMatching(userId: string | null | undefined = null) {
   const now = new Date();
 
   return updateDemoState((prev) => {
@@ -199,10 +261,10 @@ export function mailPostcardForMatching() {
         cohortId: null,
       },
     };
-  });
+  }, userId);
 }
 
-export function tickMatchingForward() {
+export function tickMatchingForward(userId: string | null | undefined = null) {
   return updateDemoState((prev) => {
     const mailed = prev.matching.mailedAtISO ? new Date(prev.matching.mailedAtISO).getTime() : null;
     if (!mailed) return prev;
@@ -228,7 +290,31 @@ export function tickMatchingForward() {
     }
 
     return prev;
-  });
+  }, userId);
+}
+
+export function markSelectionsCommitted(userId: string | null | undefined = null) {
+  return updateDemoState((prev) => {
+    if (prev.selectionsCommittedAtISO) return prev;
+    return { ...prev, selectionsCommittedAtISO: new Date().toISOString() };
+  }, userId);
+}
+
+export function markCohortRevealSeen(cohortId: string, userId: string | null | undefined = null) {
+  return updateDemoState((prev) => {
+    if (prev.seenCohortRevealIds.includes(cohortId)) return prev;
+    return {
+      ...prev,
+      seenCohortRevealIds: [...prev.seenCohortRevealIds, cohortId],
+    };
+  }, userId);
+}
+
+export function markFutureCohortLetterPreviewDone(userId: string | null | undefined = null) {
+  return updateDemoState((prev) => {
+    if (prev.futureCohortLetterPreviewDone) return prev;
+    return { ...prev, futureCohortLetterPreviewDone: true };
+  }, userId);
 }
 
 export function getBingoProgress(tiles: readonly DemoBingoTile[], state: DemoAppState) {

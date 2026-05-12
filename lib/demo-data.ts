@@ -98,6 +98,8 @@ export type DemoCohort = {
   name: string;
   slug: string;
   theme: string;
+  /** Short phrase for welcome letter: “19 other ___ people”. */
+  peopleDescriptor: string;
   vibeTags: DemoVibeTag[];
   memberIds: string[];
   sharedEventTypeOverlap: DemoEventType[];
@@ -594,6 +596,7 @@ const cohorts: DemoCohort[] = [
     name: "The Art Room Regulars",
     slug: "art-room-regulars",
     theme: "Craft nights, zines, and hands-busy plans that make talking easier.",
+    peopleDescriptor: "creative",
     vibeTags: ["hands-busy", "creative", "cozy", "low-pressure"],
     memberIds: users.slice(0, 20).map((u) => u.id),
     sharedEventTypeOverlap: ["pottery", "flowers-craft", "bookstore"],
@@ -609,6 +612,7 @@ const cohorts: DemoCohort[] = [
     name: "Table + Laughs Department",
     slug: "table-and-laughs",
     theme: "Cooking, comedy, and the gentle power of shared reactions.",
+    peopleDescriptor: "snack-happy",
     vibeTags: ["food-forward", "laughs", "chatty", "structured-fun"],
     memberIds: users.slice(20, 40).map((u) => u.id),
     sharedEventTypeOverlap: ["cooking", "comedy", "cafe"],
@@ -624,6 +628,7 @@ const cohorts: DemoCohort[] = [
     name: "Neighborhood Strollers Union",
     slug: "neighborhood-strollers",
     theme: "Walk-and-talk, games, and low-stakes plans that keep you moving.",
+    peopleDescriptor: "curious",
     vibeTags: ["walk-and-talk", "structured-fun", "curious", "neighborhood-core"],
     memberIds: users.slice(40, 60).map((u) => u.id),
     sharedEventTypeOverlap: ["walking-tour", "board-games", "cafe"],

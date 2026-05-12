@@ -19,7 +19,7 @@ function fallbackNeighborhood(userId?: string | null) {
 
 export function ProfileHome() {
   const { user, isSignedIn } = useUser();
-  const state = useMemo(() => loadDemoState(), []);
+  const state = useMemo(() => loadDemoState(user?.id ?? null), [user?.id]);
   const [promptIndex, setPromptIndex] = useState(0);
 
   const displayName =

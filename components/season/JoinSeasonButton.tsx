@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { markMockDepositPaidAction } from "@/app/actions/onboarding";
 import { Button } from "@/components/ui/Button";
 import { ActionButton } from "@/components/ui/ActionButton";
 
@@ -21,6 +22,14 @@ export function JoinSeasonButton() {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
+        if (response.status === 501) {
+          const mock = await markMockDepositPaidAction();
+          if (mock.ok) {
+            window.location.reload();
+            return;
+          }
+          throw new Error(mock.error || "Failed to record demo deposit");
+        }
         throw new Error(data.error || "Failed to start checkout");
       }
 
@@ -47,7 +56,7 @@ export function JoinSeasonButton() {
 
   return (
     <div className="flex flex-col gap-2">
-      <ActionButton onClick={handleJoin} disabled={isLoading}>
+      <ActionButton onClick={handleJoin} disabled={isLoading} data-testid="join-season-deposit">
         {isLoading ? "Starting checkout…" : "Pay the $20 deposit"}
       </ActionButton>
       {error ? (
