@@ -97,6 +97,7 @@ export function BingoBoardDemo({
   const [selectionSaveStatus, setSelectionSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [bonusSaveStatus, setBonusSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [depositRecordedLocally, setDepositRecordedLocally] = useState(false);
+  const [autosaveStatusLabel, setAutosaveStatusLabel] = useState<string | null>(null);
   const skipFirstRemoteSave = useRef(true);
   const tiles = demoData.bingoTiles;
   const serverAuthoritative = Boolean(serverOnboarding?.configured);
@@ -143,6 +144,14 @@ export function BingoBoardDemo({
     }, 0);
     return () => window.clearTimeout(id);
   }, [storageUserId, serverSelectionsKey, serverSelections]);
+
+  useEffect(() => {
+    setAutosaveStatusLabel(
+      `${isCommitted ? "Locked in · " : "Autosaved · "}${formatSavedClock(state.updatedAtISO)}${
+        isCommitted ? "" : ` · tap an activity tile, add it to your ${required} of ${available}`
+      }`,
+    );
+  }, [isCommitted, required, available, state.updatedAtISO]);
 
   useEffect(() => {
     if (!syncSelectionsToServer) return;
@@ -279,10 +288,12 @@ export function BingoBoardDemo({
             </>
           )}
         </p>
-        <p className="mt-2 text-xs font-semibold text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
-          {isCommitted ? "Locked in · " : "Autosaved · "}
-          {formatSavedClock(state.updatedAtISO)}
-          {isCommitted ? "" : ` · tap an activity tile, add it to your ${required} of ${available}`}
+        <p
+          className="mt-2 text-xs font-semibold text-black/55"
+          style={{ fontFamily: "var(--font-mono)" }}
+          suppressHydrationWarning
+        >
+          {autosaveStatusLabel ?? (isCommitted ? "Locked in · —" : "Autosaved · —")}
         </p>
         {syncSelectionsToServer ? (
           <p className="mt-3 text-xs font-semibold text-black/55" style={{ fontFamily: "var(--font-mono)" }}>

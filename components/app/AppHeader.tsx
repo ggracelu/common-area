@@ -2,7 +2,6 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { AppNav } from "@/components/app/AppNav";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 
 export function AppHeader() {
   return (
@@ -25,9 +24,6 @@ export function AppHeader() {
             <Badge variant="butter" className="hidden sm:inline-flex rounded-full px-4 py-2 font-[var(--v16-mono)]">
               Crumbs saved you a spot.
             </Badge>
-            <Button href="/bingo" variant="secondary" size="sm" className="hidden sm:inline-flex">
-              Open season card
-            </Button>
             {/* TODO: remove — temp mascot lab */}
             <Link
               href="/crumbs-lab"

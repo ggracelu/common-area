@@ -2,6 +2,8 @@
 
 Use this script to grade the Common Area prototype with persisted Supabase state, shared Clerk credentials, and per-stage undo controls.
 
+**Grader login and first-screen expectations:** [GRADER_LOGIN.md](./GRADER_LOGIN.md) (credentials in [`.env.example`](../.env.example) and the login doc).
+
 ## 1. Environment
 
 1. Copy [`.env.example`](../.env.example) to `.env.local`.
@@ -20,7 +22,7 @@ Set in `.env.local`:
 
 **Failure mode:** a hosted `NEXT_PUBLIC_SUPABASE_URL` (for example `https://….supabase.co`) paired with a local `sb_secret_…` from `npx supabase status` does **not** point at the same project. The dashboard badge stays **Local demo cache**, `npm run test:grader` fails on **Saved to your account**, and onboarding stays demo-authoritative even though `SUPABASE_SECRET_KEY` is set.
 
-4. Create one Clerk **test-mode** user for grading and add to `.env.local`:
+4. Set grader credentials in `.env.local` (defaults in [`.env.example`](../.env.example); see [GRADER_LOGIN.md](./GRADER_LOGIN.md)):
    - `GRADER_CLERK_EMAIL`
    - `GRADER_CLERK_PASSWORD`
    - `NEXT_PUBLIC_GRADER_EMAIL_HINT` (same email, safe to expose in the UI)
@@ -47,6 +49,8 @@ npm run dev
 Seeds apply `seed.sql`, `seed_cohorts.sql`, and gamification seeds from migrations.
 
 ## 3. Sign in
+
+See [GRADER_LOGIN.md](./GRADER_LOGIN.md) for credentials and what to expect on `/dashboard`. Quick check:
 
 1. Open `/sign-in`.
 2. Sign in with the shared grader email and password (or sign up once with the same email).

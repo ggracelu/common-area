@@ -14,7 +14,11 @@ function previewDeployConfigured(baseURL: string | undefined) {
 }
 
 async function assertPreviewDeployReachable(baseURL: string) {
-  const response = await fetch(baseURL, { redirect: "manual" });
+  const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim();
+  const response = await fetch(baseURL, {
+    redirect: "manual",
+    headers: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
+  });
   if (response.status === 401 && response.headers.get("server") === "Vercel") {
     throw new Error(
       "Vercel Deployment Protection returned 401. Set VERCEL_AUTOMATION_BYPASS_SECRET for preview smoke or disable protection on the preview deployment.",

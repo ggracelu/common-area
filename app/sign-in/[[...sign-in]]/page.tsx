@@ -13,8 +13,8 @@ export default function SignInPage() {
         >
           <p className="font-semibold text-black">Grader account</p>
           <p className="mt-1">
-            Use <span className="font-semibold">{graderEmailHint}</span> with the shared test password documented in{" "}
-            <code className="rounded bg-black/5 px-1 py-0.5 text-xs">docs/GRADER_WALKTHROUGH.md</code>. Signing up with
+            Use <span className="font-semibold">{graderEmailHint}</span> with the shared test password in{" "}
+            <code className="rounded bg-black/5 px-1 py-0.5 text-xs">docs/GRADER_LOGIN.md</code>. Signing up with
             the same email works for grading.
           </p>
         </div>

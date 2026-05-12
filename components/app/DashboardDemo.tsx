@@ -113,9 +113,20 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
           ? "ready"
           : "not_started";
 
-  const currentMatchingBusy =
-    liveStatus === "pending" || liveStatus === "running" || (liveStatus === "assigned" && !letterPreviewDone);
-  const letterAvailable = liveStatus === "assigned";
+  const assignmentReady = liveStatus === "assigned";
+  const canSimulateCohortReveal =
+    assignmentReady || (!serverAuthoritative && hasPaid && hasEnoughPicks);
+  const showCohortReveal = isFuturePreview && canSimulateCohortReveal;
+  const showMatchingInProgress =
+    !isFuturePreview &&
+    hasPaid &&
+    hasEnoughPicks &&
+    !letterPreviewDone &&
+    (liveStatus === "pending" ||
+      liveStatus === "running" ||
+      liveStatus === "ready" ||
+      assignmentReady);
+  const currentMatchingBusy = showMatchingInProgress;
 
   const headline = isFuturePreview
     ? "Your cohort letter"
@@ -130,7 +141,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
         : "Ready to join a cohort?";
 
   const sub = isFuturePreview
-    ? letterAvailable
+    ? canSimulateCohortReveal
       ? serverAuthoritative
         ? "Open the envelope to read your assignment. Copy reflects your saved picks and server-created cohort match."
         : "Open the envelope to read your local demo assignment. This does not claim production persistence."
@@ -153,21 +164,17 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
       ? "Letter: opened"
     : liveStatus === "error"
       ? "Matching: error"
-      : liveStatus === "running"
-        ? "Matching: running"
-        : liveStatus === "pending"
-        ? "Matching: sorting"
+      : showMatchingInProgress
+        ? liveStatus === "running"
+          ? "Matching: running"
+          : "Matching: sorting"
         : liveStatus === "assigned"
           ? "Matching: finalizing"
           : hasEnoughPicks
             ? `Picks: ${required} of ${available} ready`
             : `Picks: choose ${required} of ${available}`;
 
-  const canSeeMatching =
-    !isFuturePreview &&
-    (liveStatus === "pending" ||
-      liveStatus === "running" ||
-      (liveStatus === "assigned" && !letterPreviewDone));
+  const canSeeMatching = showMatchingInProgress;
 
   const cohortPageReady = serverAuthoritative
     ? serverOnboarding?.assignmentStatus === "assigned" && letterPreviewDone
@@ -228,11 +235,24 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
     { label: `${required} of ${available} picks`, done: hasEnoughPicks },
     {
       label: "Matching",
-      done: liveStatus === "assigned",
+      done: assignmentReady && (letterPreviewDone || isFuturePreview),
     },
     { label: "Letter", done: letterPreviewDone },
     { label: "Cohort room", done: cohortPageReady },
   ];
+
+  function handleModeChange(next: ViewMode) {
+    if (
+      next === "future" &&
+      !serverAuthoritative &&
+      hasPaid &&
+      hasEnoughPicks &&
+      liveStatus !== "assigned"
+    ) {
+      setState(assignDemoCohortFromSelections(storageUserId));
+    }
+    setMode(next);
+  }
 
   return (
     <main className="mx-auto grid w-full max-w-5xl gap-6 px-3 py-6 md:px-0">
@@ -301,7 +321,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
             role="tab"
             aria-selected={mode === "current"}
             data-testid="dashboard-tab-current"
-            onClick={() => setMode("current")}
+            onClick={() => handleModeChange("current")}
             className={[
               "w-full rounded-[1.05rem] px-4 py-3 text-left transition-all sm:min-w-0 sm:flex-1",
               mode === "current"
@@ -323,7 +343,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
             role="tab"
             aria-selected={mode === "future"}
             data-testid="dashboard-tab-future"
-            onClick={() => setMode("future")}
+            onClick={() => handleModeChange("future")}
             className={[
               "w-full rounded-[1.05rem] px-4 py-3 text-left transition-all sm:min-w-0 sm:flex-1",
               mode === "future"
@@ -346,7 +366,8 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
       {!isFuturePreview && liveStatus === "assigned" && !letterPreviewDone ? (
         <div
           className="rounded-[1.35rem] border border-[rgba(26,92,255,0.28)] bg-[linear-gradient(135deg,rgba(26,92,255,0.08),rgba(247,240,228,0.72))] p-5"
-          role="status"
+          role="alert"
+          aria-live="polite"
         >
           <p className="text-xs font-black uppercase tracking-[0.22em] text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
             Cohort reveal
@@ -355,14 +376,14 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
             Your assignment is ready—open the Future tab to read your letter.
           </p>
           <div className="mt-4">
-            <Button variant="primary" onClick={() => setMode("future")}>
+            <Button variant="primary" onClick={() => handleModeChange("future")}>
               Open Future tab
             </Button>
           </div>
         </div>
       ) : null}
 
-      {isFuturePreview && letterAvailable ? (
+      {showCohortReveal ? (
         <div data-testid="cohort-reveal-letter">
           <CohortRevealLetter
             cohortId={futureLetter.cohortId}
@@ -377,14 +398,14 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
                 markFutureCohortLetterPreviewDone(storageUserId);
                 markCohortRevealSeen(futureLetter.cohortId, storageUserId);
               }
-              setMode("current");
+              handleModeChange("current");
               setState(loadDemoState(storageUserId));
             }}
           />
         </div>
       ) : null}
 
-      {isFuturePreview && !letterAvailable ? (
+      {isFuturePreview && !canSimulateCohortReveal ? (
         <Card variant="paper" className="border border-dashed border-black/15 bg-white/78">
           <Badge variant={liveStatus === "error" ? "rust" : "neutral"}>Letter locked</Badge>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">No cohort letter yet.</h1>
@@ -393,7 +414,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
             <Button href="/bingo" variant="secondary">
               Open season card
             </Button>
-            <Button variant="ghost" onClick={() => setMode("current")}>
+            <Button variant="ghost" onClick={() => handleModeChange("current")}>
               Back to status
             </Button>
           </div>
@@ -415,7 +436,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
               <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.74)]">{sub}</p>
             </div>
 
-            {(liveStatus === "pending" || liveStatus === "running") ? (
+            {showMatchingInProgress ? (
               <div className="rounded-[1.8rem] border border-black/10 bg-white/70 p-4 shadow-[0_18px_55px_rgba(52,36,24,0.10)]">
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
                   Mailroom cam
@@ -423,18 +444,6 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
                 <div className="mt-3 flex items-center gap-3">
                   <CrumbsTyping size={64} />
                   <p className="text-sm font-semibold text-black/70">Crumbs is on sorting duty.</p>
-                </div>
-              </div>
-            ) : liveStatus === "assigned" && !letterPreviewDone ? (
-              <div className="rounded-[1.8rem] border border-[rgba(26,92,255,0.22)] bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(247,240,228,0.88))] p-4 shadow-[0_18px_55px_rgba(26,92,255,0.12)]">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
-                  Letter ready
-                </p>
-                <div className="mt-3 flex items-center gap-3">
-                  <CrumbsTyping size={64} />
-                  <p className="text-sm font-semibold text-black/75">
-                    Your cohort letter is sealed under the Future tab.
-                  </p>
                 </div>
               </div>
             ) : null}
@@ -492,7 +501,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
                 variant="ghost"
                 onClick={() => {
                   setState(assignDemoCohortFromSelections(storageUserId));
-                  setMode("future");
+                  handleModeChange("future");
                 }}
               >
                 Run local demo assignment
@@ -518,7 +527,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
 
       {canSeeMatching ? (
         <PostcardMatchAnimation
-          status={liveStatus === "assigned" && !letterPreviewDone ? "pending" : liveStatus}
+          status={assignmentReady && !letterPreviewDone ? "pending" : liveStatus}
           error={assignmentRequest.error}
         />
       ) : null}

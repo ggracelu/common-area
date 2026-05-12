@@ -54,7 +54,11 @@ export function PostcardMatchAnimation({ status, error }: PostcardMatchAnimation
   const dots = ".".repeat((tick % 3) + 1);
 
   return (
-    <div className="relative overflow-hidden rounded-[1.8rem] border border-black/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.82),rgba(247,240,228,0.82))] p-6 shadow-[0_18px_55px_rgba(52,36,24,0.10)]">
+    <div
+      className="relative overflow-hidden rounded-[1.8rem] border border-black/10 bg-[linear-gradient(135deg,rgba(255,255,255,0.82),rgba(247,240,228,0.82))] p-6 shadow-[0_18px_55px_rgba(52,36,24,0.10)]"
+      role={status === "error" ? "alert" : "status"}
+      aria-live={status === "error" ? "assertive" : "polite"}
+    >
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:rgba(37,34,30,0.65)]">Matching mailroom</p>

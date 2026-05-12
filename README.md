@@ -21,7 +21,7 @@ Current scope:
 - Design system documentation in `docs/DESIGN_SYSTEM.md`
 - Shared UI primitives and global design tokens
 - Playwright smoke, grader journey, and preview smoke projects
-- Grader walkthrough, pitch readiness scorecard, and tooling friction notes in `docs/`
+- Grader login, walkthrough, pitch readiness scorecard, and tooling friction notes in `docs/`
 
 Still partial or environment-gated:
 - Stripe live checkout (UI + routes exist; demo deposit path when checkout returns `501`)
@@ -48,6 +48,8 @@ Brand note:
 
 See:
 - [AGENTS.md](./AGENTS.md)
+- [Grader login](./docs/GRADER_LOGIN.md)
+- [Grader walkthrough](./docs/GRADER_WALKTHROUGH.md)
 - [Product Plan](./docs/PRODUCT_PLAN.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [Data Model](./docs/DATA_MODEL.md)

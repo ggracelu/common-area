@@ -22,7 +22,7 @@ export function AppNav() {
 
         return (
           <Link
-            key={link.href}
+            key={link.label}
             href={link.href}
             prefetch={false}
             className={`rounded-full px-4 py-2 text-[0.72rem] font-black uppercase tracking-[0.22em] transition-colors ${

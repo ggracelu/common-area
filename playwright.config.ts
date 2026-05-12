@@ -69,7 +69,12 @@ export default defineConfig({
               ...devices["Desktop Chrome"],
               baseURL: previewBaseUrl,
               ...(previewBypassSecret
-                ? { extraHTTPHeaders: { "x-vercel-protection-bypass": previewBypassSecret } }
+                ? {
+                    extraHTTPHeaders: {
+                      "x-vercel-protection-bypass": previewBypassSecret,
+                      "x-vercel-set-bypass-cookie": "true",
+                    },
+                  }
                 : {}),
             },
           }
