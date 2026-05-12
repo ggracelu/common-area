@@ -395,3 +395,10 @@ RLS intent:
 - Chat belongs to a cohort.
 - Bingo progress belongs to a user within a season/cohort context.
 - Payment and assignment internals are server-controlled.
+
+## Host partners (future)
+Consumer onboarding in v3 does not include a business-facing surface. A later phase may add:
+- Host profile records linked to Clerk or a separate operator identity
+- Activity and venue linkage so each curated experience names a recurring host location
+- Recurring cohort slots and capacity tied to host calendars
+- Read-only host visibility into assigned cohorts and attendance (not payouts or CRM in the first host pass)

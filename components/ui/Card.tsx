@@ -1,12 +1,12 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
-type CardProps = {
+type CardProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
   variant?: "default" | "paper" | "scrapbook" | "polaroid";
   className?: string;
 };
 
-export function Card({ children, variant = "default", className = "" }: CardProps) {
+export function Card({ children, variant = "default", className = "", ...rest }: CardProps) {
   const variantClasses = {
     default:
       "rounded-[var(--radius-card)] bg-white/84 p-6 shadow-[var(--shadow-card)]",
@@ -21,6 +21,7 @@ export function Card({ children, variant = "default", className = "" }: CardProp
   return (
     <div
       className={`relative border border-[var(--color-line)] backdrop-blur ${variantClasses} ${className}`.trim()}
+      {...rest}
     >
       {children}
     </div>

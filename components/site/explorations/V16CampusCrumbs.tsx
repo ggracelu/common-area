@@ -265,6 +265,9 @@ export function V16CampusCrumbsSite() {
                   <aside className="v15-sticky v15-s-1">
                     <p className="v15-sticky-k">Crumbs note</p>
                     <p className="v15-sticky-t">“No swiping. Just show up.”</p>
+                    <div className="mt-3">
+                      <Crumbs size="md" animated={!reduced} reducedMotion={reduced} />
+                    </div>
                   </aside>
 
                   <div className="v15-icon-row" aria-label="Icons">

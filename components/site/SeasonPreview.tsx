@@ -15,7 +15,7 @@ export function SeasonPreview() {
             description="A season is not an endless feed. It is a short window of recurring Chicago plans, local energy, and a cohort built to make familiar faces easier to find the second time."
           />
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button href="#activities">Browse the season</Button>
+            <Button href="#activities">Browse experiences</Button>
             <Button href="/sign-up" variant="ghost">
               Save me a spot
             </Button>

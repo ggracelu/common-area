@@ -3,34 +3,53 @@
 import { useEffect, useState } from "react";
 
 type PostcardMatchAnimationProps = {
-  status: "not_started" | "mailing" | "pending" | "assigned";
+  status: "not_started" | "ready" | "running" | "pending" | "assigned" | "error";
+  error?: string;
 };
 
-export function PostcardMatchAnimation({ status }: PostcardMatchAnimationProps) {
+export function PostcardMatchAnimation({ status, error }: PostcardMatchAnimationProps) {
   const [tick, setTick] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReducedMotion(media.matches);
+    onChange();
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return;
     const interval = window.setInterval(() => setTick((t) => t + 1), 1200);
     return () => window.clearInterval(interval);
-  }, []);
+  }, [reducedMotion]);
 
   const label =
     status === "assigned"
       ? "Delivered"
-      : status === "pending"
+      : status === "error"
+        ? "Needs review"
+        : status === "running"
+          ? "Running"
+          : status === "pending"
         ? "Sorting"
-        : status === "mailing"
-          ? "In flight"
+        : status === "ready"
+          ? "Ready"
           : "Unsent";
 
   const sub =
     status === "assigned"
       ? "Cohort reveal ready."
-      : status === "pending"
-        ? "We’re sorting the match pile."
-        : status === "mailing"
-          ? "Postcard is leaving your desk."
-          : "Pick events, then mail it.";
+      : status === "error"
+        ? (error ?? "Assignment did not complete.")
+        : status === "running"
+          ? "The server is creating your cohort assignment from saved picks."
+          : status === "pending"
+            ? "Waiting on the assignment workflow. The letter stays locked."
+            : status === "ready"
+              ? "Ready to run the documented local demo assignment."
+              : "Pick activities, pay the deposit, then assignment can start.";
 
   const dots = ".".repeat((tick % 3) + 1);
 
@@ -41,14 +60,14 @@ export function PostcardMatchAnimation({ status }: PostcardMatchAnimationProps) 
           <p className="text-xs font-black uppercase tracking-[0.22em] text-[color:rgba(37,34,30,0.65)]">Matching mailroom</p>
           <p className="mt-3 text-2xl font-semibold tracking-tight">
             {label}
-            {status === "pending" || status === "mailing" ? dots : ""}
+            {status === "pending" || status === "running" ? dots : ""}
           </p>
           <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">{sub}</p>
         </div>
         <div className="hidden sm:block">
           <div
             className={`relative h-28 w-40 rounded-[1.25rem] border border-black/15 bg-white/85 shadow-[0_18px_55px_rgba(52,36,24,0.10)] ${
-              status === "mailing"
+              status === "running"
                 ? "animate-[postcardFly_1.2s_ease-in-out_infinite]"
                 : status === "pending"
                   ? "animate-[postcardWiggle_2.4s_ease-in-out_infinite]"
@@ -86,4 +105,3 @@ export function PostcardMatchAnimation({ status }: PostcardMatchAnimationProps) 
     </div>
   );
 }
-

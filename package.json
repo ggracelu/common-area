@@ -10,16 +10,26 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "mkdir -p .next/types && next typegen && tsc --noEmit",
-    "test": "echo \"No test framework configured yet\""
+    "test": "playwright test --project=local",
+    "test:grader": "playwright test --project=grader",
+    "test:preview": "playwright test --project=preview",
+    "preview:url": "node scripts/preview-environment-url.mjs",
+    "test:install": "playwright install chromium"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.2.7",
+    "@react-three/fiber": "^9.6.1",
+    "@shadergradient/react": "^2.4.20",
     "@supabase/supabase-js": "^2.105.0",
     "next": "16.2.2",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "stripe": "^22.1.0",
+    "three": "^0.184.0"
   },
   "devDependencies": {
+    "@clerk/testing": "^2.0.27",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

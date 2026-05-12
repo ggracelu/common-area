@@ -19,7 +19,7 @@ function fallbackNeighborhood(userId?: string | null) {
 
 export function ProfileHome() {
   const { user, isSignedIn } = useUser();
-  const state = useMemo(() => loadDemoState(), []);
+  const state = useMemo(() => loadDemoState(user?.id ?? null), [user?.id]);
   const [promptIndex, setPromptIndex] = useState(0);
 
   const displayName =
@@ -88,8 +88,8 @@ export function ProfileHome() {
             <Button size="sm" variant="secondary" onClick={() => setPromptIndex((i) => i + 1)}>
               Shuffle prompt
             </Button>
-            <Button size="sm" variant="ghost" href="/season/select">
-              Pick events
+            <Button size="sm" variant="ghost" href="/bingo">
+              Pick experiences
             </Button>
           </div>
         </div>

@@ -16,7 +16,7 @@ export const steps: Step[] = [
   },
   {
     eyebrow: "Step 2",
-    title: "Pick 4 activities",
+    title: "Pick 4 of 6 activities",
     description:
       "Choose four interest-driven plans built around real neighborhoods, real businesses, and real reasons to leave the house.",
   },

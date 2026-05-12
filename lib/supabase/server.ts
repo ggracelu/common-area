@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseEnvContractWarning } from "@/lib/supabase/contract";
 import { getPublicSupabaseEnv } from "@/lib/supabase/env";
 
 function getSupabaseSecretKey() {
@@ -29,6 +30,13 @@ export function createServerSupabasePublicClient() {
 export function createSupabaseAdminClient() {
   const { url } = getPublicSupabaseEnv();
   const secretKey = getSupabaseSecretKey();
+
+  if (process.env.NODE_ENV === "development") {
+    const warning = getSupabaseEnvContractWarning();
+    if (warning) {
+      console.warn(`[Supabase env] ${warning}`);
+    }
+  }
 
   return createClient(url, secretKey, {
     auth: {

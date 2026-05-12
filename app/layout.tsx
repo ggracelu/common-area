@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { CrumbsLabPortal } from "@/components/app/CrumbsLabPortal";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +16,11 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" className="h-full antialiased">
-        <body className="min-h-full flex flex-col">{children}</body>
+        <body className="min-h-full flex flex-col">
+          {children}
+          {/* TODO: remove — temp mascot lab entry (portal = above Clerk / headers) */}
+          <CrumbsLabPortal />
+        </body>
       </html>
     </ClerkProvider>
   );

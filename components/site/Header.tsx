@@ -23,7 +23,7 @@ export async function Header() {
         <div className="hidden items-center gap-6 md:flex">
           <nav className="flex items-center gap-6 text-sm font-medium text-[color:rgba(37,34,30,0.7)]">
             {navLinks.map((link) => {
-              const href = link.label === "Season" ? "/season" : link.href;
+              const href = link.label === "Season" ? "/bingo" : link.href;
 
               return (
                 <Link

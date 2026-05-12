@@ -25,9 +25,16 @@ export function AppHeader() {
             <Badge variant="butter" className="hidden sm:inline-flex rounded-full px-4 py-2 font-[var(--v16-mono)]">
               Crumbs saved you a spot.
             </Badge>
-            <Button href="/season" variant="secondary" size="sm" className="hidden sm:inline-flex">
-              Browse the season
+            <Button href="/bingo" variant="secondary" size="sm" className="hidden sm:inline-flex">
+              Open season card
             </Button>
+            {/* TODO: remove — temp mascot lab */}
+            <Link
+              href="/crumbs-lab"
+              className="shrink-0 rounded-full border border-black/12 bg-white/90 px-3 py-1.5 text-[0.7rem] font-semibold tracking-tight text-black/75 hover:bg-white"
+            >
+              Crumbs lab
+            </Link>
             <UserButton />
           </div>
         </div>

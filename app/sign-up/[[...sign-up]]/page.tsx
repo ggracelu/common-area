@@ -1,12 +1,9 @@
 import { SignUp } from "@clerk/nextjs";
-import { AuthShell } from "@/components/site/AuthShell";
+import { MinimalAuthShell } from "@/components/site/MinimalAuthShell";
 
 export default function SignUpPage() {
   return (
-    <AuthShell
-      title="Join the season before the room fills up."
-      description="Create your account now. Real season signup, deposits, and activity selection come next, but the Common Area auth foundation is ready."
-    >
+    <MinimalAuthShell title="Create your account.">
       <div className="flex justify-center py-4">
         <SignUp
           path="/sign-up"
@@ -27,6 +24,6 @@ export default function SignUpPage() {
           }}
         />
       </div>
-    </AuthShell>
+    </MinimalAuthShell>
   );
 }
