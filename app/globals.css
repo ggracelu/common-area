@@ -4109,6 +4109,115 @@ button {
   box-shadow: 0 46px 140px rgba(52, 36, 24, 0.14);
 }
 
+.partner-gallery-section {
+  margin-top: 5rem;
+}
+
+.partner-gallery-track-wrap {
+  border-radius: 1.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  padding: 14px 0;
+}
+
+.partner-gallery-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  padding: 0 16px;
+}
+
+.partner-gallery-track-left {
+  animation: partner-gallery-scroll-left 48s linear infinite;
+}
+
+.partner-gallery-track-right {
+  animation: partner-gallery-scroll-right 52s linear infinite;
+}
+
+.partner-gallery-track-static {
+  flex-wrap: wrap;
+  width: auto;
+  justify-content: center;
+  animation: none;
+}
+
+.partner-gallery-card {
+  width: min(320px, 78vw);
+  border-radius: 1.6rem;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 60px rgba(52, 36, 24, 0.1);
+  position: relative;
+}
+
+.partner-gallery-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    220px 220px at 18% 0%,
+    color-mix(in srgb, var(--v16-accent, var(--v16-lime)) 28%, transparent),
+    transparent 72%
+  );
+}
+
+.partner-gallery-image {
+  display: block;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.partner-gallery-image-fallback {
+  background: linear-gradient(135deg, rgba(233, 255, 107, 0.35), rgba(26, 92, 255, 0.18));
+}
+
+.partner-gallery-caption {
+  position: relative;
+  z-index: 1;
+  padding: 14px 16px 16px;
+}
+
+.partner-gallery-kicker {
+  font-family: var(--v16-mono, var(--font-mono));
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.partner-gallery-title {
+  margin-top: 8px;
+  font-family: var(--v16-display, var(--font-sans));
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+
+@keyframes partner-gallery-scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes partner-gallery-scroll-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 @keyframes v16-marquee {
   from {
     transform: translateX(0);
@@ -4325,5 +4434,10 @@ button {
 
   .v16-whoosh {
     transform: none;
+  }
+
+  .partner-gallery-track-left,
+  .partner-gallery-track-right {
+    animation: none !important;
   }
 }

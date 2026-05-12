@@ -26,6 +26,8 @@ Set in `.env.local`:
    - `GRADER_CLERK_EMAIL`
    - `GRADER_CLERK_PASSWORD`
    - `NEXT_PUBLIC_GRADER_EMAIL_HINT` (same email, safe to expose in the UI)
+   - `PARTNER_GRADER_CLERK_EMAIL`, `PARTNER_GRADER_CLERK_PASSWORD`, and `NEXT_PUBLIC_PARTNER_GRADER_EMAIL_HINT` for the Grader's Coffee partner grader callout on `/partner/sign-in`
+   - `PARTNER_TESTER_CLERK_EMAIL`, `PARTNER_TESTER_CLERK_PASSWORD`, and `NEXT_PUBLIC_PARTNER_TESTER_EMAIL_HINT` for the Crumbs Cafe personal tester callout on `/partner/sign-in`
 5. Playwright:
    - `PLAYWRIGHT_LOCAL_BASE_URL` for `npm run test:grader` (defaults to `http://localhost:3000`)
    - `PLAYWRIGHT_BASE_URL` for `npm run test:preview` — the **public** Vercel deploy of [ggracelu/whynot](https://github.com/ggracelu/whynot). Resolve the latest Preview `environment_url` with:
@@ -43,18 +45,30 @@ Playwright loads `.env.local` automatically for `npm run test:grader` and `npm r
 
 ```bash
 npx supabase db reset
+node scripts/provision-partner-accounts.mjs
 npm run dev
 ```
 
-Seeds apply `seed.sql`, `seed_cohorts.sql`, and gamification seeds from migrations.
+Seeds apply `seed.sql`, `seed_cohorts.sql`, gamification seeds, and `seed_partner_businesses.sql` (ten Chicago host businesses for `/partner`).
 
 ## 3. Sign in
 
-See [GRADER_LOGIN.md](./GRADER_LOGIN.md) for credentials and what to expect on `/dashboard`. Quick check:
+See [GRADER_LOGIN.md](./GRADER_LOGIN.md) for credentials and first-screen expectations. The member season grader and partner business logins are **different accounts** on **different routes**.
 
-1. Open `/sign-in`.
-2. Sign in with the shared grader email and password (or sign up once with the same email).
+### Member season grader
+
+1. Open `/sign-in` (not `/partner/sign-in`).
+2. Sign in with `grader@example.com` and `CAgr8r-9Qm!vT2wL6pX` (or sign up once with the same email if that user does not exist yet in this Clerk application).
 3. Confirm `/dashboard` loads the onboarding checklist (`data-testid="grader-onboarding-checklist"`) and the **Saved to your account** badge (not **Local demo cache**).
+
+### Partner preview (business logins)
+
+1. Open `/partner` and confirm the host gallery and **Building community, 1 brick at a time** headline.
+2. Open `/partner/sign-in` (not `/sign-in`).
+3. Sign in with **Grader's Coffee** (`graders-coffee+clerk_test@example.com`, password `CAPartner-8Qm!vT2wL6pX`) for the canonical partner grader pass. If Clerk asks for a verification code, use **`424242`**.
+4. Confirm `/business/dashboard` loads host onboarding or, after you finish the wizard, the tabbed partner dashboard (**Dashboard**, **Calendar**, **Analytics**, **Community**, **Profile**).
+5. On `/business/dashboard`, use **Partner testing controls** only when signed in as Grader's Coffee or Crumbs Cafe. **Apply sample answers** and **Reset partner onboarding** are testing-only; see [GRADER_LOGIN.md](./GRADER_LOGIN.md) for sample field values and `data-testid`s.
+6. For a separate saved onboarding profile, sign out or open `/partner/sign-in` fresh, then sign in as **Crumbs Cafe** (`crumbs-cafe+clerk_test@example.com`, password `CAPartner-Cr7m!vT2wL6pX`) instead of Grader's Coffee.
 
 ## 4. Happy path
 
@@ -82,6 +96,24 @@ PLAYWRIGHT_BASE_URL=<public-vercel-deploy> npm run test:preview
 ```
 
 Install Playwright browsers once per machine with `npm run test:install` if `test` or `test:grader` report missing Chromium.
+
+## 7. Deploy on Vercel
+
+From the repo root on the branch you want to ship:
+
+```bash
+npm run typecheck
+npm run build
+vercel deploy          # preview
+vercel deploy --prod   # production (updates whynot-one.vercel.app)
+```
+
+After deploy, grade on the public alias:
+
+- Member season grader: `https://whynot-one.vercel.app/sign-in`
+- Partner business logins: `https://whynot-one.vercel.app/partner/sign-in`
+
+Ensure the Vercel project has Clerk test keys, Supabase URL and keys, and the grader hint env vars from [`.env.example`](../.env.example) (`NEXT_PUBLIC_GRADER_EMAIL_HINT`, `NEXT_PUBLIC_PARTNER_GRADER_EMAIL_HINT`, `NEXT_PUBLIC_PARTNER_TESTER_EMAIL_HINT`). Add the deploy URL to Clerk allowed origins and redirect URLs if sign-in fails.
 
 ## Spec Kit
 

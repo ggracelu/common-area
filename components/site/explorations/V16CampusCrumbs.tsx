@@ -186,6 +186,9 @@ export function V16CampusCrumbsSite() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <Link href="/partner" className="v16-btn v16-btn-outline text-xs">
+              Become a partner
+            </Link>
             <Link href="/sign-up" className="v16-btn v16-btn-solid text-xs">
               Sign up
             </Link>
@@ -396,6 +399,9 @@ export function V16CampusCrumbsSite() {
               </Link>
               <Link href="/sign-in" className="v16-btn v16-btn-outline v16-btn-dark-outline">
                 Sign in
+              </Link>
+              <Link href="/partner" className="v16-btn v16-btn-outline v16-btn-dark-outline">
+                Become a partner
               </Link>
             </div>
           </div>
