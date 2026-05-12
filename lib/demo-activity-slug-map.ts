@@ -9,8 +9,6 @@ export const DEMO_EVENT_TO_ACTIVITY_SLUG: Record<string, string> = {
   evt_pilsen_mural_walk: "mural-walk-pilsen",
   evt_cafe_crawl: "coffee-crawl-wicker-park",
   evt_board_game_bracket: "board-game-night-lakeview",
-  evt_bookstore_browsing: "bookshop-browsing-lincoln-square",
-  evt_flower_bar_mess: "flower-bar-ravenswood",
 };
 
 export const ACTIVITY_SLUG_TO_DEMO_EVENT: Record<string, string> = Object.fromEntries(

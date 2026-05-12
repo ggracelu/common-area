@@ -6,12 +6,10 @@ import { updateProfileOnboardingStatus } from "@/lib/onboarding";
 
 const COHORT_SLUG_BY_ACTIVITY_SLUG: Record<string, string> = {
   "pottery-night-logan-square": "art-room-regulars",
-  "bookshop-browsing-lincoln-square": "art-room-regulars",
-  "flower-bar-ravenswood": "art-room-regulars",
+  "coffee-crawl-wicker-park": "art-room-regulars",
   "group-cooking-class-west-loop": "table-and-laughs",
   "comedy-show-old-town": "table-and-laughs",
   "mural-walk-pilsen": "neighborhood-strollers",
-  "coffee-crawl-wicker-park": "neighborhood-strollers",
   "board-game-night-lakeview": "neighborhood-strollers",
 };
 

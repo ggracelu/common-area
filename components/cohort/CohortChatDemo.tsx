@@ -1,28 +1,87 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { sendCohortChatMessageAction } from "@/app/actions/chat";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
 import { demoData, getDemoChatThread, getDemoUser } from "@/lib/demo-data";
-import { addChatMessage, loadDemoState } from "@/lib/demo-state";
-
+import { addChatMessage, getDefaultDemoState, loadDemoState } from "@/lib/demo-state";
+import type { CohortChatLoadState, CohortChatMessageView } from "@/types/chat";
 import type { OnboardingSnapshot } from "@/types/onboarding";
+
+type PendingMessage = CohortChatMessageView & { delivery: "sending" | "failed" };
+
+type SendState =
+  | { status: "idle" | "sent"; error?: undefined; retryBody?: undefined }
+  | { status: "sending"; error?: undefined; retryBody?: string }
+  | { status: "error"; error: string; retryBody: string };
 
 function formatTime(iso: string) {
   const d = new Date(iso);
   return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(d);
 }
 
-export function CohortChatDemo({ serverOnboarding = null }: { serverOnboarding?: OnboardingSnapshot | null }) {
+function initialsFor(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part.slice(0, 1).toUpperCase())
+    .join("")
+    .slice(0, 2) || "CA";
+}
+
+function seededMessagesForCohort(cohortId: string | null): CohortChatMessageView[] {
+  if (!cohortId) return [];
+  const thread = getDemoChatThread(cohortId);
+  return (thread?.seededMessages ?? []).map((message) => {
+    const author =
+      message.authorUserId === "system"
+        ? { displayName: "Crumbs", avatar: { value: "CA" } }
+        : getDemoUser(message.authorUserId) ?? { displayName: "Cohort member", avatar: { value: "CA" } };
+
+    return {
+      id: message.id,
+      body: message.body,
+      createdAtISO: message.createdAtISO,
+      authorName: author.displayName,
+      authorInitials: author.avatar.value,
+      isSelf: false,
+      isSeeded: true,
+      isLocalOnly: true,
+    };
+  });
+}
+
+export function CohortChatDemo({
+  serverOnboarding = null,
+  serverChat = { status: "not_configured", messages: [] },
+}: {
+  serverOnboarding?: OnboardingSnapshot | null;
+  serverChat?: CohortChatLoadState;
+}) {
+  const router = useRouter();
   const { userId } = useAuth();
   const storageUserId = userId ?? null;
 
-  const [state, setState] = useState(() => loadDemoState(storageUserId));
+  const [state, setState] = useState(() => getDefaultDemoState());
   const [draft, setDraft] = useState("");
+  const [sendState, setSendState] = useState<SendState>({ status: "idle" });
+  const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([]);
+  const [reducedMotion, setReducedMotion] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  const serverAuthoritative = Boolean(serverOnboarding?.configured);
+  const serverAssigned =
+    serverAuthoritative && serverOnboarding?.assignmentStatus === "assigned" && Boolean(serverOnboarding.cohortId);
+  const localAssigned = !serverAuthoritative && state.matching.status === "assigned" && Boolean(state.matching.cohortId);
+  const chatUnlocked = serverAssigned || localAssigned;
+  const cohortId = serverAuthoritative ? serverOnboarding?.cohortDemoId ?? null : state.matching.cohortId;
+  const cohort = cohortId ? demoData.cohorts.find((c) => c.id === cohortId) ?? null : null;
+  const serverChatReady = serverAuthoritative && serverChat.status === "ready";
+  const serverChatError = serverAuthoritative && serverChat.status === "error";
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -31,116 +90,262 @@ export function CohortChatDemo({ serverOnboarding = null }: { serverOnboarding?:
     return () => window.clearTimeout(id);
   }, [storageUserId]);
 
-  const cohortId =
-    (serverOnboarding?.configured && serverOnboarding.cohortDemoId) ||
-    state.matching.cohortId ||
-    demoData.cohorts[0].id;
-  const thread = getDemoChatThread(cohortId);
-  const local = state.chat.messagesByCohortId[cohortId] ?? [];
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReducedMotion(media.matches);
+    onChange();
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
 
   const messages = useMemo(() => {
-    const seeded = thread?.seededMessages ?? [];
-    const mappedLocal = local.map((m) => ({
-      id: m.id,
-      authorUserId: "system",
-      body: m.body,
-      createdAtISO: m.createdAtISO,
-      isLocal: true as const,
+    if (!chatUnlocked) return [];
+
+    const persisted = serverChatReady ? serverChat.messages : [];
+    const localSeeded = !serverAuthoritative ? seededMessagesForCohort(cohortId) : [];
+    const local = !serverAuthoritative && cohortId ? state.chat.messagesByCohortId[cohortId] ?? [] : [];
+    const mappedLocal: CohortChatMessageView[] = local.map((message) => ({
+      id: message.id,
+      authorName: "You",
+      authorInitials: "YO",
+      body: message.body,
+      createdAtISO: message.createdAtISO,
+      isSelf: true,
+      isLocalOnly: true,
     }));
-    return [...seeded.map((m) => ({ ...m, isLocal: false as const })), ...mappedLocal].sort(
+
+    return [...persisted, ...localSeeded, ...mappedLocal, ...pendingMessages].sort(
       (a, b) => new Date(a.createdAtISO).getTime() - new Date(b.createdAtISO).getTime(),
     );
-  }, [thread, local]);
+  }, [
+    chatUnlocked,
+    serverChatReady,
+    serverChat.messages,
+    serverAuthoritative,
+    cohortId,
+    state.chat.messagesByCohortId,
+    pendingMessages,
+  ]);
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages.length]);
+    listRef.current?.scrollTo({
+      top: listRef.current.scrollHeight,
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
+  }, [messages.length, reducedMotion]);
+
+  async function sendMessage(body: string) {
+    const trimmed = body.trim();
+    if (!trimmed || !chatUnlocked) return;
+
+    setSendState({ status: "sending", retryBody: trimmed });
+    setDraft("");
+
+    if (!serverAuthoritative) {
+      const next = addChatMessage(cohortId!, trimmed, storageUserId);
+      setState(next);
+      setSendState({ status: "sent" });
+      window.setTimeout(() => setSendState({ status: "idle" }), 1800);
+      return;
+    }
+
+    const tempId = `pending_${Date.now()}`;
+    const pending: PendingMessage = {
+      id: tempId,
+      body: trimmed,
+      createdAtISO: new Date().toISOString(),
+      authorName: "You",
+      authorInitials: initialsFor("You"),
+      isSelf: true,
+      delivery: "sending",
+    };
+    setPendingMessages((current) => [...current, pending]);
+
+    const result = await sendCohortChatMessageAction(trimmed);
+    if (result.ok) {
+      setPendingMessages((current) =>
+        current.map((message) => (message.id === tempId ? { ...result.message, delivery: "sending" } : message)),
+      );
+      setSendState({ status: "sent" });
+      router.refresh();
+      window.setTimeout(() => {
+        setPendingMessages((current) => current.filter((message) => message.id !== tempId));
+        setSendState({ status: "idle" });
+      }, 1800);
+      return;
+    }
+
+    setPendingMessages((current) =>
+      current.map((message) => (message.id === tempId ? { ...message, delivery: "failed" } : message)),
+    );
+    setDraft(trimmed);
+    setSendState({ status: "error", error: result.error, retryBody: trimmed });
+  }
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void sendMessage(draft);
+  }
+
+  if (!chatUnlocked) {
+    return (
+      <div className="grid gap-6" data-testid="cohort-chat-demo">
+        <div
+          className="rounded-[1.25rem] border border-black/12 bg-white/78 px-4 py-3 text-sm text-[color:rgba(37,34,30,0.82)]"
+          role="status"
+          aria-live="polite"
+          data-testid="cohort-chat-demo-label"
+        >
+          <p className="font-semibold text-black">Cohort chat locked</p>
+          <p className="mt-1">
+            Chat is cohort-private. No thread, roster, or seeded demo cache is shown until assignment exists.
+          </p>
+        </div>
+        <Card variant="paper">
+          <Badge variant="neutral">Not assigned</Badge>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight">Your cohort thread opens after assignment.</h2>
+          <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
+            Finish the deposit and 4 of 6 picks first. If the server has not assigned you, this page stays empty.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button href="/dashboard" variant="primary">
+              Back to dashboard
+            </Button>
+            <Button href="/bingo" variant="secondary">
+              Open season card
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-6" data-testid="cohort-chat-demo">
       <div
-        className="rounded-[1.25rem] border border-[rgba(26,92,255,0.28)] bg-[linear-gradient(135deg,rgba(26,92,255,0.08),rgba(247,240,228,0.72))] px-4 py-3 text-sm text-[color:rgba(37,34,30,0.82)]"
-        role="status"
+        className={[
+          "rounded-[1.25rem] border px-4 py-3 text-sm text-[color:rgba(37,34,30,0.82)]",
+          serverChatReady
+            ? "border-[rgba(103,114,85,0.28)] bg-[rgba(236,245,225,0.72)]"
+            : "border-[rgba(26,92,255,0.28)] bg-[linear-gradient(135deg,rgba(26,92,255,0.08),rgba(247,240,228,0.72))]",
+        ].join(" ")}
+        role={serverChatError ? "alert" : "status"}
         aria-live="polite"
         data-testid="cohort-chat-demo-label"
       >
-        <p className="font-semibold text-black">Demo chat thread</p>
+        <p className="font-semibold text-black">
+          {serverChatReady ? "Postgres-backed cohort thread" : serverChatError ? "Chat persistence unavailable" : "Demo chat thread"}
+        </p>
         <p className="mt-1">
-          Seeded messages and anything you send stay on this device until Postgres chat ships. No realtime claims.
+          {serverChatReady
+            ? "Messages are saved through the server before they appear. Realtime is intentionally not advertised yet."
+            : serverChatError
+              ? serverChat.error
+              : "Seeded messages and anything you send stay on this device. No server persistence or realtime claims."}
         </p>
       </div>
 
       <Card variant="scrapbook">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <Badge variant="sky">Chat (demo)</Badge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight">A cohort group chat that feels lived-in.</h2>
+            <Badge variant={serverChatReady ? "moss" : "sky"}>
+              {serverChatReady ? "Chat (server)" : "Chat (local demo)"}
+            </Badge>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight">
+              {cohort ? `${cohort.name} thread` : "Your cohort thread"}
+            </h2>
             <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
-              Seeded messages are part of the demo. Anything you send is saved on this device only — not persisted or realtime.
+              A simple cohort room for first messages. Send-then-read reliability comes before live badges.
             </p>
           </div>
-          <Sticker>Say hi. Then leave after an hour.</Sticker>
+          <Sticker>Say hi. Low stakes.</Sticker>
         </div>
       </Card>
 
-      <Card variant="paper" className="p-0 overflow-hidden">
+      <Card variant="paper" className="overflow-hidden p-0">
         <div ref={listRef} className="max-h-[62vh] overflow-auto p-5 sm:p-6">
-          <div className="grid gap-3">
-            {messages.map((m) => {
-              const author =
-                m.authorUserId === "system"
-                  ? { displayName: "Crumbs", avatar: { value: "CA" } }
-                  : getDemoUser(m.authorUserId) ?? { displayName: "Someone", avatar: { value: "CA" } };
-
-              return (
-                <div key={m.id} className="rounded-[1.25rem] border border-black/10 bg-white/70 p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-foreground)] text-xs font-black text-[var(--color-paper)]">
-                        {"avatar" in author ? author.avatar.value : "CA"}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold">
-                          {"displayName" in author ? author.displayName : "Crumbs"}
-                          {m.isLocal ? <span className="ml-2 text-xs text-black/50">(local)</span> : null}
-                        </p>
-                        <p className="text-xs text-black/50">{formatTime(m.createdAtISO)}</p>
+          {messages.length === 0 ? (
+            <div className="rounded-[1.25rem] border border-dashed border-black/15 bg-white/70 p-5">
+              <p className="text-sm font-semibold text-black">No messages yet.</p>
+              <p className="mt-2 text-sm leading-6 text-black/62">
+                The first message will appear here after the server saves it.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3">
+              {messages.map((message) => {
+                const delivery = "delivery" in message ? message.delivery : null;
+                return (
+                  <div key={message.id} className="rounded-[1.25rem] border border-black/10 bg-white/70 p-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-foreground)] text-xs font-black text-[var(--color-paper)]">
+                          {message.authorInitials}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold">
+                            {message.authorName}
+                            {message.isLocalOnly ? <span className="ml-2 text-xs text-black/50">(local)</span> : null}
+                          </p>
+                          <p className="text-xs text-black/50">
+                            {formatTime(message.createdAtISO)}
+                            {delivery === "sending" ? " · sending" : delivery === "failed" ? " · not saved" : ""}
+                          </p>
+                        </div>
                       </div>
                     </div>
+                    <p className="mt-3 text-sm leading-6 text-[color:rgba(37,34,30,0.82)]">{message.body}</p>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-[color:rgba(37,34,30,0.82)]">{m.body}</p>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        <div className="border-t border-black/10 bg-[color:rgba(247,240,228,0.72)] p-4 sm:p-5">
+        <form onSubmit={onSubmit} className="border-t border-black/10 bg-[color:rgba(247,240,228,0.72)] p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Write a message to your cohort…"
-              aria-label="Message your cohort (demo, saved on this device)"
-              className="flex-1 rounded-[999px] border border-black/10 bg-white/80 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="Write a message to your cohort..."
+              aria-label={serverChatReady ? "Message your cohort" : "Message your local demo cohort"}
+              disabled={serverChatError || sendState.status === "sending"}
+              maxLength={500}
+              className="flex-1 rounded-[999px] border border-black/10 bg-white/80 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--color-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             />
             <Button
               variant="primary"
-              onClick={() => {
-                const next = addChatMessage(cohortId, draft, storageUserId);
-                setState(next);
-                setDraft("");
-              }}
+              disabled={!draft.trim() || serverChatError || sendState.status === "sending"}
+              onClick={() => void sendMessage(draft)}
             >
-              Send
+              {sendState.status === "sending" ? "Sending..." : "Send"}
             </Button>
           </div>
-          <p className="mt-3 text-xs text-black/55">
-            Demo note: this doesn’t claim realtime or server persistence.
-          </p>
-        </div>
+          <div className="mt-3 min-h-5 text-xs text-black/55" role={sendState.status === "error" ? "alert" : "status"} aria-live="polite">
+            {sendState.status === "sending"
+              ? "Saving message before it appears."
+              : sendState.status === "sent"
+                ? serverChatReady
+                  ? "Message saved to the cohort thread."
+                  : "Message saved to this device."
+                : sendState.status === "error"
+                  ? sendState.error
+                  : serverChatReady
+                    ? "No live badge until realtime is backed by persisted messages."
+                    : "Local demo chat is not visible to other members."}
+          </div>
+          {sendState.status === "error" ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="mt-3"
+              onClick={() => void sendMessage(sendState.retryBody)}
+            >
+              Retry send
+            </Button>
+          ) : null}
+        </form>
       </Card>
     </div>
   );
 }
-

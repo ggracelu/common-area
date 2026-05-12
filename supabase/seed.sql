@@ -173,9 +173,7 @@ from (
     ('comedy-show-old-town', 3),
     ('mural-walk-pilsen', 4),
     ('coffee-crawl-wicker-park', 5),
-    ('board-game-night-lakeview', 6),
-    ('bookshop-browsing-lincoln-square', 7),
-    ('flower-bar-ravenswood', 8)
+    ('board-game-night-lakeview', 6)
 ) as items(activity_slug, display_order)
 join public.seasons s
   on s.slug = 'chicago-summer-2026'
@@ -183,3 +181,10 @@ join public.activities a
   on a.slug = items.activity_slug
 on conflict (season_id, activity_id) do update
 set display_order = excluded.display_order;
+
+delete from public.season_activities sa
+using public.seasons s, public.activities a
+where sa.season_id = s.id
+  and sa.activity_id = a.id
+  and s.slug = 'chicago-summer-2026'
+  and a.slug in ('bookshop-browsing-lincoln-square', 'flower-bar-ravenswood');

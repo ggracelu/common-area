@@ -16,16 +16,18 @@ import { demoData, getDemoCohort, getDemoEvent } from "@/lib/demo-data";
 import { ACTIVITY_SLUG_TO_DEMO_EVENT } from "@/lib/demo-activity-slug-map";
 import { buildGraderChecklist } from "@/lib/grader-onboarding";
 import {
+  assignDemoCohortFromSelections,
+  getDefaultDemoState,
   inferCohortFromSelections,
   loadDemoState,
-  mailPostcardForMatching,
   markCohortRevealSeen,
   markFutureCohortLetterPreviewDone,
-  tickMatchingForward,
 } from "@/lib/demo-state";
 import type { OnboardingSnapshot } from "@/types/onboarding";
 
 type ViewMode = "current" | "future";
+type AssignmentRequestState = { status: "idle" | "running" | "error"; error?: string };
+type AssignmentUiStatus = "not_started" | "ready" | "running" | "pending" | "assigned" | "error";
 
 type ChecklistRow = { label: string; done: boolean; footnote?: string; testId: string };
 
@@ -38,8 +40,10 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
   const { userId } = useAuth();
   const storageUserId = userId ?? null;
   const required = demoData.season.requiredEventCount;
+  const available = demoData.season.availableEventCount;
   const [mode, setMode] = useState<ViewMode>("current");
-  const [state, setState] = useState(() => loadDemoState(storageUserId));
+  const [state, setState] = useState(() => getDefaultDemoState());
+  const [assignmentRequest, setAssignmentRequest] = useState<AssignmentRequestState>({ status: "idle" });
 
   const serverAuthoritative = Boolean(serverOnboarding?.configured);
   const hasEnoughPicks = serverAuthoritative
@@ -57,123 +61,122 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
   }, [storageUserId]);
 
   useEffect(() => {
-    if (serverAuthoritative) return;
-    const id = window.setInterval(() => setState(tickMatchingForward(storageUserId)), 750);
-    return () => window.clearInterval(id);
-  }, [storageUserId, serverAuthoritative]);
-
-  /** Demo: once deposit + 4 picks exist, start matching so Current shows cohort matching in progress. */
-  useEffect(() => {
-    if (serverAuthoritative) return;
-    if (mode !== "current") return;
-    const id = window.setTimeout(() => {
-      const s = loadDemoState(storageUserId);
-      if (
-        s.depositStatus === "paid" &&
-        s.selectedEventIds.length >= required &&
-        s.matching.status === "not_started"
-      ) {
-        setState(mailPostcardForMatching(storageUserId));
-      }
-    }, 0);
-    return () => window.clearTimeout(id);
-  }, [
-    mode,
-    storageUserId,
-    required,
-    state.depositStatus,
-    state.selectedEventIds.length,
-    state.matching.status,
-    serverAuthoritative,
-  ]);
-
-  useEffect(() => {
     if (!serverAuthoritative) return;
     if (!hasPaid || !hasEnoughPicks) return;
     if (serverOnboarding?.assignmentStatus === "assigned") return;
+    if (assignmentRequest.status === "running" || assignmentRequest.status === "error") return;
 
     void (async () => {
+      setAssignmentRequest({ status: "running" });
       const result = await startCohortAssignmentAction();
       if (result.ok) {
         router.refresh();
+        return;
       }
-    })().catch(() => undefined);
-  }, [serverAuthoritative, hasPaid, hasEnoughPicks, serverOnboarding?.assignmentStatus, router]);
+      setAssignmentRequest({ status: "error", error: result.error });
+    })().catch((error) => {
+      setAssignmentRequest({
+        status: "error",
+        error: error instanceof Error ? error.message : "Assignment failed.",
+      });
+    });
+  }, [
+    serverAuthoritative,
+    hasPaid,
+    hasEnoughPicks,
+    serverOnboarding?.assignmentStatus,
+    assignmentRequest.status,
+    router,
+  ]);
 
   const isFuturePreview = mode === "future";
   const letterPreviewDone = serverAuthoritative
     ? Boolean(serverOnboarding?.cohortRevealSeen)
     : state.futureCohortLetterPreviewDone;
-  const liveStatus = serverAuthoritative
+  const liveStatus: AssignmentUiStatus = serverAuthoritative
     ? serverOnboarding?.assignmentStatus === "assigned"
       ? "assigned"
-      : serverOnboarding?.assignmentStatus === "pending"
+      : assignmentRequest.status === "error"
+        ? "error"
+        : assignmentRequest.status === "running"
+          ? "running"
+          : serverOnboarding?.assignmentStatus === "pending"
+            ? "pending"
+            : hasEnoughPicks && hasPaid
+              ? "pending"
+              : "not_started"
+    : state.matching.status === "assigned"
+      ? "assigned"
+      : state.matching.status === "pending" || state.matching.status === "mailing"
         ? "pending"
         : hasEnoughPicks && hasPaid
-          ? "mailing"
-          : "not_started"
-    : state.matching.status;
+          ? "ready"
+          : "not_started";
 
   const currentMatchingBusy =
-    liveStatus === "pending" || liveStatus === "mailing" || (liveStatus === "assigned" && !letterPreviewDone);
+    liveStatus === "pending" || liveStatus === "running" || (liveStatus === "assigned" && !letterPreviewDone);
+  const letterAvailable = liveStatus === "assigned";
 
   const headline = isFuturePreview
     ? "Your cohort letter"
     : liveStatus === "assigned" && letterPreviewDone
       ? "Next: your cohort page."
+      : liveStatus === "error"
+        ? "Cohort matching needs attention."
       : currentMatchingBusy
         ? "Cohort matching is in progress."
+        : liveStatus === "ready"
+          ? "Ready for local demo assignment."
         : "Ready to join a cohort?";
 
   const sub = isFuturePreview
-    ? serverAuthoritative
-      ? "Open the envelope to read your assignment—copy reflects your saved picks and cohort match."
-      : "Open the envelope to read your assignment—preview copy based on your bingo picks."
+    ? letterAvailable
+      ? serverAuthoritative
+        ? "Open the envelope to read your assignment. Copy reflects your saved picks and server-created cohort match."
+        : "Open the envelope to read your local demo assignment. This does not claim production persistence."
+      : "Your cohort letter appears here only after assignment exists."
     : liveStatus === "assigned" && letterPreviewDone
-      ? "You’ve opened your Future preview letter. Visit Cohort for your roster, overlaps, and chat."
+      ? "You’ve opened your cohort letter. Visit Cohort for your roster, overlaps, and chat."
+      : liveStatus === "error"
+        ? assignmentRequest.error ?? "Assignment did not complete. Your saved deposit and picks are still intact."
       : currentMatchingBusy
-        ? "Sign-ups close after one week. We’re sorting the match pile now—hang tight. Your assignment preview is under Future."
-        : "Open the bingo card to pick 4 experiences, submit, then secure your spot with the $20 deposit.";
+        ? serverAuthoritative
+          ? "The server is assigning your cohort from saved picks. The Future letter stays locked until assignment is confirmed."
+          : "Local demo matching is queued. Use the local demo control when you want to reveal an assigned cohort."
+        : liveStatus === "ready"
+          ? "This is local demo state. Run the local assignment to preview the reveal; production matching stays server-side."
+          : `Open the season card to pick ${required} of ${available} experiences, submit, then secure your spot with the $20 deposit.`;
 
   const statusChip = isFuturePreview
     ? "Preview: cohort reveal"
     : liveStatus === "assigned" && letterPreviewDone
       ? "Letter: opened"
-      : liveStatus === "pending"
+    : liveStatus === "error"
+      ? "Matching: error"
+      : liveStatus === "running"
+        ? "Matching: running"
+        : liveStatus === "pending"
         ? "Matching: sorting"
-        : liveStatus === "mailing"
-          ? "Matching: in flight"
-          : liveStatus === "assigned"
-            ? "Matching: finalizing"
-            : hasEnoughPicks
-              ? "Picks: ready"
-              : "Picks: choose 4";
+        : liveStatus === "assigned"
+          ? "Matching: finalizing"
+          : hasEnoughPicks
+            ? `Picks: ${required} of ${available} ready`
+            : `Picks: choose ${required} of ${available}`;
 
   const canSeeMatching =
     !isFuturePreview &&
     (liveStatus === "pending" ||
-      liveStatus === "mailing" ||
+      liveStatus === "running" ||
       (liveStatus === "assigned" && !letterPreviewDone));
 
   const cohortPageReady = serverAuthoritative
     ? serverOnboarding?.assignmentStatus === "assigned" && letterPreviewDone
-    : letterPreviewDone;
+    : state.matching.status === "assigned" && letterPreviewDone;
   const bingoBonusReady = serverAuthoritative
     ? serverOnboarding?.assignmentStatus === "assigned"
     : state.matching.status === "assigned";
 
   const checklist: ChecklistRow[] = useMemo(() => {
-    if (isFuturePreview) {
-      return buildGraderChecklist({
-        snapshot: serverOnboarding,
-        hasEnoughPicks: true,
-        hasPaid: true,
-        letterPreviewDone: true,
-        cohortPageReady: true,
-        bingoBonusReady: true,
-      }).map((item) => ({ ...item, done: true, footnote: "Preview" }));
-    }
-
     return buildGraderChecklist({
       snapshot: serverOnboarding,
       hasEnoughPicks,
@@ -183,7 +186,6 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
       bingoBonusReady,
     });
   }, [
-    isFuturePreview,
     serverOnboarding,
     hasEnoughPicks,
     hasPaid,
@@ -223,10 +225,10 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
 
   const seasonSteps = [
     { label: "Deposit", done: hasPaid },
-    { label: "Four picks", done: hasEnoughPicks },
+    { label: `${required} of ${available} picks`, done: hasEnoughPicks },
     {
       label: "Matching",
-      done: liveStatus === "assigned" || liveStatus === "pending" || liveStatus === "mailing",
+      done: liveStatus === "assigned",
     },
     { label: "Letter", done: letterPreviewDone },
     { label: "Cohort room", done: cohortPageReady },
@@ -336,7 +338,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
               Future
             </p>
             <p className="mt-1 text-sm font-semibold text-black">Cohort reveal</p>
-            <p className="mt-0.5 text-xs leading-snug text-black/55">Envelope → letter → welcome copy.</p>
+            <p className="mt-0.5 text-xs leading-snug text-black/55">Locked until assignment exists.</p>
           </button>
         </div>
       </div>
@@ -360,7 +362,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
         </div>
       ) : null}
 
-      {isFuturePreview ? (
+      {isFuturePreview && letterAvailable ? (
         <div data-testid="cohort-reveal-letter">
           <CohortRevealLetter
             cohortId={futureLetter.cohortId}
@@ -382,6 +384,22 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
         </div>
       ) : null}
 
+      {isFuturePreview && !letterAvailable ? (
+        <Card variant="paper" className="border border-dashed border-black/15 bg-white/78">
+          <Badge variant={liveStatus === "error" ? "rust" : "neutral"}>Letter locked</Badge>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">No cohort letter yet.</h1>
+          <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.74)]">{sub}</p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button href="/bingo" variant="secondary">
+              Open season card
+            </Button>
+            <Button variant="ghost" onClick={() => setMode("current")}>
+              Back to status
+            </Button>
+          </div>
+        </Card>
+      ) : null}
+
       {!isFuturePreview ? (
         <Card
           variant="paper"
@@ -397,7 +415,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
               <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.74)]">{sub}</p>
             </div>
 
-            {(liveStatus === "pending" || liveStatus === "mailing") ? (
+            {(liveStatus === "pending" || liveStatus === "running") ? (
               <div className="rounded-[1.8rem] border border-black/10 bg-white/70 p-4 shadow-[0_18px_55px_rgba(52,36,24,0.10)]">
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
                   Mailroom cam
@@ -450,13 +468,36 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
             ))}
           </ul>
 
+          {liveStatus === "error" ? (
+            <div
+              className="mt-6 flex flex-col gap-3 rounded-[1.25rem] border border-red-900/20 bg-red-50/80 p-4 text-sm font-semibold text-red-950 sm:flex-row sm:items-center sm:justify-between"
+              role="alert"
+            >
+              <span>{assignmentRequest.error ?? "Assignment did not complete. Try refreshing the dashboard."}</span>
+              <Button size="sm" variant="secondary" onClick={() => setAssignmentRequest({ status: "idle" })}>
+                Retry assignment
+              </Button>
+            </div>
+          ) : null}
+
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button href="/bingo" variant="primary">
-              Open the bingo card
+              Open season card
             </Button>
             <Button href="/cohort" variant="secondary">
               View cohort
             </Button>
+            {!serverAuthoritative && hasPaid && hasEnoughPicks && liveStatus !== "assigned" ? (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setState(assignDemoCohortFromSelections(storageUserId));
+                  setMode("future");
+                }}
+              >
+                Run local demo assignment
+              </Button>
+            ) : null}
           </div>
 
           {!hasPaid || !hasEnoughPicks ? (
@@ -464,9 +505,9 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
               <CrumbsNote
                 title="Season note"
                 lines={[
-                  "Start on the bingo card—four picks, then the $20 deposit.",
+                  "Start on the season card: four picks, then the $20 deposit.",
+                  `The contract is ${required} of ${available} activities for Chicago Summer 2026.`,
                   "Overlap on week two is the whole point.",
-                  "Crumbs will hold your spot while you decide.",
                 ]}
                 pose="curious"
               />
@@ -477,13 +518,8 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
 
       {canSeeMatching ? (
         <PostcardMatchAnimation
-          status={
-            liveStatus === "assigned" && !letterPreviewDone
-              ? "pending"
-              : liveStatus === "mailing" || liveStatus === "pending"
-                ? liveStatus
-                : "pending"
-          }
+          status={liveStatus === "assigned" && !letterPreviewDone ? "pending" : liveStatus}
+          error={assignmentRequest.error}
         />
       ) : null}
     </main>

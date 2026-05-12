@@ -63,7 +63,7 @@ export function buildGraderChecklist({
       },
       {
         stage: "picks_locked",
-        label: "Pick 4 experiences",
+        label: "Pick 4 of 6 experiences",
         done: Boolean(snapshot?.selectionLocked || (snapshot?.selectionCount ?? 0) >= 4),
         testId: "grader-checklist-picks",
       },
@@ -108,7 +108,7 @@ export function buildGraderChecklist({
     },
     {
       stage: "picks_locked",
-      label: "Pick 4 experiences",
+        label: "Pick 4 of 6 experiences",
       done: hasEnoughPicks,
       testId: "grader-checklist-picks",
     },

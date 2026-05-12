@@ -13,6 +13,7 @@
     "test": "playwright test --project=local",
     "test:grader": "playwright test --project=grader",
     "test:preview": "playwright test --project=preview",
+    "preview:url": "node scripts/preview-environment-url.mjs",
     "test:install": "playwright install chromium"
   },
   "dependencies": {

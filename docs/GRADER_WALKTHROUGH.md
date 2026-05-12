@@ -26,7 +26,14 @@ Set in `.env.local`:
    - `NEXT_PUBLIC_GRADER_EMAIL_HINT` (same email, safe to expose in the UI)
 5. Playwright:
    - `PLAYWRIGHT_LOCAL_BASE_URL` for `npm run test:grader` (defaults to `http://localhost:3000`)
-   - `PLAYWRIGHT_BASE_URL` for `npm run test:preview` — the **public** Vercel deploy of [ggracelu/whynot](https://github.com/ggracelu/whynot) (use the GitHub Preview deployment `environment_url`). Do **not** use `common-area.vercel.app`; that host is not this app.
+   - `PLAYWRIGHT_BASE_URL` for `npm run test:preview` — the **public** Vercel deploy of [ggracelu/whynot](https://github.com/ggracelu/whynot). Resolve the latest Preview `environment_url` with:
+
+```bash
+npm run preview:url
+# or: gh api repos/ggracelu/whynot/deployments --jq '.[] | select(.environment=="Preview") | .id' | head -1 | xargs -I{} gh api repos/ggracelu/whynot/deployments/{}/statuses --jq '.[] | select(.state=="success") | .environment_url' | head -1
+```
+
+   Do **not** use `common-area.vercel.app`; that host is not this app. Preview smoke **skips** when `PLAYWRIGHT_BASE_URL` is unset or points at `localhost` / `127.0.0.1` (no false pass against local dev). If Vercel Deployment Protection returns **401**, set `VERCEL_AUTOMATION_BYPASS_SECRET` from the Vercel project or disable protection for the preview environment.
 
 Playwright loads `.env.local` automatically for `npm run test:grader` and `npm run test:preview`, and **overrides** inherited shell `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SECRET_KEY` values so local grading matches the file contract above.
 
@@ -47,10 +54,10 @@ Seeds apply `seed.sql`, `seed_cohorts.sql`, and gamification seeds from migratio
 
 ## 4. Happy path
 
-1. `/bingo` — pick four experiences, submit the card, then pay the deposit (`data-testid="join-season-deposit"`). Stripe checkout is used when configured; otherwise the demo deposit path records paid state in Supabase.
+1. `/bingo` — pick 4 of 6 experiences, submit the card, then pay the deposit (`data-testid="join-season-deposit"`). Stripe checkout is used when configured; otherwise the grader deposit path records paid state in Supabase.
 2. `/dashboard` — confirm matching runs from server state; open **Future** and finish the cohort letter (`data-testid="cohort-reveal-letter"`).
 3. `/cohort` — roster visible (`data-testid="cohort-roster"`).
-4. `/cohort/chat` — chat is demo-persisted in v3 (labeled in UI).
+4. `/cohort/chat` — chat uses `chat_messages` when the migration is present; otherwise the unavailable/demo state is labeled in UI.
 5. `/bingo` — bonus tiles unlock after assignment.
 
 ## 5. Undo for re-runs

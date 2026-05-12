@@ -14,10 +14,10 @@ import { demoData, getDemoEvent, getDemoUser } from "@/lib/demo-data";
 import { ACTIVITY_SLUG_TO_DEMO_EVENT } from "@/lib/demo-activity-slug-map";
 import { cohortPeopleAdjective } from "@/lib/cohort-reveal-copy";
 import {
+  assignDemoCohortFromSelections,
+  getDefaultDemoState,
   loadDemoState,
-  mailPostcardForMatching,
   markCohortRevealSeen,
-  tickMatchingForward,
 } from "@/lib/demo-state";
 import type { OnboardingSnapshot } from "@/types/onboarding";
 
@@ -35,7 +35,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
   const { userId } = useAuth();
   const storageUserId = userId ?? null;
 
-  const [state, setState] = useState(() => loadDemoState(storageUserId));
+  const [state, setState] = useState(() => getDefaultDemoState());
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -43,12 +43,6 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
     }, 0);
     return () => window.clearTimeout(id);
   }, [storageUserId]);
-
-  useEffect(() => {
-    if (serverOnboarding?.configured) return;
-    const interval = window.setInterval(() => setState(tickMatchingForward(storageUserId)), 750);
-    return () => window.clearInterval(interval);
-  }, [storageUserId, serverOnboarding?.configured]);
 
   const serverAuthoritative = Boolean(serverOnboarding?.configured);
   const cohort = serverAuthoritative
@@ -61,7 +55,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
 
   const matchingInProgress = serverAuthoritative
     ? serverOnboarding?.assignmentStatus === "pending"
-    : !cohort && (state.matching.status === "mailing" || state.matching.status === "pending");
+    : !cohort && state.matching.status === "pending";
 
   const cohortRevealUnlocked = serverAuthoritative
     ? Boolean(serverOnboarding?.cohortRevealSeen)
@@ -104,13 +98,13 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
   const peopleAdjective = cohort ? cohortPeopleAdjective(cohort.vibeTags) : "great";
 
   const members = useMemo(() => {
-    if (serverAuthoritative && (serverOnboarding?.roster.length ?? 0) > 0) {
-      return serverOnboarding!.roster.map((member) => ({
+    if (serverAuthoritative) {
+      return (serverOnboarding?.roster ?? []).map((member) => ({
         id: member.profileId,
         displayName: member.displayName ?? (member.isSelf ? "You" : "Cohort member"),
         neighborhood: member.isSeed ? "Chicago" : "Your cohort",
         avatar: { value: (member.displayName ?? "?").slice(0, 1).toUpperCase() },
-        commonRoomFact: member.isSelf ? "This is your row in the live roster." : "Seeded cohort member for the prototype.",
+        commonRoomFact: member.isSelf ? "This is your row in the server roster." : "Seeded cohort member in your assigned cohort.",
       }));
     }
     if (!cohort) return [];
@@ -131,7 +125,13 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
     ? serverOnboarding?.assignmentStatus === "pending"
       ? "pending"
       : "not_started"
-    : state.matching.status;
+    : state.matching.status === "assigned"
+      ? "assigned"
+      : state.matching.status === "pending"
+        ? "pending"
+        : readyToMail
+          ? "ready"
+          : "not_started";
 
   if (cohort && (serverAuthoritative ? serverOnboarding?.assignmentStatus === "assigned" : state.matching.status === "assigned") && !cohortRevealUnlocked) {
     return (
@@ -160,6 +160,28 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
         </Card>
 
         <PostcardMatchAnimation status="pending" />
+      </div>
+    );
+  }
+
+  if (serverAuthoritative && serverOnboarding?.assignmentStatus === "assigned" && !cohort) {
+    return (
+      <div className="grid gap-6">
+        <Card variant="paper">
+          <Badge variant="rust">Cohort assigned</Badge>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight">Your server assignment exists, but this prototype cannot display it yet.</h2>
+          <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
+            The cohort slug from Supabase is not mapped to a demo display cohort. No demo roster is substituted.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Button href="/dashboard" variant="primary">
+              Back to dashboard
+            </Button>
+            <Button href="/cohort/chat" variant="secondary">
+              Open chat
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -198,8 +220,8 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
           <h2 className="mt-4 text-3xl font-semibold tracking-tight">Your cohort reveal happens after signups close.</h2>
           <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
             {serverAuthoritative
-              ? "Finish your deposit and four picks on the bingo card. Matching runs from your saved account state—no postcard button needed."
-              : "In this demo, you can mail a postcard to start the matching animation. Real matching runs server-side from overlapping picks."}
+              ? "Finish your deposit and 4 of 6 picks on the season card. Matching runs from your saved account state."
+              : "This is local demo state. You can run a clearly labeled demo assignment; production matching stays server-side from overlapping picks."}
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button href="/bingo" variant="secondary">
@@ -208,14 +230,14 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
             <Button
               variant="primary"
               disabled={!readyToMail || serverAuthoritative}
-              onClick={() => setState(mailPostcardForMatching(storageUserId))}
+              onClick={() => setState(assignDemoCohortFromSelections(storageUserId))}
             >
-              Send postcard to matching
+              Run local demo assignment
             </Button>
           </div>
           {!readyToMail ? (
             <p className="mt-4 text-sm text-[color:rgba(37,34,30,0.62)]">
-              To mail it: mark deposit paid (demo) + pick four events.
+              To preview locally: mark deposit paid in demo state and pick 4 of 6 activities.
             </p>
           ) : null}
           <Sticker className="mt-6">Crumbs is “sorting.” (He’s napping nearby.)</Sticker>
@@ -257,7 +279,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           <div className="rounded-[1.5rem] bg-white/80 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Members</p>
-            <p className="mt-3 text-2xl font-semibold">{members.length || cohort.memberIds.length}</p>
+            <p className="mt-3 text-2xl font-semibold">{members.length}</p>
             <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.66)]">A real common room size.</p>
           </div>
           <div className="rounded-[1.5rem] bg-white/80 p-5">
@@ -271,7 +293,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Next</p>
             <div className="mt-4 flex flex-col gap-2">
               <Button href="/cohort/chat" variant="secondary" size="sm">
-                Open chat (demo)
+                Open chat
               </Button>
               <Button href="/bingo" variant="ghost" size="sm">
                 Open bingo
@@ -284,7 +306,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <Card variant="paper">
           <Badge variant="rust">Why you were matched</Badge>
-          <h3 className="mt-4 text-2xl font-semibold tracking-tight">A legible overlap story (demo).</h3>
+          <h3 className="mt-4 text-2xl font-semibold tracking-tight">A legible overlap story.</h3>
           <ul className="mt-5 grid gap-3">
             {cohort.whyThisCohortWorks.map((line) => (
               <li
@@ -329,6 +351,11 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
             : "These are generated demo profiles. In the real product, these are your cohort members (same idea, real people)."}
         </p>
         <div className="mt-6 grid gap-4">
+          {members.length === 0 ? (
+            <div className="rounded-[1.25rem] border border-dashed border-black/15 bg-white/70 p-5 text-sm font-semibold text-black/70">
+              No server roster rows are visible for this cohort yet.
+            </div>
+          ) : null}
           {chunk(members, 10).map((row, idx) => (
             <div key={idx} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {row.map((m) => (
@@ -371,4 +398,3 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
     </div>
   );
 }
-

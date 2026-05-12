@@ -377,8 +377,8 @@ const events: DemoEvent[] = [
     vibeTags: ["cozy", "curious", "creative", "low-pressure"],
     capacity: 28,
     imageUrl: businesses[4].imageUrl,
-    countsTowardCohortEvents: true,
-    isBonusChallengeEvent: false,
+    countsTowardCohortEvents: false,
+    isBonusChallengeEvent: true,
   },
   {
     id: "evt_zines_and_stickers",
@@ -470,8 +470,8 @@ const events: DemoEvent[] = [
     vibeTags: ["hands-busy", "creative", "cozy", "chatty"],
     capacity: 20,
     imageUrl: businesses[7].imageUrl,
-    countsTowardCohortEvents: true,
-    isBonusChallengeEvent: false,
+    countsTowardCohortEvents: false,
+    isBonusChallengeEvent: true,
   },
 ];
 
@@ -595,16 +595,16 @@ const cohorts: DemoCohort[] = [
     id: "coh_art_room",
     name: "The Art Room Regulars",
     slug: "art-room-regulars",
-    theme: "Craft nights, zines, and hands-busy plans that make talking easier.",
+    theme: "Pottery, cafe routes, and hands-busy plans that make talking easier.",
     peopleDescriptor: "creative",
     vibeTags: ["hands-busy", "creative", "cozy", "low-pressure"],
     memberIds: users.slice(0, 20).map((u) => u.id),
-    sharedEventTypeOverlap: ["pottery", "flowers-craft", "bookstore"],
-    featuredEventIds: ["evt_pottery_after_dark", "evt_flower_bar_mess", "evt_bookstore_browsing"],
+    sharedEventTypeOverlap: ["pottery", "cafe"],
+    featuredEventIds: ["evt_pottery_after_dark", "evt_cafe_crawl", "evt_bookstore_browsing"],
     whyThisCohortWorks: [
       "You picked hands-busy activities (talking gets easier when your hands are occupied).",
-      "You like cozy third places with repeatable routines (bookshop, studio, café energy).",
-      "Your cohort shares at least two overlapping activity types (crafts + browsing).",
+      "You like cozy third places with repeatable routines (studio + café energy).",
+      "Your cohort shares at least two overlapping activity types where the season mix allows it.",
     ],
   },
   {
@@ -615,12 +615,12 @@ const cohorts: DemoCohort[] = [
     peopleDescriptor: "snack-happy",
     vibeTags: ["food-forward", "laughs", "chatty", "structured-fun"],
     memberIds: users.slice(20, 40).map((u) => u.id),
-    sharedEventTypeOverlap: ["cooking", "comedy", "cafe"],
+    sharedEventTypeOverlap: ["cooking", "comedy"],
     featuredEventIds: ["evt_weeknight_pasta", "evt_small_room_comedy", "evt_cafe_crawl"],
     whyThisCohortWorks: [
       "You picked food-forward plans (a shared table does some of the social work).",
       "Comedy is a built-in conversation starter (less pressure, more momentum).",
-      "You share overlap in two+ activity types with the group (food + laughs).",
+      "You share a food + laughs overlap with the group.",
     ],
   },
   {
@@ -631,12 +631,12 @@ const cohorts: DemoCohort[] = [
     peopleDescriptor: "curious",
     vibeTags: ["walk-and-talk", "structured-fun", "curious", "neighborhood-core"],
     memberIds: users.slice(40, 60).map((u) => u.id),
-    sharedEventTypeOverlap: ["walking-tour", "board-games", "cafe"],
+    sharedEventTypeOverlap: ["walking-tour", "board-games"],
     featuredEventIds: ["evt_pilsen_mural_walk", "evt_board_game_bracket", "evt_cafe_crawl"],
     whyThisCohortWorks: [
       "You picked plans with movement (walk-and-talk makes first hangs less intense).",
       "Games give the night a point (structured fun without corporate energy).",
-      "You share overlap in two+ activity types with the group (walks + games).",
+      "You share a walks + games overlap with the group.",
     ],
   },
 ];
@@ -793,8 +793,8 @@ const bingoTiles: DemoBingoTile[] = [
   },
   {
     id: "tile_evt_bookshop",
-    kind: "event",
-    title: "Bookshop Browsing",
+    kind: "challenge",
+    title: "Bookshop bulletin-board spotting",
     description: "Bulletin board spotting encouraged.",
     points: 20,
     eventId: "evt_bookstore_browsing",
@@ -812,8 +812,8 @@ const bingoTiles: DemoBingoTile[] = [
   },
   {
     id: "tile_evt_flower_bar",
-    kind: "event",
-    title: "Flower Bar Craft Night",
+    kind: "challenge",
+    title: "Trade one tiny flower-market rec",
     description: "Make something pretty on purpose.",
     points: 20,
     eventId: "evt_flower_bar_mess",
@@ -970,10 +970,11 @@ const chatThreads: DemoChatThread[] = [
 export const demoData = {
   season: {
     id: "demo_season_summer_2026",
-    name: "Chicago Summer 2026 (Demo)",
+    name: "Chicago Summer 2026",
     durationWeeks: 6,
     depositDollars: 20,
     requiredEventCount: 4,
+    availableEventCount: 6,
     signupWindowDays: 7,
   },
   businesses,
@@ -1003,4 +1004,3 @@ export function getDemoUser(userId: string) {
 export function getDemoChatThread(cohortId: string) {
   return demoData.chatThreads.find((thread) => thread.cohortId === cohortId) ?? null;
 }
-

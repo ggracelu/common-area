@@ -73,6 +73,17 @@ const defaultState: DemoAppState = {
   },
 };
 
+export function getDefaultDemoState(): DemoAppState {
+  return {
+    ...defaultState,
+    selectedEventIds: [],
+    seenCohortRevealIds: [],
+    matching: { ...defaultState.matching },
+    bingo: { completedTileIds: [] },
+    chat: { messagesByCohortId: {} },
+  };
+}
+
 function safeParse(json: string | null): DemoAppState | null {
   if (!json) return null;
   try {
@@ -116,9 +127,9 @@ function readDemoStorageRaw(userId: string | null | undefined): string | null {
 
 /** @param userId Clerk user id when signed in; omit or null for the anonymous device bucket. */
 export function loadDemoState(userId: string | null | undefined = null): DemoAppState {
-  if (typeof window === "undefined") return defaultState;
+  if (typeof window === "undefined") return getDefaultDemoState();
   const parsed = safeParse(readDemoStorageRaw(userId));
-  return parsed ?? defaultState;
+  return parsed ?? getDefaultDemoState();
 }
 
 export function saveDemoState(next: DemoAppState, userId: string | null | undefined = null) {
@@ -266,18 +277,53 @@ export function inferCohortFromSelections(selectedEventIds: string[]): string {
     .map((id) => demoData.events.find((evt) => evt.id === id))
     .filter(Boolean);
 
-  const types = new Set<DemoEventType>();
-  picked.forEach((evt) => types.add(evt!.activityType));
+  const scores = new Map<string, number>([
+    ["coh_art_room", 0],
+    ["coh_table_laughs", 0],
+    ["coh_city_strollers", 0],
+  ]);
 
-  const hasCraft = types.has("pottery") || types.has("flowers-craft") || types.has("bookstore");
-  const hasFoodLaughs = types.has("cooking") || types.has("comedy");
-  const hasWalkGames = types.has("walking-tour") || types.has("board-games");
+  picked.forEach((evt) => {
+    const activityType = evt!.activityType as DemoEventType;
+    if (activityType === "pottery" || activityType === "cafe") {
+      scores.set("coh_art_room", (scores.get("coh_art_room") ?? 0) + 1);
+    }
+    if (activityType === "cooking" || activityType === "comedy") {
+      scores.set("coh_table_laughs", (scores.get("coh_table_laughs") ?? 0) + 1);
+    }
+    if (activityType === "walking-tour" || activityType === "board-games") {
+      scores.set("coh_city_strollers", (scores.get("coh_city_strollers") ?? 0) + 1);
+    }
+  });
 
-  if (hasCraft) return "coh_art_room";
-  if (hasFoodLaughs) return "coh_table_laughs";
-  if (hasWalkGames) return "coh_city_strollers";
+  let bestCohortId = "coh_city_strollers";
+  let bestScore = -1;
+  for (const [cohortId, score] of scores) {
+    if (score > bestScore) {
+      bestCohortId = cohortId;
+      bestScore = score;
+    }
+  }
 
-  return "coh_city_strollers";
+  return bestCohortId;
+}
+
+export function assignDemoCohortFromSelections(userId: string | null | undefined = null) {
+  return updateDemoState((prev) => {
+    if (prev.selectedEventIds.length < demoData.season.requiredEventCount) return prev;
+    if (prev.depositStatus !== "paid") return prev;
+
+    const cohortId = inferCohortFromSelections(prev.selectedEventIds);
+    return {
+      ...prev,
+      matching: {
+        status: "assigned",
+        mailedAtISO: prev.matching.mailedAtISO ?? new Date().toISOString(),
+        assignedAtISO: new Date().toISOString(),
+        cohortId,
+      },
+    };
+  }, userId);
 }
 
 export function mailPostcardForMatching(userId: string | null | undefined = null) {
@@ -293,7 +339,7 @@ export function mailPostcardForMatching(userId: string | null | undefined = null
     return {
       ...prev,
       matching: {
-        status: "mailing",
+        status: "pending",
         mailedAtISO: now.toISOString(),
         assignedAtISO: null,
         cohortId: null,
@@ -364,4 +410,3 @@ export function getBingoProgress(tiles: readonly DemoBingoTile[], state: DemoApp
 
   return { total, completed, points };
 }
-

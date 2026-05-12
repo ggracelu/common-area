@@ -26,7 +26,7 @@ export function AppHeader() {
               Crumbs saved you a spot.
             </Badge>
             <Button href="/bingo" variant="secondary" size="sm" className="hidden sm:inline-flex">
-              Open the bingo card
+              Open season card
             </Button>
             {/* TODO: remove — temp mascot lab */}
             <Link

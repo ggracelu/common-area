@@ -42,8 +42,8 @@ export default async function BingoPage() {
 
   return (
     <AppShell
-      title="Bingo"
-      description="Select any 4 experiences. Your bingo card is the mechanism for discovery, sign-up, and bonus gamification."
+      title="Season card"
+      description="Choose 4 of 6 Chicago Summer 2026 activities, then use the same card for post-assignment bonus prompts."
       hideIntro
     >
       <BingoBoardDemo

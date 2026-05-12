@@ -6,7 +6,7 @@ test.describe("public prototype smoke", () => {
     await expect(page.getByRole("link", { name: /sign up|join/i }).first()).toBeVisible();
 
     await page.goto("/bingo");
-    await expect(page.getByRole("heading", { name: /pick any 4 experiences/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /pick any 4 of 6 experiences/i })).toBeVisible();
   });
 
   test("dashboard tabs and Crumbs labels exist when signed out redirects", async ({ page, baseURL }) => {

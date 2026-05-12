@@ -17,6 +17,7 @@ import { demoData, getDemoBusiness, getDemoEvent } from "@/lib/demo-data";
 import type { OnboardingSnapshot } from "@/types/onboarding";
 import {
   getBingoProgress,
+  getDefaultDemoState,
   loadDemoState,
   mailPostcardForMatching,
   markSelectionsCommitted,
@@ -85,7 +86,7 @@ export function BingoBoardDemo({
   const storageUserId = clerkUserId ?? authUserId ?? null;
 
   const [state, setState] = useState(() =>
-    mergeServerSelections(loadDemoState(storageUserId), serverSelections),
+    mergeServerSelections(getDefaultDemoState(), serverSelections),
   );
   const [open, setOpen] = useState<OpenTile>(null);
   const [bonusStampFlashId, setBonusStampFlashId] = useState<string | null>(null);
@@ -95,12 +96,14 @@ export function BingoBoardDemo({
   >("card");
   const [selectionSaveStatus, setSelectionSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [bonusSaveStatus, setBonusSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [depositRecordedLocally, setDepositRecordedLocally] = useState(false);
   const skipFirstRemoteSave = useRef(true);
   const tiles = demoData.bingoTiles;
   const serverAuthoritative = Boolean(serverOnboarding?.configured);
-  const completedTileIds = serverAuthoritative
-    ? (serverBingoCompletions ?? [])
-    : state.bingo.completedTileIds;
+  const completedTileIds = useMemo(
+    () => (serverAuthoritative ? (serverBingoCompletions ?? []) : state.bingo.completedTileIds),
+    [serverAuthoritative, serverBingoCompletions, state.bingo.completedTileIds],
+  );
   const progressState = useMemo(
     () => ({
       ...state,
@@ -111,14 +114,19 @@ export function BingoBoardDemo({
   useMemo(() => getBingoProgress(tiles, progressState), [progressState, tiles]);
 
   const required = demoData.season.requiredEventCount;
+  const available = demoData.season.availableEventCount;
   const selectedCount = state.selectedEventIds.length;
   const canSelectMore = selectedCount < required;
   const selectionLocked = serverAuthoritative
     ? Boolean(serverOnboarding?.selectionLocked)
     : Boolean(state.selectionsCommittedAtISO);
   const isCommitted = selectionLocked;
+  useEffect(() => {
+    setDepositRecordedLocally(false);
+  }, [serverOnboarding?.depositStatus, storageUserId]);
+
   const depositPaid = serverAuthoritative
-    ? serverOnboarding?.depositStatus === "paid"
+    ? serverOnboarding?.depositStatus === "paid" || depositRecordedLocally
     : state.depositStatus === "paid";
   const readyToMail = depositPaid && selectedCount >= required;
   const canDoBonusChallenges = serverAuthoritative
@@ -134,7 +142,7 @@ export function BingoBoardDemo({
       setState(mergeServerSelections(loadDemoState(storageUserId), serverSelections));
     }, 0);
     return () => window.clearTimeout(id);
-  }, [storageUserId, serverSelectionsKey]);
+  }, [storageUserId, serverSelectionsKey, serverSelections]);
 
   useEffect(() => {
     if (!syncSelectionsToServer) return;
@@ -216,6 +224,25 @@ export function BingoBoardDemo({
     [state.selectedEventIds],
   );
 
+  const depositHandoffStatus = depositPaid
+    ? serverAuthoritative
+      ? "Paid - server confirmed"
+      : "Paid - local demo"
+    : serverAuthoritative && serverOnboarding?.depositStatus === "failed"
+      ? "Failed"
+      : serverAuthoritative && serverOnboarding?.depositStatus === "refunded"
+        ? "Refunded"
+        : state.depositStatus === "pending" || serverOnboarding?.depositStatus === "pending"
+          ? "Pending"
+          : "Not started";
+  const depositHandoffCopy = depositPaid
+    ? serverAuthoritative
+      ? "This paid state is persisted in Supabase after Stripe webhook confirmation or the documented grader server action."
+      : "This paid state lives only in the local demo cache. It is not a production payment."
+    : serverAuthoritative
+      ? "Stripe checkout may redirect you away. This panel stays pending until the server record changes to paid."
+      : "Use this only for local prototype review. Production payment state must come from the server.";
+
   return (
     <div className="mx-auto grid max-w-[980px] gap-4" data-testid="bingo-board">
       <GraderControlPanel storageUserId={storageUserId} showWhenConfigured={serverAuthoritative} />
@@ -230,7 +257,7 @@ export function BingoBoardDemo({
           {isCommitted ? "Locked-in passport" : "Draft signup card"}
         </p>
         <h2 className="mt-2 text-2xl font-black tracking-tight text-black sm:text-3xl">
-          {isCommitted ? `Your ${required} selections` : `Pick any ${required} experiences`}
+          {isCommitted ? `Your ${required} of ${available} selections` : `Pick any ${required} of ${available} experiences`}
         </h2>
         <p className="mt-2 text-sm leading-6 text-[color:rgba(37,34,30,0.72)]">
           {isCommitted ? (
@@ -247,15 +274,15 @@ export function BingoBoardDemo({
             )
           ) : (
             <>
-              $20 deposit → <span className="font-semibold">$5 discounts</span> off each event you complete. We match
-              cohorts based on shared picks.
+              The $20 deposit holds your place for Chicago Summer 2026. We match cohorts from your{" "}
+              <span className="font-semibold">{required} of {available}</span> saved activity picks.
             </>
           )}
         </p>
         <p className="mt-2 text-xs font-semibold text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
           {isCommitted ? "Locked in · " : "Autosaved · "}
           {formatSavedClock(state.updatedAtISO)}
-          {isCommitted ? "" : " · tap a tile, add to your 4—no submit required to save picks"}
+          {isCommitted ? "" : ` · tap an activity tile, add it to your ${required} of ${available}`}
         </p>
         {syncSelectionsToServer ? (
           <p className="mt-3 text-xs font-semibold text-black/55" style={{ fontFamily: "var(--font-mono)" }}>
@@ -345,7 +372,7 @@ export function BingoBoardDemo({
                 className="absolute right-4 top-4 z-20 rounded-full border border-emerald-800/25 bg-emerald-50 px-3 py-1 text-[0.65rem] font-black uppercase tracking-[0.18em] text-emerald-900 shadow-sm"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
-                Saved
+                {serverAuthoritative ? "Account saved" : "Local demo saved"}
               </div>
             ) : null}
             {/* Little shapes (stars + squiggles) */}
@@ -420,7 +447,7 @@ export function BingoBoardDemo({
 
             <div className="relative z-10 flex items-center justify-between gap-2 px-1 pb-3">
               <span className="rounded-full bg-black/5 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.22em] text-black/70">
-                {selectedCount}/{required} selected
+                {selectedCount}/{required} picks · {available} activities
               </span>
               <div className="flex items-center gap-2">
                 {!serverAuthoritative ? (
@@ -431,14 +458,14 @@ export function BingoBoardDemo({
                       setState(setDepositStatus(state.depositStatus === "paid" ? "pending" : "paid", storageUserId))
                     }
                   >
-                    {state.depositStatus === "paid" ? "Deposit: paid" : "Deposit: mark paid (demo)"}
+                    {state.depositStatus === "paid" ? "Local demo: paid" : "Local demo: mark paid"}
                   </Button>
                 ) : (
                   <span
                     className="rounded-full bg-black/5 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.18em] text-black/65"
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
-                    {depositPaid ? "Deposit: paid" : "Deposit: due"}
+                    {depositPaid ? "Deposit: confirmed" : "Deposit: due"}
                   </span>
                 )}
               </div>
@@ -729,13 +756,17 @@ export function BingoBoardDemo({
             <div
               className="absolute left-1/2 top-1/2 w-[min(92vw,42rem)] -translate-x-1/2 -translate-y-1/2 p-3"
               data-testid="bingo-deposit-handoff"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="bingo-deposit-handoff-title"
             >
               <div className="relative overflow-hidden rounded-[2rem] border border-black/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(247,240,228,0.94))] p-6 shadow-[0_28px_95px_rgba(0,0,0,0.22)]">
                 <Badge variant="neutral">Summer 2026 deposit</Badge>
-                <h3 className="mt-4 text-3xl font-black tracking-tight">Secure your spot for the season.</h3>
+                <h3 id="bingo-deposit-handoff-title" className="mt-4 text-3xl font-black tracking-tight">Secure your spot for the season.</h3>
                 <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">
                   Pay the <span className="font-semibold">$20 deposit</span> to hold your place. After sign-ups close,
-                  matching runs from your four saved picks—then your cohort letter unlocks on the dashboard.
+                  matching runs from your {required} of {available} saved picks. Your cohort letter unlocks only after
+                  the server records an assignment.
                 </p>
 
                 <div className="mt-5 flex items-center gap-3 rounded-[1.25rem] border border-black/8 bg-white/70 p-4">
@@ -748,18 +779,21 @@ export function BingoBoardDemo({
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:items-end">
                   <div className="rounded-[1.8rem] border border-black/10 bg-white/75 p-5">
                     <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Status</p>
-                    <p className="mt-2 text-lg font-semibold">
-                      {depositPaid ? "Paid" : serverAuthoritative ? "Not started" : state.depositStatus === "pending" ? "Pending" : "Not started"}
+                    <p className="mt-2 text-lg font-semibold" role={depositHandoffStatus === "Failed" ? "alert" : "status"} aria-live="polite">
+                      {depositHandoffStatus}
                     </p>
                     <p className="mt-2 text-sm text-black/60">
-                      {serverAuthoritative
-                        ? "Paid status comes from webhook-confirmed server records only."
-                        : "This is a mockup unless secrets are configured. No payment claims without webhook-confirmed server state."}
+                      {depositHandoffCopy}
                     </p>
                   </div>
 
                   <div className="grid gap-2">
-                    <JoinSeasonButton />
+                    <JoinSeasonButton
+                      onDepositRecorded={() => {
+                        setDepositRecordedLocally(true);
+                        router.refresh();
+                      }}
+                    />
                     {!serverAuthoritative ? (
                       <Button
                         variant="secondary"
@@ -768,7 +802,7 @@ export function BingoBoardDemo({
                           setState(next);
                         }}
                       >
-                        Mock: mark deposit paid
+                        Local demo: record paid
                       </Button>
                     ) : null}
                   </div>
@@ -779,7 +813,7 @@ export function BingoBoardDemo({
                     <Sticker>
                       {serverAuthoritative
                         ? "Matching runs from your saved picks on the dashboard."
-                        : "Matching will run after sign-ups close."}
+                        : "Local demo matching is available on the dashboard and stays labeled as demo state."}
                     </Sticker>
                     {!serverAuthoritative ? (
                       <div className="flex flex-col gap-3 sm:flex-row">
@@ -787,12 +821,11 @@ export function BingoBoardDemo({
                           variant="primary"
                           disabled={!readyToMail}
                           onClick={() => {
-                            const next = mailPostcardForMatching(storageUserId);
-                            setState(next);
+                            setState(mailPostcardForMatching(storageUserId));
                             window.location.href = "/dashboard";
                           }}
                         >
-                          Start matching
+                          Open demo matching
                         </Button>
                         <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
                           Back to card
@@ -966,7 +999,7 @@ export function BingoBoardDemo({
                   <h3 className="mt-4 text-3xl font-black tracking-tight">{openTile.title}</h3>
                   <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">{openTile.description}</p>
                 </div>
-                <Button variant="ghost" onClick={() => setOpen(null)}>
+                <Button variant="ghost" onClick={() => setOpen(null)} data-testid="bingo-tile-close">
                   Close
                 </Button>
               </div>
@@ -994,7 +1027,7 @@ export function BingoBoardDemo({
                 {openTile.kind === "event" && openTile.eventId ? (
                   isCommitted ? (
                     <p className="text-sm font-medium text-black/65">
-                      Your four experiences are saved and locked in. You can still stamp bonus squares after your cohort is
+                      Your {required} of {available} experiences are saved and locked in. Bonus prompts unlock after your cohort is
                       assigned.
                     </p>
                   ) : (
@@ -1006,7 +1039,7 @@ export function BingoBoardDemo({
                         setState(next);
                       }}
                     >
-                      {state.selectedEventIds.includes(openTile.eventId) ? "Remove from my 4" : "Select (counts toward 4)"}
+                      {state.selectedEventIds.includes(openTile.eventId) ? `Remove from my ${required}` : `Select (counts toward ${required})`}
                     </Button>
                   )
                 ) : null}
@@ -1062,7 +1095,7 @@ export function BingoBoardDemo({
                     <Card variant="paper" className="relative overflow-hidden">
                       <Badge variant="neutral">Sticker notes</Badge>
                       <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">
-                        Tap this square in the card to select an experience, or stamp a bonus challenge for extra cred.
+                        Activity squares count toward your {required} of {available}. Bonus prompts unlock after cohort assignment.
                       </p>
                       <div aria-hidden="true" className="pointer-events-none absolute -right-6 -top-6">
                         <div className="scrap-mini-sticker">WOW</div>
@@ -1112,4 +1145,3 @@ export function BingoBoardDemo({
     </div>
   );
 }
-

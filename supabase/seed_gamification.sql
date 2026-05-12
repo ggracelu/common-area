@@ -39,7 +39,9 @@ BEGIN
     -- Recognition (Easy)
     (season_id, 'Wave at someone you''ve seen before', 'Recognize a familiar face from your cohort and give them a friendly wave.', 'recognition', 'easy', false, 1, 13, true),
     (season_id, 'Compliment someone on their choice', 'Notice something someone has chosen (drink, activity, outfit) and give them a genuine compliment.', 'recognition', 'easy', true, 1, 14, true),
-    (season_id, 'Acknowledge someone''s contribution', 'If someone helped you or contributed to a conversation, let them know you appreciate it.', 'recognition', 'easy', true, 1, 15, true)
+    (season_id, 'Acknowledge someone''s contribution', 'If someone helped you or contributed to a conversation, let them know you appreciate it.', 'recognition', 'easy', true, 1, 15, true),
+    (season_id, 'Spot a bulletin-board flyer', 'Find one flyer, note, or local recommendation worth telling the cohort about later.', 'discovery', 'easy', false, 1, 16, true),
+    (season_id, 'Trade one tiny local recommendation', 'Swap a small Chicago recommendation with someone in your cohort: a flower stand, snack, bench, or shop corner counts.', 'recognition', 'easy', true, 1, 17, true)
 
   ON CONFLICT DO NOTHING;
 

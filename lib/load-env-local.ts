@@ -29,7 +29,14 @@ export function loadEnvLocal(rootDir = process.cwd(), options: { override?: bool
       value = value.slice(1, -1);
     }
 
-    if (override || !process.env[key]) {
+    if (override) {
+      if (value) {
+        process.env[key] = value;
+      }
+      continue;
+    }
+
+    if (!process.env[key]) {
       process.env[key] = value;
     }
   }
