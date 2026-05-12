@@ -1,5 +1,18 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { graderCredentialsConfigured, graderStorageReady } from "./fixtures/auth";
+
+async function pickActivityTile(page: Page, index: number) {
+  const tile = page.locator("button").filter({ hasText: "Activity" }).nth(index);
+  await tile.click();
+  const select = page.getByRole("button", { name: /Select \(counts toward 4\)/ });
+  if (await select.isVisible({ timeout: 2_000 }).catch(() => false)) {
+    await select.click();
+  }
+  const close = page.getByTestId("bingo-tile-close");
+  await expect(close).toBeVisible({ timeout: 10_000 });
+  await close.click();
+  await expect(close).toBeHidden({ timeout: 10_000 });
+}
 
 test.describe("grader onboarding journey", () => {
   test.beforeEach(({ page }) => {
@@ -24,13 +37,9 @@ test.describe("grader onboarding journey", () => {
     await expect(page.getByTestId("bingo-board")).toBeVisible();
 
     const activityTiles = page.locator("button").filter({ hasText: "Activity" });
+    await expect(activityTiles).toHaveCount(6, { timeout: 15_000 });
     for (let i = 0; i < 4; i += 1) {
-      await activityTiles.nth(i).click();
-      const select = page.getByRole("button", { name: /Select \(counts toward 4\)/ });
-      if (await select.isVisible()) {
-        await select.click();
-      }
-      await page.getByTestId("bingo-tile-close").click();
+      await pickActivityTile(page, i);
     }
 
     await expect(page.getByTestId("bingo-board").getByText(/Saved to your account/i)).toBeVisible({

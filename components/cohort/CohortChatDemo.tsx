@@ -314,9 +314,9 @@ export function CohortChatDemo({
               className="flex-1 rounded-[999px] border border-black/10 bg-white/80 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--color-accent)] disabled:cursor-not-allowed disabled:opacity-60"
             />
             <Button
+              type="submit"
               variant="primary"
               disabled={!draft.trim() || serverChatError || sendState.status === "sending"}
-              onClick={() => void sendMessage(draft)}
             >
               {sendState.status === "sending" ? "Sending..." : "Send"}
             </Button>

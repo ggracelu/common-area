@@ -14,7 +14,11 @@ function previewDeployConfigured(baseURL: string | undefined) {
 }
 
 async function assertPreviewDeployReachable(baseURL: string) {
-  const response = await fetch(baseURL, { redirect: "manual" });
+  const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim();
+  const response = await fetch(baseURL, {
+    redirect: "manual",
+    headers: bypassSecret ? { "x-vercel-protection-bypass": bypassSecret } : undefined,
+  });
   if (response.status === 401 && response.headers.get("server") === "Vercel") {
     throw new Error(
       "Vercel Deployment Protection returned 401. Set VERCEL_AUTOMATION_BYPASS_SECRET for preview smoke or disable protection on the preview deployment.",
@@ -54,5 +58,12 @@ test.describe("preview smoke", () => {
 
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/sign-in|dashboard/);
+  });
+
+  test("business dashboard redirects signed-out users to partner sign-in", async ({ page, baseURL }) => {
+    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/whynot.");
+
+    await page.goto("/business/dashboard");
+    await expect(page).toHaveURL(/partner\/sign-in/);
   });
 });

@@ -19,6 +19,13 @@ function getSupabaseSecretKey() {
 export function createServerSupabasePublicClient() {
   const { url, publishableKey } = getPublicSupabaseEnv();
 
+  if (process.env.NODE_ENV === "development") {
+    const warning = getSupabaseEnvContractWarning();
+    if (warning) {
+      console.warn(`[Supabase env] ${warning}`);
+    }
+  }
+
   return createClient(url, publishableKey, {
     auth: {
       autoRefreshToken: false,
