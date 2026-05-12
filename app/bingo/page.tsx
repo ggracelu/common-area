@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { AppShell } from "@/components/app/AppShell";
 import { BingoBoardDemo } from "@/components/bingo/BingoBoardDemo";
 import { getSavedDemoEventIdsForUser } from "@/lib/activity-selections";
+import { getBingoCompletionIdsForProfile } from "@/lib/bingo-progress";
 import { ensureAuthenticatedProfile, getOnboardingSnapshotForClerkUser } from "@/lib/onboarding";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +19,7 @@ export default async function BingoPage() {
   let serverSelections: string[] | undefined;
   let syncSelectionsToServer = false;
   let serverOnboarding = null;
+  let serverBingoCompletions: string[] | undefined;
 
   if (userId) {
     try {
@@ -28,9 +30,13 @@ export default async function BingoPage() {
         serverSelections = loaded;
         syncSelectionsToServer = true;
       }
+      if (serverOnboarding?.profileId) {
+        serverBingoCompletions = await getBingoCompletionIdsForProfile(serverOnboarding.profileId);
+      }
     } catch {
       serverSelections = undefined;
       serverOnboarding = null;
+      serverBingoCompletions = undefined;
     }
   }
 
@@ -45,6 +51,7 @@ export default async function BingoPage() {
         serverSelections={serverSelections}
         syncSelectionsToServer={syncSelectionsToServer}
         serverOnboarding={serverOnboarding}
+        serverBingoCompletions={serverBingoCompletions}
       />
     </AppShell>
   );

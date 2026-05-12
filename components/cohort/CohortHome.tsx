@@ -6,9 +6,12 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
+import { GraderControlPanel } from "@/components/app/GraderControlPanel";
 import { CohortRevealLetter } from "@/components/cohort/CohortRevealLetter";
 import { PostcardMatchAnimation } from "@/components/cohort/PostcardMatchAnimation";
+import { CrumbsTyping } from "@/components/app/CrumbsTyping";
 import { demoData, getDemoEvent, getDemoUser } from "@/lib/demo-data";
+import { ACTIVITY_SLUG_TO_DEMO_EVENT } from "@/lib/demo-activity-slug-map";
 import { cohortPeopleAdjective } from "@/lib/cohort-reveal-copy";
 import {
   loadDemoState,
@@ -42,9 +45,10 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
   }, [storageUserId]);
 
   useEffect(() => {
+    if (serverOnboarding?.configured) return;
     const interval = window.setInterval(() => setState(tickMatchingForward(storageUserId)), 750);
     return () => window.clearInterval(interval);
-  }, [storageUserId]);
+  }, [storageUserId, serverOnboarding?.configured]);
 
   const serverAuthoritative = Boolean(serverOnboarding?.configured);
   const cohort = serverAuthoritative
@@ -68,11 +72,19 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
     (serverAuthoritative
       ? serverOnboarding?.assignmentStatus === "assigned"
       : state.matching.status === "assigned") &&
-    !state.seenCohortRevealIds.includes(cohort.id);
+    (serverAuthoritative
+      ? !serverOnboarding?.cohortRevealSeen
+      : !state.seenCohortRevealIds.includes(cohort.id));
 
   const letterEvents = useMemo(() => {
     if (!cohort) return { a: "", b: "" };
-    const fromPicks = state.selectedEventIds
+    const serverPickIds =
+      serverAuthoritative && (serverOnboarding?.selectedActivitySlugs.length ?? 0) > 0
+        ? serverOnboarding!.selectedActivitySlugs
+            .map((slug) => ACTIVITY_SLUG_TO_DEMO_EVENT[slug])
+            .filter((id): id is string => Boolean(id))
+        : [];
+    const fromPicks = (serverPickIds.length > 0 ? serverPickIds : state.selectedEventIds)
       .map((id) => getDemoEvent(id))
       .filter(Boolean)
       .slice(0, 2);
@@ -87,22 +99,39 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
       a: featured[0]?.title ?? "your picks",
       b: featured[1]?.title ?? "shared plans",
     };
-  }, [cohort, state.selectedEventIds]);
+  }, [cohort, serverAuthoritative, serverOnboarding, state.selectedEventIds]);
 
   const peopleAdjective = cohort ? cohortPeopleAdjective(cohort.vibeTags) : "great";
 
   const members = useMemo(() => {
+    if (serverAuthoritative && (serverOnboarding?.roster.length ?? 0) > 0) {
+      return serverOnboarding!.roster.map((member) => ({
+        id: member.profileId,
+        displayName: member.displayName ?? (member.isSelf ? "You" : "Cohort member"),
+        neighborhood: member.isSeed ? "Chicago" : "Your cohort",
+        avatar: { value: (member.displayName ?? "?").slice(0, 1).toUpperCase() },
+        commonRoomFact: member.isSelf ? "This is your row in the live roster." : "Seeded cohort member for the prototype.",
+      }));
+    }
     if (!cohort) return [];
     return cohort.memberIds.map((id) => getDemoUser(id)).filter(Boolean);
-  }, [cohort]);
+  }, [cohort, serverAuthoritative, serverOnboarding]);
 
   const featuredEvents = useMemo(() => {
     if (!cohort) return [];
     return cohort.featuredEventIds.map((id) => getDemoEvent(id)).filter(Boolean);
   }, [cohort]);
 
-  const readyToMail =
-    state.depositStatus === "paid" && state.selectedEventIds.length >= demoData.season.requiredEventCount;
+  const readyToMail = serverAuthoritative
+    ? serverOnboarding?.depositStatus === "paid" &&
+      (serverOnboarding?.selectionCount ?? 0) >= demoData.season.requiredEventCount
+    : state.depositStatus === "paid" && state.selectedEventIds.length >= demoData.season.requiredEventCount;
+
+  const matchingAnimationStatus = serverAuthoritative
+    ? serverOnboarding?.assignmentStatus === "pending"
+      ? "pending"
+      : "not_started"
+    : state.matching.status;
 
   if (cohort && (serverAuthoritative ? serverOnboarding?.assignmentStatus === "assigned" : state.matching.status === "assigned") && !cohortRevealUnlocked) {
     return (
@@ -111,8 +140,9 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
           <Badge variant="neutral">Matching</Badge>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight">Cohort matching is in progress.</h2>
           <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
-            In this demo, your cohort letter only unlocks after you open it under{" "}
-            <span className="font-semibold">Dashboard → Future</span>. Then you can come back here for your full roster.
+            {serverAuthoritative
+              ? "Your cohort letter unlocks after you open it under Dashboard → Future. Then you can come back here for your full roster."
+              : "In this demo, your cohort letter only unlocks after you open it under Dashboard → Future. Then you can come back here for your full roster."}
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button href="/dashboard" variant="primary">
@@ -123,6 +153,10 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
             </Button>
           </div>
           <Sticker className="mt-6">Crumbs is holding the envelope until you peek in Future.</Sticker>
+          <div className="mt-6 flex items-center gap-3 rounded-[1.25rem] border border-black/10 bg-white/70 p-4">
+            <CrumbsTyping size={56} />
+            <p className="text-sm font-medium text-black/70">Sorting duty continues in the mailroom.</p>
+          </div>
         </Card>
 
         <PostcardMatchAnimation status="pending" />
@@ -152,7 +186,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
             <Sticker className="mt-6">Crumbs is “sorting.” (He’s napping nearby.)</Sticker>
           </Card>
 
-          <PostcardMatchAnimation status={state.matching.status} />
+          <PostcardMatchAnimation status={matchingAnimationStatus} />
         </div>
       );
     }
@@ -163,8 +197,9 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
           <Badge variant="neutral">Not assigned yet</Badge>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight">Your cohort reveal happens after signups close.</h2>
           <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
-            In this demo, you can mail a postcard to start the matching animation. Real matching will be server-side based
-            on overlapping picks.
+            {serverAuthoritative
+              ? "Finish your deposit and four picks on the bingo card. Matching runs from your saved account state—no postcard button needed."
+              : "In this demo, you can mail a postcard to start the matching animation. Real matching runs server-side from overlapping picks."}
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button href="/bingo" variant="secondary">
@@ -172,7 +207,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
             </Button>
             <Button
               variant="primary"
-              disabled={!readyToMail}
+              disabled={!readyToMail || serverAuthoritative}
               onClick={() => setState(mailPostcardForMatching(storageUserId))}
             >
               Send postcard to matching
@@ -186,7 +221,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
           <Sticker className="mt-6">Crumbs is “sorting.” (He’s napping nearby.)</Sticker>
         </Card>
 
-        <PostcardMatchAnimation status={state.matching.status} />
+        <PostcardMatchAnimation status={matchingAnimationStatus} />
       </div>
     );
   }
@@ -207,7 +242,8 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6" data-testid="cohort-home">
+      <GraderControlPanel storageUserId={storageUserId} showWhenConfigured={serverAuthoritative} />
       <Card variant="scrapbook">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -221,7 +257,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           <div className="rounded-[1.5rem] bg-white/80 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Members</p>
-            <p className="mt-3 text-2xl font-semibold">{cohort.memberIds.length}</p>
+            <p className="mt-3 text-2xl font-semibold">{members.length || cohort.memberIds.length}</p>
             <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.66)]">A real common room size.</p>
           </div>
           <div className="rounded-[1.5rem] bg-white/80 p-5">
@@ -284,11 +320,13 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
         </Card>
       </section>
 
-      <Card variant="scrapbook">
+      <Card variant="scrapbook" data-testid="cohort-roster">
         <Badge variant="neutral">Roster</Badge>
         <h3 className="mt-4 text-2xl font-semibold tracking-tight">20 familiar faces-in-progress</h3>
         <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
-          These are generated demo profiles. In the real product, these are your cohort members (same idea, real people).
+          {serverAuthoritative
+            ? "Your cohort roster from Supabase, including seeded members for a full common-room size."
+            : "These are generated demo profiles. In the real product, these are your cohort members (same idea, real people)."}
         </p>
         <div className="mt-6 grid gap-4">
           {chunk(members, 10).map((row, idx) => (

@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "typecheck": "mkdir -p .next/types && next typegen && tsc --noEmit",
     "test": "playwright test --project=local",
+    "test:grader": "playwright test --project=grader",
     "test:preview": "playwright test --project=preview",
     "test:install": "playwright install chromium"
   },
@@ -26,6 +27,7 @@
     "three": "^0.184.0"
   },
   "devDependencies": {
+    "@clerk/testing": "^2.0.27",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

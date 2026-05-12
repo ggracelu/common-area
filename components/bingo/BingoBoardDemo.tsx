@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -9,7 +10,9 @@ import { Polaroid } from "@/components/ui/Polaroid";
 import { Sticker } from "@/components/ui/Sticker";
 import { Crumbs } from "@/components/brand/Crumbs";
 import { JoinSeasonButton } from "@/components/season/JoinSeasonButton";
+import { GraderControlPanel } from "@/components/app/GraderControlPanel";
 import { saveDemoActivitySelectionsAction } from "@/app/actions/activity-selections";
+import { toggleBingoTileAction } from "@/app/actions/bingo";
 import { demoData, getDemoBusiness, getDemoEvent } from "@/lib/demo-data";
 import type { OnboardingSnapshot } from "@/types/onboarding";
 import {
@@ -60,6 +63,7 @@ type BingoBoardDemoProps = {
   serverSelections?: string[];
   syncSelectionsToServer?: boolean;
   serverOnboarding?: OnboardingSnapshot | null;
+  serverBingoCompletions?: string[];
 };
 
 function mergeServerSelections(local: ReturnType<typeof loadDemoState>, serverSelections: string[] | undefined) {
@@ -74,8 +78,10 @@ export function BingoBoardDemo({
   serverSelections,
   syncSelectionsToServer = false,
   serverOnboarding = null,
+  serverBingoCompletions,
 }: BingoBoardDemoProps) {
   const { userId: authUserId } = useAuth();
+  const router = useRouter();
   const storageUserId = clerkUserId ?? authUserId ?? null;
 
   const [state, setState] = useState(() =>
@@ -88,14 +94,25 @@ export function BingoBoardDemo({
     "card" | "fold1" | "fold2" | "insert" | "stripe"
   >("card");
   const [selectionSaveStatus, setSelectionSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [bonusSaveStatus, setBonusSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const skipFirstRemoteSave = useRef(true);
   const tiles = demoData.bingoTiles;
-  useMemo(() => getBingoProgress(tiles, state), [state, tiles]);
+  const serverAuthoritative = Boolean(serverOnboarding?.configured);
+  const completedTileIds = serverAuthoritative
+    ? (serverBingoCompletions ?? [])
+    : state.bingo.completedTileIds;
+  const progressState = useMemo(
+    () => ({
+      ...state,
+      bingo: { completedTileIds },
+    }),
+    [state, completedTileIds],
+  );
+  useMemo(() => getBingoProgress(tiles, progressState), [progressState, tiles]);
 
   const required = demoData.season.requiredEventCount;
   const selectedCount = state.selectedEventIds.length;
   const canSelectMore = selectedCount < required;
-  const serverAuthoritative = Boolean(serverOnboarding?.configured);
   const selectionLocked = serverAuthoritative
     ? Boolean(serverOnboarding?.selectionLocked)
     : Boolean(state.selectionsCommittedAtISO);
@@ -145,7 +162,34 @@ export function BingoBoardDemo({
   const openBusiness = openEvent ? getDemoBusiness(openEvent.businessId) : null;
 
   function stampTile(tileId: string, kind: (typeof tiles)[number]["kind"]) {
-    const wasStamped = state.bingo.completedTileIds.includes(tileId);
+    const wasStamped = completedTileIds.includes(tileId);
+
+    if (serverAuthoritative) {
+      if (kind === "challenge" && !canDoBonusChallenges) {
+        return;
+      }
+
+      setBonusSaveStatus("saving");
+      void (async () => {
+        const result = await toggleBingoTileAction(tileId, !wasStamped);
+        if (result.ok) {
+          setBonusSaveStatus("saved");
+          router.refresh();
+          window.setTimeout(() => setBonusSaveStatus("idle"), 2000);
+          if (!wasStamped && kind === "challenge") {
+            setBonusStampFlashId(tileId);
+            window.setTimeout(() => {
+              setBonusStampFlashId((current) => (current === tileId ? null : current));
+            }, 650);
+          }
+          return;
+        }
+
+        setBonusSaveStatus("error");
+      })();
+      return;
+    }
+
     const next = toggleBingoTile(tileId, storageUserId);
     setState(next);
     if (!wasStamped && kind === "challenge") {
@@ -173,7 +217,8 @@ export function BingoBoardDemo({
   );
 
   return (
-    <div className="mx-auto grid max-w-[980px] gap-4">
+    <div className="mx-auto grid max-w-[980px] gap-4" data-testid="bingo-board">
+      <GraderControlPanel storageUserId={storageUserId} showWhenConfigured={serverAuthoritative} />
       <div className="mx-auto w-full max-w-[760px] text-center">
         <p
           className={[
@@ -189,10 +234,17 @@ export function BingoBoardDemo({
         </h2>
         <p className="mt-2 text-sm leading-6 text-[color:rgba(37,34,30,0.72)]">
           {isCommitted ? (
-            <>
-              These picks are saved on this device and styled as your <span className="font-semibold">locked passport</span>.
-              Bonus squares unlock after cohort assignment.
-            </>
+            serverAuthoritative ? (
+              <>
+                These picks are saved to your account and styled as your{" "}
+                <span className="font-semibold">locked passport</span>. Bonus squares unlock after cohort assignment.
+              </>
+            ) : (
+              <>
+                These picks are saved on this device and styled as your{" "}
+                <span className="font-semibold">locked passport</span>. Bonus squares unlock after cohort assignment.
+              </>
+            )
           ) : (
             <>
               $20 deposit → <span className="font-semibold">$5 discounts</span> off each event you complete. We match
@@ -214,6 +266,21 @@ export function BingoBoardDemo({
                 : selectionSaveStatus === "error"
                   ? "Couldn’t save picks—check connection or try again."
                   : "Selections autosave to your account."}
+          </p>
+        ) : null}
+        {serverAuthoritative && canDoBonusChallenges ? (
+          <p
+            className="mt-2 text-xs font-semibold text-black/55"
+            style={{ fontFamily: "var(--font-mono)" }}
+            data-testid="bingo-bonus-save-status"
+          >
+            {bonusSaveStatus === "saving"
+              ? "Saving bonus stamps to your account…"
+              : bonusSaveStatus === "saved"
+                ? "Bonus stamp saved to your account."
+                : bonusSaveStatus === "error"
+                  ? "Couldn’t save bonus stamp—try again."
+                  : "Bonus stamps save to your account after assignment."}
           </p>
         ) : null}
         {!isCommitted ? (
@@ -356,15 +423,24 @@ export function BingoBoardDemo({
                 {selectedCount}/{required} selected
               </span>
               <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant={state.depositStatus === "paid" ? "secondary" : "sticker"}
-                  onClick={() =>
-                    setState(setDepositStatus(state.depositStatus === "paid" ? "pending" : "paid", storageUserId))
-                  }
-                >
-                  {state.depositStatus === "paid" ? "Deposit: paid" : "Deposit: mark paid (demo)"}
-                </Button>
+                {!serverAuthoritative ? (
+                  <Button
+                    size="sm"
+                    variant={state.depositStatus === "paid" ? "secondary" : "sticker"}
+                    onClick={() =>
+                      setState(setDepositStatus(state.depositStatus === "paid" ? "pending" : "paid", storageUserId))
+                    }
+                  >
+                    {state.depositStatus === "paid" ? "Deposit: paid" : "Deposit: mark paid (demo)"}
+                  </Button>
+                ) : (
+                  <span
+                    className="rounded-full bg-black/5 px-3 py-1 text-[0.7rem] font-black uppercase tracking-[0.18em] text-black/65"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {depositPaid ? "Deposit: paid" : "Deposit: due"}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -374,7 +450,7 @@ export function BingoBoardDemo({
                 const isFree = tile.kind === "free";
                 const isBonus = tile.kind === "challenge";
                 const isEvent = tile.kind === "event";
-                const stamped = state.bingo.completedTileIds.includes(tile.id);
+                const stamped = completedTileIds.includes(tile.id);
                 const bonusJustStamped = isBonus && bonusStampFlashId === tile.id;
                 const selected = tile.eventId ? state.selectedEventIds.includes(tile.eventId) : false;
                 const disabledSelect =
@@ -650,58 +726,88 @@ export function BingoBoardDemo({
 
           {/* Stripe prompt appears after insert */}
           {submitPhase === "stripe" ? (
-            <div className="absolute left-1/2 top-1/2 w-[min(92vw,42rem)] -translate-x-1/2 -translate-y-1/2 p-3">
+            <div
+              className="absolute left-1/2 top-1/2 w-[min(92vw,42rem)] -translate-x-1/2 -translate-y-1/2 p-3"
+              data-testid="bingo-deposit-handoff"
+            >
               <div className="relative overflow-hidden rounded-[2rem] border border-black/12 bg-[linear-gradient(135deg,rgba(255,255,255,0.94),rgba(247,240,228,0.94))] p-6 shadow-[0_28px_95px_rgba(0,0,0,0.22)]">
-                <Badge variant="neutral">Deposit</Badge>
-                <h3 className="mt-4 text-3xl font-black tracking-tight">Secure your spot.</h3>
+                <Badge variant="neutral">Summer 2026 deposit</Badge>
+                <h3 className="mt-4 text-3xl font-black tracking-tight">Secure your spot for the season.</h3>
                 <p className="mt-3 text-base leading-7 text-[color:rgba(37,34,30,0.74)]">
-                  Pay the <span className="font-semibold">$20 deposit</span>. You’re all set — we’ll notify you once your cohort is finalized after Summer 2026 sign-ups close.
+                  Pay the <span className="font-semibold">$20 deposit</span> to hold your place. After sign-ups close,
+                  matching runs from your four saved picks—then your cohort letter unlocks on the dashboard.
                 </p>
+
+                <div className="mt-5 flex items-center gap-3 rounded-[1.25rem] border border-black/8 bg-white/70 p-4">
+                  <Crumbs size="sm" pose="sit" expression="neutral" animated />
+                  <p className="text-sm font-medium text-black/70">
+                    Crumbs note: deposit first, then we sort the match pile from your picks.
+                  </p>
+                </div>
 
                 <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:items-end">
                   <div className="rounded-[1.8rem] border border-black/10 bg-white/75 p-5">
                     <p className="text-xs font-black uppercase tracking-[0.22em] text-black/60">Status</p>
                     <p className="mt-2 text-lg font-semibold">
-                      {state.depositStatus === "paid" ? "Paid" : state.depositStatus === "pending" ? "Pending" : "Not started"}
+                      {depositPaid ? "Paid" : serverAuthoritative ? "Not started" : state.depositStatus === "pending" ? "Pending" : "Not started"}
                     </p>
                     <p className="mt-2 text-sm text-black/60">
-                      This is a mockup unless secrets are configured. No payment claims without webhook-confirmed server state.
+                      {serverAuthoritative
+                        ? "Paid status comes from webhook-confirmed server records only."
+                        : "This is a mockup unless secrets are configured. No payment claims without webhook-confirmed server state."}
                     </p>
                   </div>
 
                   <div className="grid gap-2">
                     <JoinSeasonButton />
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        const next = setDepositStatus("paid", storageUserId);
-                        setState(next);
-                      }}
-                    >
-                      Mock: mark deposit paid
-                    </Button>
+                    {!serverAuthoritative ? (
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          const next = setDepositStatus("paid", storageUserId);
+                          setState(next);
+                        }}
+                      >
+                        Mock: mark deposit paid
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
 
-                {state.depositStatus === "paid" ? (
+                {depositPaid ? (
                   <div className="mt-6 grid gap-3">
-                    <Sticker>Matching will run after sign-ups close.</Sticker>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <Button
-                        variant="primary"
-                        disabled={!readyToMail}
-                        onClick={() => {
-                          const next = mailPostcardForMatching(storageUserId);
-                          setState(next);
-                          window.location.href = "/dashboard";
-                        }}
-                      >
-                        Start matching
-                      </Button>
-                      <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
-                        Back to card
-                      </Button>
-                    </div>
+                    <Sticker>
+                      {serverAuthoritative
+                        ? "Matching runs from your saved picks on the dashboard."
+                        : "Matching will run after sign-ups close."}
+                    </Sticker>
+                    {!serverAuthoritative ? (
+                      <div className="flex flex-col gap-3 sm:flex-row">
+                        <Button
+                          variant="primary"
+                          disabled={!readyToMail}
+                          onClick={() => {
+                            const next = mailPostcardForMatching(storageUserId);
+                            setState(next);
+                            window.location.href = "/dashboard";
+                          }}
+                        >
+                          Start matching
+                        </Button>
+                        <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
+                          Back to card
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3 sm:flex-row">
+                        <Button variant="ghost" onClick={() => setSubmitPhase("card")}>
+                          Back to card
+                        </Button>
+                        <Button href="/dashboard" variant="primary">
+                          Go to dashboard
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="mt-6">
@@ -905,13 +1011,13 @@ export function BingoBoardDemo({
                   )
                 ) : null}
                 <Button
-                  variant={state.bingo.completedTileIds.includes(openTile.id) ? "secondary" : "sticker"}
+                  variant={completedTileIds.includes(openTile.id) ? "secondary" : "sticker"}
                   disabled={openTile.kind === "free" || (openTile.kind === "challenge" && !canDoBonusChallenges)}
                   onClick={() => stampTile(openTile.id, openTile.kind)}
                 >
                   {openTile.kind === "free"
                     ? "Free space"
-                    : state.bingo.completedTileIds.includes(openTile.id)
+                    : completedTileIds.includes(openTile.id)
                       ? "Unstamp"
                       : "Stamp this square"}
                 </Button>

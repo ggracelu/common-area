@@ -2,6 +2,38 @@ import "server-only";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { getActiveSeason } from "@/lib/catalog";
+import { getChallengeTileIndex, getDemoChallengeTileIdByOneBasedOrder } from "@/lib/demo-bingo-prompt-map";
+
+async function getSeasonPromptIdByDisplayOrder(seasonId: string, displayOrder: number): Promise<string | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("bingo_prompts")
+    .select("id")
+    .eq("season_id", seasonId)
+    .eq("display_order", displayOrder)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load bingo prompt: ${error.message}`);
+  }
+
+  return (data as { id: string } | null)?.id ?? null;
+}
+
+async function resolvePromptIdForDemoTile(tileId: string, seasonId: string): Promise<string> {
+  const tileIndex = getChallengeTileIndex(tileId);
+  if (tileIndex < 0) {
+    throw new Error(`Unknown bingo tile: ${tileId}`);
+  }
+
+  const promptId = await getSeasonPromptIdByDisplayOrder(seasonId, tileIndex + 1);
+  if (!promptId) {
+    throw new Error(`No bingo prompt is available for tile ${tileId}.`);
+  }
+
+  return promptId;
+}
 
 export async function getBingoCompletionIdsForProfile(profileId: string): Promise<string[]> {
   const supabase = createSupabaseAdminClient();
@@ -27,7 +59,7 @@ export async function getBingoCompletionIdsForProfile(profileId: string): Promis
 
   const { data: completions, error: completionError } = await supabase
     .from("bingo_completions")
-    .select("prompt_id")
+    .select("prompt_id, bingo_prompts(display_order)")
     .eq("profile_id", profileId)
     .eq("bingo_card_id", (card as { id: string }).id);
 
@@ -35,7 +67,14 @@ export async function getBingoCompletionIdsForProfile(profileId: string): Promis
     throw new Error(`Failed to load bingo completions: ${completionError.message}`);
   }
 
-  return (completions ?? []).map((row) => (row as { prompt_id: string }).prompt_id);
+  return (completions ?? [])
+    .map((row) => {
+      const prompt = (row as { bingo_prompts?: { display_order: number } | { display_order: number }[] | null })
+        .bingo_prompts;
+      const displayOrder = Array.isArray(prompt) ? prompt[0]?.display_order : prompt?.display_order;
+      return displayOrder ? getDemoChallengeTileIdByOneBasedOrder(displayOrder) : null;
+    })
+    .filter((tileId): tileId is string => Boolean(tileId));
 }
 
 export async function toggleBingoTileForProfile({
@@ -54,6 +93,8 @@ export async function toggleBingoTileForProfile({
   if (!season) {
     throw new Error("No active season is available.");
   }
+
+  const resolvedPromptId = await resolvePromptIdForDemoTile(promptId, season.id);
 
   const { data: existingCard, error: cardLookupError } = await supabase
     .from("bingo_cards")
@@ -92,7 +133,7 @@ export async function toggleBingoTileForProfile({
       {
         profile_id: profileId,
         bingo_card_id: cardId,
-        prompt_id: promptId,
+        prompt_id: resolvedPromptId,
         completed_at: new Date().toISOString(),
       },
       { onConflict: "profile_id,prompt_id" },
@@ -106,7 +147,7 @@ export async function toggleBingoTileForProfile({
       .from("bingo_completions")
       .delete()
       .eq("profile_id", profileId)
-      .eq("prompt_id", promptId);
+      .eq("prompt_id", resolvedPromptId);
 
     if (deleteError) {
       throw new Error(`Failed to remove bingo completion: ${deleteError.message}`);

@@ -8,11 +8,21 @@ type PostcardMatchAnimationProps = {
 
 export function PostcardMatchAnimation({ status }: PostcardMatchAnimationProps) {
   const [tick, setTick] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setReducedMotion(media.matches);
+    onChange();
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return;
     const interval = window.setInterval(() => setTick((t) => t + 1), 1200);
     return () => window.clearInterval(interval);
-  }, []);
+  }, [reducedMotion]);
 
   const label =
     status === "assigned"

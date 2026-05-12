@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { Crumbs } from "@/components/brand/Crumbs";
 
 type RevealPhase = "envelope" | "opening" | "letter";
 
@@ -76,10 +77,11 @@ export function CohortRevealLetter({
             <span className="font-semibold text-black">19</span> other{" "}
             <span className="font-semibold text-black">{peopleAdjective}</span> people.
           </p>
-          <div className="cohort-reveal-line-3 mt-8 flex flex-wrap gap-3">
+          <div className="cohort-reveal-line-3 mt-8 flex flex-wrap items-center gap-4">
             <Button variant="primary" onClick={onComplete}>
               Enter your common room
             </Button>
+            <Crumbs size="md" pose="sit" expression="happy" animated={!reducedMotion} reducedMotion={reducedMotion} />
           </div>
         </div>
       ) : null}

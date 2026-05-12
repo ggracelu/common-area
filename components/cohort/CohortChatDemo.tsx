@@ -9,12 +9,14 @@ import { Sticker } from "@/components/ui/Sticker";
 import { demoData, getDemoChatThread, getDemoUser } from "@/lib/demo-data";
 import { addChatMessage, loadDemoState } from "@/lib/demo-state";
 
+import type { OnboardingSnapshot } from "@/types/onboarding";
+
 function formatTime(iso: string) {
   const d = new Date(iso);
   return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(d);
 }
 
-export function CohortChatDemo() {
+export function CohortChatDemo({ serverOnboarding = null }: { serverOnboarding?: OnboardingSnapshot | null }) {
   const { userId } = useAuth();
   const storageUserId = userId ?? null;
 
@@ -29,7 +31,10 @@ export function CohortChatDemo() {
     return () => window.clearTimeout(id);
   }, [storageUserId]);
 
-  const cohortId = state.matching.cohortId ?? demoData.cohorts[0].id;
+  const cohortId =
+    (serverOnboarding?.configured && serverOnboarding.cohortDemoId) ||
+    state.matching.cohortId ||
+    demoData.cohorts[0].id;
   const thread = getDemoChatThread(cohortId);
   const local = state.chat.messagesByCohortId[cohortId] ?? [];
 
@@ -52,7 +57,19 @@ export function CohortChatDemo() {
   }, [messages.length]);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6" data-testid="cohort-chat-demo">
+      <div
+        className="rounded-[1.25rem] border border-[rgba(26,92,255,0.28)] bg-[linear-gradient(135deg,rgba(26,92,255,0.08),rgba(247,240,228,0.72))] px-4 py-3 text-sm text-[color:rgba(37,34,30,0.82)]"
+        role="status"
+        aria-live="polite"
+        data-testid="cohort-chat-demo-label"
+      >
+        <p className="font-semibold text-black">Demo chat thread</p>
+        <p className="mt-1">
+          Seeded messages and anything you send stay on this device until Postgres chat ships. No realtime claims.
+        </p>
+      </div>
+
       <Card variant="scrapbook">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -103,7 +120,8 @@ export function CohortChatDemo() {
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="Write a message… (demo)"
+              placeholder="Write a message to your cohort…"
+              aria-label="Message your cohort (demo, saved on this device)"
               className="flex-1 rounded-[999px] border border-black/10 bg-white/80 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--color-accent)]"
             />
             <Button

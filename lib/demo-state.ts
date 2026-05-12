@@ -177,7 +177,45 @@ export function toggleSelectedEvent(
 }
 
 export function clearSelections(userId: string | null | undefined = null) {
-  return updateDemoState((prev) => ({ ...prev, selectedEventIds: [] }), userId);
+  return updateDemoState(
+    (prev) => ({
+      ...prev,
+      selectedEventIds: [],
+      selectionsCommittedAtISO: null,
+    }),
+    userId,
+  );
+}
+
+export function clearMatchingState(userId: string | null | undefined = null) {
+  return updateDemoState(
+    (prev) => ({
+      ...prev,
+      matching: { ...defaultState.matching },
+    }),
+    userId,
+  );
+}
+
+export function clearFutureLetterPreview(userId: string | null | undefined = null) {
+  return updateDemoState(
+    (prev) => ({
+      ...prev,
+      futureCohortLetterPreviewDone: false,
+      seenCohortRevealIds: [],
+    }),
+    userId,
+  );
+}
+
+export function clearBingoProgress(userId: string | null | undefined = null) {
+  return updateDemoState(
+    (prev) => ({
+      ...prev,
+      bingo: { completedTileIds: [] },
+    }),
+    userId,
+  );
 }
 
 export function toggleBingoTile(tileId: string, userId: string | null | undefined = null) {

@@ -1,9 +1,24 @@
 import { SignIn } from "@clerk/nextjs";
 import { MinimalAuthShell } from "@/components/site/MinimalAuthShell";
 
+const graderEmailHint = process.env.NEXT_PUBLIC_GRADER_EMAIL_HINT?.trim();
+
 export default function SignInPage() {
   return (
     <MinimalAuthShell title="Sign in.">
+      {graderEmailHint ? (
+        <div
+          className="mx-auto mb-4 max-w-md rounded-[1.25rem] border border-black/10 bg-white/75 px-4 py-3 text-sm text-[color:rgba(37,34,30,0.78)]"
+          data-testid="grader-sign-in-callout"
+        >
+          <p className="font-semibold text-black">Grader account</p>
+          <p className="mt-1">
+            Use <span className="font-semibold">{graderEmailHint}</span> with the shared test password documented in{" "}
+            <code className="rounded bg-black/5 px-1 py-0.5 text-xs">docs/GRADER_WALKTHROUGH.md</code>. Signing up with
+            the same email works for grading.
+          </p>
+        </div>
+      ) : null}
       <div className="flex justify-center py-4">
         <SignIn
           path="/sign-in"

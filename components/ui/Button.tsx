@@ -1,14 +1,12 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import Link from "next/link";
 
-type ButtonProps = {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   href?: string;
   variant?: "primary" | "secondary" | "ghost" | "sticker";
   size?: "sm" | "md" | "lg";
   className?: string;
-  onClick?: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
-  disabled?: boolean;
 };
 
 export function Button({
@@ -19,6 +17,7 @@ export function Button({
   className = "",
   onClick,
   disabled,
+  ...rest
 }: ButtonProps) {
   const baseClasses =
     "lift-hover inline-flex items-center justify-center rounded-[var(--radius-button)] border text-sm font-semibold uppercase tracking-[0.18em] transition-all focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:ring-offset-2 focus:ring-offset-[var(--color-background)]";
@@ -51,7 +50,7 @@ export function Button({
   }
 
   return (
-    <button type="button" className={classes} onClick={onClick} disabled={disabled}>
+    <button type="button" className={classes} onClick={onClick} disabled={disabled} {...rest}>
       {children}
     </button>
   );

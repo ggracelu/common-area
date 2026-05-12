@@ -178,8 +178,8 @@ export async function getOnboardingSnapshotForClerkUser(
   const selectionCount = selectedActivitySlugs.length;
   const storedOnboarding = (profile as { onboarding_status: OnboardingStatus }).onboarding_status;
   const selectionLocked =
-    storedOnboarding === "assignment_pending" ||
     storedOnboarding === "active" ||
+    (storedOnboarding === "assignment_pending" && selectionCount >= 4) ||
     (depositStatus === "paid" && selectionCount >= 4);
 
   const { data: membership, error: membershipError } = await supabase

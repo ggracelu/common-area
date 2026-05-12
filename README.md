@@ -5,41 +5,42 @@ Common Area is a seasonal, cohort-based social platform for Gen Z young adults i
 ## Project Overview
 This repository includes the Phase 4 Supabase catalog foundation for Common Area plus Design System v1 implementation. The app has a polished public landing page, Clerk-powered sign-in and sign-up flows, and shared design tokens/primitives aligned with the Common Area brand direction.
 
-**Demo product depth (client-only)**:
-- To make the signed-in experience feel real while backend flows are still incomplete, the app includes a **demo-only state layer** (local-only) and **centralized realistic mock data**.
-- This demo layer is intentionally explicit: it **does not claim real payments**, **does not claim webhook confirmation**, and **does not claim realtime chat**.
+**Demo + server onboarding (v3)**:
+- Signed-in flows use a **Supabase onboarding snapshot** when `SUPABASE_SECRET_KEY` is set (deposit, four activity picks, cohort assignment, reveal flag, bingo progress helpers).
+- A **local demo layer** (`lib/demo-state.ts`) still powers chat composer persistence and presentation fallbacks; chat is explicitly demo-persisted in v3.
+- **Grader controls** on dashboard, bingo, and cohort undo persisted stages for QA reruns.
 
 Current scope:
 - Base Next.js app structure
 - Repo documentation and planning context
 - Public landing page and brand system
 - Clerk authentication and protected route scaffolding
-- Minimal authenticated dashboard shell
-- Supabase client utilities and catalog query helpers
-- Initial schema and seed data for profiles, seasons, activities, and season_activities
+- Authenticated dashboard, cohort, bingo, and profile surfaces
+- Supabase client utilities, migrations, seeds, and catalog query helpers
+- Server actions for deposits, activity selections, cohort assignment, reveal, bingo progress, and grader undo
 - Design system documentation in `docs/DESIGN_SYSTEM.md`
 - Shared UI primitives and global design tokens
-- Environment template for future integrations
-- Demo-only onboarding/product depth for `/dashboard`, `/cohort`, `/cohort/chat`, `/bingo`, and `/profile` (local-only persistence)
+- Playwright smoke, grader journey, and preview smoke projects
+- Grader walkthrough, pitch readiness scorecard, and tooling friction notes in `docs/`
 
-Not implemented yet:
-- Stripe payment flow (UI wired, server routes scaffolded, but only works when Stripe + Clerk + Supabase secrets are configured)
-- Activity selection (the demo flow currently uses `/bingo` as the season “passport”)
-- Cohort assignment
-- Chat
-- Bingo prompts
+Still partial or environment-gated:
+- Stripe live checkout (UI + routes exist; demo deposit path when checkout returns `501`)
+- Cohort chat persistence in Postgres (demo localStorage in v3, labeled in UI)
+- Production-grade assignment at scale (heuristic overlap bucketing for the prototype)
 
-Demo note:
-- Activity selection, matching, bingo, and chat **are demo interactions only** right now.
-- Demo progress is stored in `localStorage` so the experience feels coherent while the real database-backed versions are built.
- - Stripe endpoints exist (`/api/checkout`, `/api/webhooks/stripe`) but are **gated** and return `501` unless secrets are configured. The UI does not claim payment completion unless webhook-confirmed server state exists.
+Authority note:
+- When `SUPABASE_SECRET_KEY` is set, deposit, picks, matching, reveal, and roster state come from Supabase server snapshots on dashboard, bingo, and cohort.
+- `lib/demo-state.ts` remains a local cache for chat composer messages and for signed-out or no-Secret-Key fallbacks; it does not override server onboarding gates.
+- Paid deposit state is only shown from server/webhook-confirmed records. Stripe checkout is used when secrets exist; otherwise the demo deposit action writes paid state in Supabase.
+- Stripe endpoints (`/api/checkout`, `/api/webhooks/stripe`) return `501` when Stripe secrets are missing.
 
 Key files:
-- `lib/demo-data.ts`: centralized sample businesses, events, cohorts (60 users total), bingo tiles, and seeded chat messages
-- `lib/demo-state.ts`: local-only demo progress store (deposit toggle, selections, matching, bingo, chat composer)
+- `lib/demo-data.ts`: centralized sample businesses, events, cohorts, bingo tiles, and seeded chat messages
+- `lib/demo-state.ts`: local demo cache (chat composer, presentation fallbacks when Supabase is not authoritative)
+- `lib/onboarding.ts`: server onboarding snapshot for signed-in users
 
 ## Current Project Phase
-This repo is in Phase 4 with the initial Common Area design system now implemented across the public landing page and authenticated placeholder shell.
+This repo is in Phase 4+: catalog + design system plus a repeatable new-user demo with server-first onboarding when Supabase is configured.
 
 Brand note:
 - The visible product is now `Common Area`.
@@ -75,20 +76,7 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Add Clerk and Supabase values to `.env.local`:
-
-```bash
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-SUPABASE_SECRET_KEY=
-```
+3. Add Clerk, Supabase, optional Stripe, and optional grader values to `.env.local` (see [`.env.example`](./.env.example)).
 
 4. Start the development server:
 
@@ -98,47 +86,50 @@ npm run dev
 
 5. Open `http://localhost:3000`.
 
-6. Apply the initial Supabase schema manually:
-- Run the SQL in `supabase/migrations/202604280001_catalog_foundation.sql`
-- Then run `supabase/seed.sql`
-- You can do this in the Supabase SQL editor or your preferred database workflow
+6. Reset and seed local Supabase (recommended for the new-user demo):
+
+```bash
+npx supabase db reset
+```
+
+Or apply migrations manually: run `supabase/migrations/202604280001_catalog_foundation.sql`, then `supabase/seed.sql`.
 
 7. Test the app locally:
-- Visit `/sign-up` to create a test user in Clerk
+- Visit `/sign-up` to create a test user in Clerk (or use grader creds from `.env.local`)
 - Visit `/sign-in` to authenticate
 - Confirm protected routes like `/dashboard` redirect unauthenticated users to sign in
-- Confirm the signed-in header shows `Dashboard`, `Season`, `Cohort`, `Bingo`, and the Clerk `UserButton`
-- Visit `/bingo` to see the season’s experiences presented in the bingo card format
+- Walk deposit → four picks → matching → Future letter → `/cohort` roster → bingo bonus (see [docs/GRADER_WALKTHROUGH.md](./docs/GRADER_WALKTHROUGH.md))
 
 ## Available Commands
 - `npm run dev` starts the local development server
 - `npm run lint` runs ESLint
 - `npm run typecheck` runs TypeScript without emitting files
-- `npm run test` is a placeholder until a real test framework is added
+- `npm run test` runs local Playwright smoke (public routes)
+- `npm run test:grader` runs the signed-in grader journey when `GRADER_CLERK_EMAIL` and `GRADER_CLERK_PASSWORD` are set
+- `npm run test:preview` runs preview smoke when `PLAYWRIGHT_BASE_URL` is set
+- `npm run test:install` installs Playwright Chromium if browsers are missing
 - `npm run build` creates a production build
 
 ## Environment Variable Notes
 Environment placeholders live in [`.env.example`](./.env.example).
 
-These values are now required for local auth setup:
+These values are required for the server-first demo:
 - `NEXT_PUBLIC_APP_URL`
-- Clerk keys
-- Clerk auth route vars
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SECRET_KEY`
-- Stripe keys
+- Clerk keys and auth route vars
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`
+
+Optional:
+- Stripe keys for live test checkout + webhook-confirmed deposits
+- `GRADER_CLERK_EMAIL`, `GRADER_CLERK_PASSWORD`, and `NEXT_PUBLIC_GRADER_EMAIL_HINT` for grader sign-in callout and `npm run test:grader`
 
 Never commit real secrets. Follow the security and environment policies in [AGENTS.md](./AGENTS.md).
 
 Design system note:
 - `docs/DESIGN_SYSTEM.md` defines the current Common Area visual system
 - Design tokens now live in `app/globals.css`
-- Shared primitives in `components/ui` now provide the base button, card, badge, sticker, polaroid, and section-header patterns
-- This pass did not change backend scope or add new product logic
+- Shared primitives in `components/ui` provide the base button, card, badge, sticker, polaroid, and section-header patterns
 
-Profile persistence is not implemented in this phase. Clerk user data is normalized into an in-memory preview shape only; the real `profiles` table integration will come later with Supabase.
-Clerk still owns identity in this phase. Supabase `profiles` are prepared in schema only, and profile creation/upsert should remain a server-controlled flow in a later phase.
+Clerk owns identity; Supabase `profiles` are created server-side on signed-in flows when `SUPABASE_SECRET_KEY` is set.
 
 Mascot note:
 - Common Area's mascot is now Crumbs the Cat, the resident lounge cat who makes the product feel familiar, cozy, and lightly funny without undermining trust or clarity.

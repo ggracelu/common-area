@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { markMockDepositPaidAction } from "@/app/actions/onboarding";
 import { Button } from "@/components/ui/Button";
 import { ActionButton } from "@/components/ui/ActionButton";
 
 export function JoinSeasonButton() {
   const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +27,7 @@ export function JoinSeasonButton() {
         if (response.status === 501) {
           const mock = await markMockDepositPaidAction();
           if (mock.ok) {
-            window.location.reload();
+            router.refresh();
             return;
           }
           throw new Error(mock.error || "Failed to record demo deposit");
@@ -65,7 +67,7 @@ export function JoinSeasonButton() {
         </p>
       ) : null}
       <p className="text-xs text-[color:rgba(37,34,30,0.58)]">
-        If Stripe isn’t configured in this environment, this will stay in demo mode.
+        Stripe checkout when configured; otherwise a server-recorded demo deposit path (no client-only “paid” claims).
       </p>
     </div>
   );
