@@ -97,6 +97,8 @@ PLAYWRIGHT_BASE_URL=<public-vercel-deploy> npm run test:preview
 
 Install Playwright browsers once per machine with `npm run test:install` if `test` or `test:grader` report missing Chromium.
 
+Run `node scripts/grader-undo-all.mjs` only after a green `npm run test:grader` (or another full happy path). The script expects deposit, picks, and matching checklist rows to read **Done** before it unwinds stages.
+
 ## 7. Deploy on Vercel
 
 From the repo root on the branch you want to ship:

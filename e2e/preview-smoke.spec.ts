@@ -59,4 +59,11 @@ test.describe("preview smoke", () => {
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/sign-in|dashboard/);
   });
+
+  test("business dashboard redirects signed-out users to partner sign-in", async ({ page, baseURL }) => {
+    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/whynot.");
+
+    await page.goto("/business/dashboard");
+    await expect(page).toHaveURL(/partner\/sign-in/);
+  });
 });

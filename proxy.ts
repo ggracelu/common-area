@@ -1,17 +1,29 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 /** Signed-in–only app surfaces. `/bingo` stays public so the demo card works without auth. */
-const isProtectedRoute = createRouteMatcher([
+const isBusinessRoute = createRouteMatcher(["/business(.*)"]);
+
+const isMemberProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/season/select(.*)",
   "/cohort(.*)",
   "/cohort/chat(.*)",
   "/profile(.*)",
-  "/business(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && isProtectedRoute(req)) {
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) {
+    return;
+  }
+
+  if (isBusinessRoute(req)) {
+    await auth.protect({
+      unauthenticatedUrl: new URL("/partner/sign-in", req.url).toString(),
+    });
+    return;
+  }
+
+  if (isMemberProtectedRoute(req)) {
     await auth.protect();
   }
 });

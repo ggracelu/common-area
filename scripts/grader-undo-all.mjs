@@ -25,6 +25,10 @@ async function assertPending(page, testId) {
   await page.getByTestId(testId).filter({ hasText: "Pending" }).waitFor({ timeout: 30_000 });
 }
 
+async function assertDone(page, testId) {
+  await page.getByTestId(testId).filter({ hasText: "Done" }).waitFor({ timeout: 30_000 });
+}
+
 async function main() {
   loadEnvLocal();
   const baseURL = process.env.PLAYWRIGHT_LOCAL_BASE_URL ?? "http://localhost:3000";
@@ -51,6 +55,10 @@ async function main() {
 
   await page.goto(`${baseURL}/dashboard`);
   await page.getByTestId("grader-onboarding-checklist").waitFor({ timeout: 30_000 });
+
+  await assertDone(page, "grader-checklist-deposit");
+  await assertDone(page, "grader-checklist-picks");
+  await assertDone(page, "grader-checklist-matching");
 
   for (const stage of stages) {
     const started = Date.now();
