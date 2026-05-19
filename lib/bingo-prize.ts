@@ -25,6 +25,11 @@ function generateCouponCode(): string {
   return `CA5-${suffix}`;
 }
 
+export function readBingoCouponCode(userId: string | null | undefined): string | null {
+  if (typeof window === "undefined") return null;
+  return window.localStorage.getItem(`${COUPON_PREFIX}:${userId ?? "anon"}`);
+}
+
 export function getOrCreateBingoCouponCode(userId: string | null | undefined): string {
   const key = `${COUPON_PREFIX}:${userId ?? "anon"}`;
   if (typeof window === "undefined") return "CA5-PREVIEW";

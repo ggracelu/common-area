@@ -2,7 +2,7 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -11,9 +11,14 @@ import { Sticker } from "@/components/ui/Sticker";
 import { Crumbs } from "@/components/brand/Crumbs";
 import { JoinSeasonButton } from "@/components/season/JoinSeasonButton";
 import { GraderControlPanel } from "@/components/app/GraderControlPanel";
+import { BingoPrizeBubble } from "@/components/bingo/BingoPrizeBubble";
 import { BingoPrizeReveal } from "@/components/bingo/BingoPrizeReveal";
 import { BingoWinLinesOverlay } from "@/components/bingo/BingoWinLinesOverlay";
-import { hasBingoPrizeBeenRevealed } from "@/lib/bingo-prize";
+import {
+  getOrCreateBingoCouponCode,
+  hasBingoPrizeBeenRevealed,
+  readBingoCouponCode,
+} from "@/lib/bingo-prize";
 import {
   detectBingoLines,
   getMarkedIndices,
@@ -108,6 +113,10 @@ export function BingoBoardDemo({
   const [depositRecordedLocally, setDepositRecordedLocally] = useState(false);
   const [autosaveStatusLabel, setAutosaveStatusLabel] = useState<string | null>(null);
   const [showPrizeReveal, setShowPrizeReveal] = useState(false);
+  const [prizeBubble, setPrizeBubble] = useState<{ visible: boolean; couponCode: string | null }>({
+    visible: false,
+    couponCode: null,
+  });
   const skipFirstRemoteSave = useRef(true);
   const hadBingoRef = useRef(false);
   const tiles = demoData.bingoTiles;
@@ -124,6 +133,20 @@ export function BingoBoardDemo({
   const winningCellIndices = useMemo(() => getWinningCellIndices(bingoWinLines), [bingoWinLines]);
 
   const hasBingo = bingoWinLines.length > 0;
+
+  const refreshPrizeBubble = useCallback(() => {
+    const revealed = hasBingoPrizeBeenRevealed(storageUserId);
+    setPrizeBubble({
+      visible: revealed,
+      couponCode: revealed
+        ? readBingoCouponCode(storageUserId) ?? getOrCreateBingoCouponCode(storageUserId)
+        : null,
+    });
+  }, [storageUserId]);
+
+  useEffect(() => {
+    refreshPrizeBubble();
+  }, [refreshPrizeBubble]);
 
   useEffect(() => {
     if (!hasBingo) {
@@ -375,7 +398,8 @@ export function BingoBoardDemo({
         </div>
       ) : null}
 
-      <div className="mx-auto w-full max-w-[760px]">
+      <div className="mx-auto flex w-full max-w-[980px] flex-col items-stretch gap-2 lg:flex-row lg:items-start lg:justify-center lg:gap-6">
+        <div className="w-full min-w-0 max-w-[760px] lg:flex-1">
         <div className="relative mx-auto">
           {/* Sticker-ish decorations */}
           {!isCommitted ? (
@@ -762,6 +786,11 @@ export function BingoBoardDemo({
             `}</style>
           </div>
         </div>
+        </div>
+
+        {prizeBubble.visible && prizeBubble.couponCode ? (
+          <BingoPrizeBubble couponCode={prizeBubble.couponCode} />
+        ) : null}
       </div>
 
       {!isCommitted ? (
@@ -1183,7 +1212,10 @@ export function BingoBoardDemo({
       <BingoPrizeReveal
         open={showPrizeReveal}
         userId={storageUserId}
-        onClose={() => setShowPrizeReveal(false)}
+        onClose={() => {
+          setShowPrizeReveal(false);
+          refreshPrizeBubble();
+        }}
       />
     </div>
   );
