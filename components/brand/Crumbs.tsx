@@ -106,53 +106,42 @@ const REFERENCE_CRUMBS: PixelSprite = {
 };
 
 /**
- * Curled sleeping ball: tucked head, closed eyes, tail wrapped — not upright sit.
+ * Sleeping loaf (reference pose): flat on belly, head left, paws under chin,
+ * tabby stripes on back, white muzzle + underbelly. L/D/W/K = gray tabby fur.
  */
 const CURL_CRUMBS: PixelSprite = {
-  w: 16,
-  h: 16,
+  w: 24,
+  h: 10,
   rows: [
-    "................",
-    "...KKKKKKKK.....",
-    "..KLLLLLLLLK....",
-    ".KLLLLLLLLLLK...",
-    "KLLLKKKKLLLLLK..",
-    "KLLLWWWWWLLLLLK.",
-    "KLLLLLLLLLLLLLK.",
-    "KLLLLLLLLLLLLLK.",
-    ".KLLLLLLLLLLLK..",
-    "..KLLLLLLLLLK...",
-    "...KKKKKKKKK....",
-    "....KKK..KKK....",
-    "................",
-    "................",
-    "................",
-    "................",
+    "........................",
+    "..K...K.................",
+    ".KLWLWLK................",
+    "KLLKKKKLL...............",
+    "KLLWWWWWLLL.............",
+    "KLLLLLLLLLLLL...........",
+    "KLLWLWLWLWLWL...........",
+    "KLLWWWWWWWWWWLL.........",
+    "KKKLLLLLLLLLLKK.........",
+    "........................",
   ],
   palette: BASE_PALETTE,
 };
 
-/** Loaf nap: same curl with blue Zzz. */
+/** Loaf nap: same sleeping pose with blue Zzz. */
 const NAP_CRUMBS: PixelSprite = {
-  w: 16,
-  h: 16,
+  w: 24,
+  h: 10,
   rows: [
-    "................B",
-    "...KKKKKKKK....B.",
-    "..KLLLLLLLLK..B..",
-    ".KLLLLLLLLLLK....",
-    "KLLLKKKKLLLLLK..",
-    "KLLLWWWWWLLLLLK.",
-    "KLLLLLLLLLLLLLK.",
-    "KLLLLLLLLLLLLLK.",
-    ".KLLLLLLLLLLLK..",
-    "..KLLLLLLLLLK...",
-    "...KKKKKKKKK....",
-    "....KKK..KKK....",
-    "................",
-    "................",
-    "................",
-    "................",
+    ".......................B",
+    "..K...K..............B..",
+    ".KLWLWLK............B...",
+    "KLLKKKKLL...............",
+    "KLLWWWWWLLL.............",
+    "KLLLLLLLLLLLL...........",
+    "KLLWLWLWLWLWL...........",
+    "KLLWWWWWWWWWWLL.........",
+    "KKKLLLLLLLLLLKK.........",
+    "........................",
   ],
   palette: SLEEPY_PALETTE,
 };
@@ -234,7 +223,10 @@ export function Crumbs({
   const pixel = 4;
   const viewW = sprite.w * pixel;
   const viewH = sprite.h * pixel;
-  const { width, height } = SIZE_MAP[size];
+  const box = SIZE_MAP[size].width;
+  const isWide = sprite.w > sprite.h;
+  const width = isWide ? box : box;
+  const height = isWide ? Math.max(Math.round(box * (viewH / viewW)), box * 0.45) : box;
   const breathe =
     animated && !reduced && (pose === "sit" || pose === "curl" || pose === "nap");
   const breatheClass =

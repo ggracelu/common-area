@@ -46,7 +46,7 @@ export default function CrumbsLabPage() {
               2 · Napping · curled ball
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Tucked head, wrapped tail read, side-sleep silhouette.
+              Flat sleeping loaf: head left, paws tucked, tabby stripes, white belly — gray fur (L/W/K).
             </p>
             <div
               className="mt-8 flex justify-center"
@@ -63,7 +63,7 @@ export default function CrumbsLabPage() {
               3 · Working · glasses + laptop
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Black rims (F), pale blue lenses (G), temple arms, blue screen (S), keyboard with typing highlight.
+              Round lenses, blue screen (S), keyboard with typing highlight.
             </p>
             <div className="mt-8 flex justify-center">
               <CrumbsWorking size={280} />
