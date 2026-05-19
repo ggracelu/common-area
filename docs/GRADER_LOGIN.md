@@ -121,7 +121,7 @@ When signed in on `/business/dashboard` as **Grader's Coffee** or **Crumbs Cafe*
 | Environment | URL |
 |-------------|-----|
 | Local dev | `http://localhost:3000/sign-in` (or your `PLAYWRIGHT_LOCAL_BASE_URL`) |
-| Production alias | `https://common-area.vercel.app/sign-in` |
+| Production alias | `https://common-area-one.vercel.app/sign-in` |
 | Preview deploy | Latest URL from `npm run preview:url` or the Vercel dashboard |
 
 After a successful sign-in, Clerk redirects to **`/dashboard`**.
@@ -131,7 +131,7 @@ After a successful sign-in, Clerk redirects to **`/dashboard`**.
 | Environment | URL |
 |-------------|-----|
 | Local dev | `http://localhost:3000/partner/sign-in` |
-| Production alias | `https://common-area.vercel.app/partner/sign-in` |
+| Production alias | `https://common-area-one.vercel.app/partner/sign-in` |
 | Preview deploy | Latest preview base URL + `/partner/sign-in` |
 
 After a successful sign-in, Clerk redirects to **`/business/dashboard`**. Browse **`/partner`** without auth to review the host gallery and copy.

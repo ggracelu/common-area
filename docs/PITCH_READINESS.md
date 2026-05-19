@@ -2,7 +2,7 @@
 
 Living checklist for investor-pitch prototype quality. Update after Playwright grader runs or timed pitch dry-runs.
 
-**Last trust verification:** 2026-05-12 PM (branch `feature/dashboard-product-depth`, commit `d5ce243`); local Supabase trio `http://127.0.0.1:54321`; `npx supabase db reset` before grader run; grader E2E **pass** (~10.2s); preview smoke **3/3** on `https://common-area.vercel.app` (`npm run preview:url` + `VERCEL_AUTOMATION_BYPASS_SECRET`); DB spot-check script **pass** (`scripts/grader-db-spotcheck.mjs`); six undo actions + full reset **pass** (`scripts/grader-undo-all.mjs`, all ≤30s).
+**Last trust verification:** 2026-05-12 PM (branch `feature/dashboard-product-depth`, commit `d5ce243`); local Supabase trio `http://127.0.0.1:54321`; `npx supabase db reset` before grader run; grader E2E **pass** (~10.2s); preview smoke **3/3** on `https://common-area-one.vercel.app` (`npm run preview:url` + `VERCEL_AUTOMATION_BYPASS_SECRET`); DB spot-check script **pass** (`scripts/grader-db-spotcheck.mjs`); six undo actions + full reset **pass** (`scripts/grader-undo-all.mjs`, all ≤30s).
 
 ## Pitch-ready gate
 
@@ -33,7 +33,7 @@ Living checklist for investor-pitch prototype quality. Update after Playwright g
 | Live demo duration | ≤8 minutes | **Pass (estimated)** | Automated grader path ~10–13s; narrated pitch budget ~6 min with grader controls hidden |
 | Demo recovery | ≤30 seconds per undo | **Pass (E2E)** | `grader-undo-*` / `grader-reset-journey` with 30s Playwright timeouts; server refresh after undo |
 | Cold start | ≤15 minutes clone → signed-in checklist | **Not measured** | [GRADER_WALKTHROUGH.md](./GRADER_WALKTHROUGH.md) |
-| Preview confidence | 100% preview smoke when URL set | **Pass** | `PLAYWRIGHT_BASE_URL=$(npm run preview:url)` → `https://common-area.vercel.app` + `VERCEL_AUTOMATION_BYPASS_SECRET`; localhost/unset still **skips** (no false pass) |
+| Preview confidence | 100% preview smoke when URL set | **Pass** | `PLAYWRIGHT_BASE_URL=$(npm run preview:url)` → `https://common-area-one.vercel.app` + `VERCEL_AUTOMATION_BYPASS_SECRET`; localhost/unset still **skips** (no false pass) |
 | Critical path blockers | 0 “coming soon” on deposit → bingo path | **Pass (copy)** | No “coming soon” on deposit → bingo path in repo grep |
 
 ## C. UX and brand
@@ -138,7 +138,7 @@ Living checklist for investor-pitch prototype quality. Update after Playwright g
 | `npm run test` | Pass (3/3 local smoke) |
 | `npx supabase db reset` | Pass (before grader) |
 | `npm run test:grader` | Pass (1/1, ~10.2s; **Saved to your account** on dashboard) |
-| `npm run test:preview` | Pass (3/3) with `PLAYWRIGHT_BASE_URL=https://common-area.vercel.app` + bypass secret |
+| `npm run test:preview` | Pass (3/3) with `PLAYWRIGHT_BASE_URL=https://common-area-one.vercel.app` + bypass secret |
 | `node scripts/grader-db-spotcheck.mjs` | Pass (deposit/picks/cohort/reveal/bingo rows) |
 | `node scripts/grader-undo-all.mjs` | Pass (6 undo + reset, all ≤30s) |
 | Mobile Lighthouse `/` (pitch URL) | **Not run** — optional after bypass |

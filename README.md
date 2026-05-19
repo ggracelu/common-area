@@ -45,7 +45,7 @@ This repo is in Phase 4+: catalog + design system plus a repeatable new-user dem
 Brand note:
 - The visible product is **Common Area**.
 - The GitHub repository is [`ggracelu/common-area`](https://github.com/ggracelu/common-area). The local folder may still be named `whynot` on disk until you rename it manually.
-- Production deploy: **https://common-area.vercel.app** (legacy alias **https://whynot-one.vercel.app** may still resolve during transition).
+- Production deploy: **https://common-area-one.vercel.app** (legacy **https://whynot-one.vercel.app** still resolves). The hostname `common-area.vercel.app` is owned by another Vercel project and is not this app.
 
 See:
 - [AGENTS.md](./AGENTS.md)

@@ -37,7 +37,7 @@ npm run preview:url
 # or: gh api repos/ggracelu/common-area/deployments --jq '.[] | select(.environment=="Preview") | .id' | head -1 | xargs -I{} gh api repos/ggracelu/common-area/deployments/{}/statuses --jq '.[] | select(.state=="success") | .environment_url' | head -1
 ```
 
-   Do **not** use `common-area.vercel.app`; that host is not this app. Preview smoke **skips** when `PLAYWRIGHT_BASE_URL` is unset or points at `localhost` / `127.0.0.1` (no false pass against local dev). If Vercel Deployment Protection returns **401**, set `VERCEL_AUTOMATION_BYPASS_SECRET` from the Vercel project or disable protection for the preview environment.
+   Do **not** use `common-area-one.vercel.app`; that host is not this app. Preview smoke **skips** when `PLAYWRIGHT_BASE_URL` is unset or points at `localhost` / `127.0.0.1` (no false pass against local dev). If Vercel Deployment Protection returns **401**, set `VERCEL_AUTOMATION_BYPASS_SECRET` from the Vercel project or disable protection for the preview environment.
 
 Playwright loads `.env.local` automatically for `npm run test:grader` and `npm run test:preview`, and **overrides** inherited shell `NEXT_PUBLIC_SUPABASE_*` / `SUPABASE_SECRET_KEY` values so local grading matches the file contract above.
 
@@ -107,13 +107,13 @@ From the repo root on the branch you want to ship:
 npm run typecheck
 npm run build
 vercel deploy          # preview
-vercel deploy --prod   # production (updates common-area.vercel.app)
+vercel deploy --prod   # production (updates common-area-one.vercel.app)
 ```
 
 After deploy, grade on the public alias:
 
-- Member season grader: `https://common-area.vercel.app/sign-in`
-- Partner business logins: `https://common-area.vercel.app/partner/sign-in`
+- Member season grader: `https://common-area-one.vercel.app/sign-in`
+- Partner business logins: `https://common-area-one.vercel.app/partner/sign-in`
 
 Ensure the Vercel project has Clerk test keys, Supabase URL and keys, and the grader hint env vars from [`.env.example`](../.env.example) (`NEXT_PUBLIC_GRADER_EMAIL_HINT`, `NEXT_PUBLIC_PARTNER_GRADER_EMAIL_HINT`, `NEXT_PUBLIC_PARTNER_TESTER_EMAIL_HINT`). Add the deploy URL to Clerk allowed origins and redirect URLs if sign-in fails.
 
