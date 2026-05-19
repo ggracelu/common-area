@@ -75,14 +75,14 @@ export default function CrumbsLabPage() {
               2 · Napping · curled ball
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Sleeping loaf: oversized Crumbs head (scaled ~1.3× wider and taller than the sitting pose) with triangular ears, DDDD forehead crease, D-shaded cheeks, closed eyes, and the three-row white muzzle ending in a K nose dot. The body is now shorter with three diagonal back stripes; underneath, a thick K-outlined tail tucks under the body and curls to a tip below the front paws.
+              Sleeping loaf: head scaled up to ~1.6× wider and ~1.3× taller than the sit pose, with a full K outline all around it — the vertical K column between head and body reads as the neck/shoulder line. Six-wide DDDDDD forehead crease, side D cheek shadows, closed two-pixel eyes, and a three-row white muzzle ending in a K nose dot. The shorter body carries three vertical tabby back stripes and a thick K-outlined tail that tucks under and curls to a tip below the front paws. Three blue Zzz dots appear one at a time in a looping loading sequence above the back.
             </p>
             <div
               className="mt-8 flex justify-center"
               style={{ minHeight: "10rem" }}
             >
               <div className="origin-top scale-[2.75]">
-                <Crumbs size="lg" pose="curl" animated />
+                <Crumbs size="lg" pose="nap" animated />
               </div>
             </div>
           </li>

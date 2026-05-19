@@ -87,69 +87,64 @@
   transform-origin: left center;
 }
 
-/* Zzz animation */
-@keyframes zzzFloat {
-  0% {
+/*
+ * Zzz loading sequence — each dot snaps on in turn (no fade) so the
+ * cluster reads as 0 → 1 → 2 → 3 dots, then resets. The cycle is one
+ * 2.4s period split into four quarters.
+ */
+.crumbs-zzz {
+  opacity: 0;
+}
+
+@keyframes crumbsZ1Loading {
+  0%,
+  24.99% {
     opacity: 0;
-    transform: translateY(0) scale(0.8);
   }
-  20% {
-    opacity: 0.85;
-  }
-  80% {
-    opacity: 0.65;
-  }
+  25%,
   100% {
-    opacity: 0;
-    transform: translateY(-8px) scale(1.1);
+    opacity: 1;
   }
 }
 
-@keyframes zzzFloatSlow {
-  0% {
+@keyframes crumbsZ2Loading {
+  0%,
+  49.99% {
     opacity: 0;
-    transform: translateY(0) scale(0.8);
   }
-  25% {
-    opacity: 0.85;
-  }
-  75% {
-    opacity: 0.65;
-  }
+  50%,
   100% {
-    opacity: 0;
-    transform: translateY(-6px) scale(1.1);
+    opacity: 1;
   }
 }
 
-.crumbs-zzz .crumbs-z-1 {
-  animation: zzzFloat 3s ease-out infinite;
-  animation-delay: 0s;
+@keyframes crumbsZ3Loading {
+  0%,
+  74.99% {
+    opacity: 0;
+  }
+  75%,
+  100% {
+    opacity: 1;
+  }
 }
 
-.crumbs-zzz .crumbs-z-2 {
-  animation: zzzFloat 3s ease-out infinite;
-  animation-delay: 1s;
+.crumbs-mascot:not(.crumbs-static) .crumbs-zzz-1 {
+  animation: crumbsZ1Loading 2.4s linear infinite;
 }
 
-.crumbs-zzz .crumbs-z-3 {
-  animation: zzzFloat 3s ease-out infinite;
-  animation-delay: 2s;
+.crumbs-mascot:not(.crumbs-static) .crumbs-zzz-2 {
+  animation: crumbsZ2Loading 2.4s linear infinite;
 }
 
-.crumbs-zzz-slow .crumbs-z-1 {
-  animation: zzzFloatSlow 4s ease-out infinite;
-  animation-delay: 0s;
+.crumbs-mascot:not(.crumbs-static) .crumbs-zzz-3 {
+  animation: crumbsZ3Loading 2.4s linear infinite;
 }
 
-.crumbs-zzz-slow .crumbs-z-2 {
-  animation: zzzFloatSlow 4s ease-out infinite;
-  animation-delay: 1.5s;
-}
-
-.crumbs-zzz-slow .crumbs-z-3 {
-  animation: zzzFloatSlow 4s ease-out infinite;
-  animation-delay: 3s;
+/* When reduced motion is on, show all three Zzz dots statically. */
+.crumbs-mascot.crumbs-static .crumbs-zzz {
+  opacity: 1;
+  animation: none !important;
 }
 
 /* Crumbs copy styling */
