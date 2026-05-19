@@ -1,13 +1,47 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PartnerBusiness } from "@/lib/business-partners";
+import { expandPartnerMarqueeRow, type PartnerBusiness } from "@/lib/business-partners";
 
 type PartnerBusinessGalleryProps = {
   businesses: PartnerBusiness[];
   /** Hide section heading — for embedded surfaces like bingo prize reveal. */
   embedded?: boolean;
 };
+
+function PartnerGalleryCard({ business }: { business: PartnerBusiness }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = Boolean(business.imageUrl) && !imageFailed;
+
+  return (
+    <figure
+      className="partner-gallery-card"
+      style={{ ["--v16-accent" as never]: business.accent }}
+    >
+      {showImage ? (
+        <img
+          className="partner-gallery-image"
+          src={business.imageUrl}
+          alt={`${business.name} in ${business.neighborhood}.`}
+          loading="lazy"
+          decoding="async"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <div
+          className="partner-gallery-image partner-gallery-image-fallback"
+          aria-hidden
+        />
+      )}
+      <figcaption className="partner-gallery-caption">
+        <p className="partner-gallery-kicker">
+          {business.neighborhood} · {business.category}
+        </p>
+        <p className="partner-gallery-title">{business.name}</p>
+      </figcaption>
+    </figure>
+  );
+}
 
 function GalleryTrack({
   businesses,
@@ -18,7 +52,8 @@ function GalleryTrack({
   direction: "left" | "right";
   reducedMotion: boolean;
 }) {
-  const loop = [...businesses, ...businesses];
+  const row = expandPartnerMarqueeRow(businesses, 8);
+  const loop = [...row, ...row];
 
   return (
     <div className="partner-gallery-track-wrap overflow-hidden">
@@ -27,29 +62,7 @@ function GalleryTrack({
         aria-hidden={reducedMotion}
       >
         {loop.map((business, index) => (
-          <figure
-            key={`${business.id}-${index}`}
-            className="partner-gallery-card"
-            style={{ ["--v16-accent" as never]: business.accent }}
-          >
-            {business.imageUrl ? (
-              <img
-                className="partner-gallery-image"
-                src={business.imageUrl}
-                alt={`${business.name} in ${business.neighborhood}.`}
-                loading="lazy"
-                decoding="async"
-              />
-            ) : (
-              <div className="partner-gallery-image partner-gallery-image-fallback" />
-            )}
-            <figcaption className="partner-gallery-caption">
-              <p className="partner-gallery-kicker">
-                {business.neighborhood} · {business.category}
-              </p>
-              <p className="partner-gallery-title">{business.name}</p>
-            </figcaption>
-          </figure>
+          <PartnerGalleryCard key={`${business.id}-${index}`} business={business} />
         ))}
       </div>
     </div>

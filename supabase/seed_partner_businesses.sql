@@ -22,7 +22,7 @@ values
     'A neighborhood cafe that hosts biweekly coffee crawls and quiet morning cohort tables.',
     'Biweekly',
     '10–15 guests',
-    'https://images.unsplash.com/photo-1766981934909-278a54cc1efd?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1495474472287-4d776bcee65f?auto=format&fit=crop&w=1600&q=80',
     'var(--v16-magenta)',
     true,
     1
@@ -78,7 +78,7 @@ values
     'Hands-on wheel nights with repeat table assignments so the studio feels like a campus craft room.',
     'Weekly',
     '12–18 guests',
-    'https://images.unsplash.com/photo-1760018861921-43af85ea6c4f?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=1600&q=80',
     'var(--v16-gold)',
     false,
     5
@@ -134,7 +134,7 @@ values
     'Neighborhood trivia with standing tables for cohort teams who want a recurring Wednesday ritual.',
     'Weekly',
     '15–20 guests',
-    'https://images.unsplash.com/photo-1575037614876-8662c234123e?auto=format&fit=crop&w=1600&q=80',
+    'https://images.unsplash.com/photo-1514933659908-005e4a119257?auto=format&fit=crop&w=1600&q=80',
     'var(--v16-magenta)',
     false,
     9

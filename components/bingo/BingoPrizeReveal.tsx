@@ -71,7 +71,7 @@ export function BingoPrizeReveal({ open, userId, onClose }: BingoPrizeRevealProp
             phase={phase}
             reducedMotion={reducedMotion}
             kicker="Season bingo"
-            title="You do it!"
+            title="You did it!"
             hintClosed="Click to reveal your prize"
             onOpenEnvelope={openEnvelope}
             ariaLabel="Reveal your bingo prize"

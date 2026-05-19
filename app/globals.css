@@ -4142,6 +4142,7 @@ button {
 }
 
 .partner-gallery-card {
+  flex-shrink: 0;
   width: min(320px, 78vw);
   border-radius: 1.6rem;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -4166,8 +4167,10 @@ button {
 .partner-gallery-image {
   display: block;
   width: 100%;
+  min-height: 200px;
   height: 200px;
   object-fit: cover;
+  background: color-mix(in srgb, var(--v16-paper, #f7f0e4) 70%, white);
 }
 
 .partner-gallery-image-fallback {
