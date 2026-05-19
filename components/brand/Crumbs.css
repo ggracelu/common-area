@@ -31,7 +31,9 @@
 /* Static state for reduced motion */
 .crumbs-static .crumbs-pose,
 .crumbs-static .crumbs-tail,
-.crumbs-static .crumbs-zzz,
+.crumbs-static .crumbs-zzz-1,
+.crumbs-static .crumbs-zzz-2,
+.crumbs-static .crumbs-zzz-3,
 .crumbs-static .crumbs-sprite {
   animation: none !important;
 }
@@ -88,11 +90,13 @@
 }
 
 /*
- * Zzz loading sequence — each dot snaps on in turn (no fade) so the
- * cluster reads as 0 → 1 → 2 → 3 dots, then resets. The cycle is one
- * 2.4s period split into four quarters.
+ * Zzz loading sequence — each pixelated z snaps on in turn so the
+ * cluster reads as 0 → 1 → 2 → 3 letters, then resets. One 2.4s
+ * period split into four quarters.
  */
-.crumbs-zzz {
+.crumbs-zzz-1,
+.crumbs-zzz-2,
+.crumbs-zzz-3 {
   opacity: 0;
 }
 
@@ -141,8 +145,10 @@
   animation: crumbsZ3Loading 2.4s linear infinite;
 }
 
-/* When reduced motion is on, show all three Zzz dots statically. */
-.crumbs-mascot.crumbs-static .crumbs-zzz {
+/* When reduced motion is on, show all three z letters statically. */
+.crumbs-mascot.crumbs-static .crumbs-zzz-1,
+.crumbs-mascot.crumbs-static .crumbs-zzz-2,
+.crumbs-mascot.crumbs-static .crumbs-zzz-3 {
   opacity: 1;
   animation: none !important;
 }
@@ -191,7 +197,9 @@
 
   .crumbs-mascot .crumbs-pose,
   .crumbs-mascot .crumbs-tail,
-  .crumbs-mascot .crumbs-zzz {
+  .crumbs-mascot .crumbs-zzz-1,
+  .crumbs-mascot .crumbs-zzz-2,
+  .crumbs-mascot .crumbs-zzz-3 {
     animation: none !important;
   }
 }

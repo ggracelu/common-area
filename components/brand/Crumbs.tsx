@@ -105,28 +105,57 @@ const REFERENCE_CRUMBS: PixelSprite = {
   palette: BASE_PALETTE,
 };
 
+/** Blue pixel letters for nap Zzz overlay (B = sleep blue). */
+const ZZZ_PALETTE: Record<string, string> = {
+  ".": "transparent",
+  B: "#4a8fd9",
+};
+
+/** Pixel lowercase z — small / medium / large for diagonal Zzz stack. */
+const Z_LETTER_SMALL: PixelSprite = {
+  w: 3,
+  h: 4,
+  rows: ["BBB", "..B", "B..", "BBB"],
+  palette: ZZZ_PALETTE,
+};
+
+const Z_LETTER_MED: PixelSprite = {
+  w: 4,
+  h: 5,
+  rows: ["BBBB", "...B", "..B.", ".B..", "BBBB"],
+  palette: ZZZ_PALETTE,
+};
+
+const Z_LETTER_LARGE: PixelSprite = {
+  w: 5,
+  h: 6,
+  rows: ["BBBBB", "....B", "...B.", "..B..", ".B...", "BBBBB"],
+  palette: ZZZ_PALETTE,
+};
+
 /**
- * Sleeping loaf — head ~17 cols wide × 11 rows tall (~1.3× wider and
- * ~1.3× taller than the default sit pose) with a full K outline all
- * around: triangular ears, six-wide DDDDDD forehead crease across two
- * rows, side D cheek shadows, two-pixel closed eyes, a three-row white
- * muzzle ending with a K nose dot. A K column near col 16 separates
- * head from body (the "neck" line). The shorter body carries three
- * vertical tabby back stripes; a thick three-row tail tucks under and
- * curls forward. NAP adds animated Zzz overlay rects in the component.
+ * Sleeping loaf — head ~17 cols wide × 14 rows tall (~1.3× wider and
+ * ~1.6× taller than the default sit pose) with a full K outline all
+ * around: triangular ears, crown row, six-wide DDDDDD forehead crease,
+ * side D cheek shadows, two-pixel closed eyes, four-row white muzzle
+ * ending with a K nose dot. A K column near col 16 separates head from
+ * body. NAP adds three pixelated blue z letters in a loading sequence.
  */
 const CURL_CRUMBS: PixelSprite = {
   w: 26,
-  h: 16,
+  h: 19,
   rows: [
     "...K.........K............",
     "..KLK.......KLK...........",
     "..LLLKKKKKKKKKLLL.........",
+    "..LLLLLLLLLLLLLLL.........",
     "KLLLLLDDDDDDLLLLLK........",
     "KLLLLLDDDDDDLLLLLKKKKKKKKK",
     "KLDLLLLLLLLLLLDLKLLLLLLLLK",
+    "KLDLLLLLLLLLLLDLKLLLLLLLLK",
     "KLDLLKKLLLKKLDLKLWLLWLLWK.",
     "KLDLLLLLLLLLLDLKLWLLWLLWK.",
+    "KLDLLWWWWWLLLDLKLLLLLLLLK.",
     "KLDLLWWWWWLLLDLKLLLLLLLLK.",
     "KLLLWWWWWWWLLLLKLLLLLLLLK.",
     "KLLLWWWKWWWLLLLKLLLLLLLLK.",
@@ -139,28 +168,11 @@ const CURL_CRUMBS: PixelSprite = {
   palette: BASE_PALETTE,
 };
 
-/** Loaf nap: same sleeping pose; Zzz dots are rendered as animated overlay rects in the Crumbs component. */
+/** Loaf nap: same sleeping pose; pixel z letters rendered as animated overlay. */
 const NAP_CRUMBS: PixelSprite = {
   w: 26,
-  h: 16,
-  rows: [
-    "...K.........K............",
-    "..KLK.......KLK...........",
-    "..LLLKKKKKKKKKLLL.........",
-    "KLLLLLDDDDDDLLLLLK........",
-    "KLLLLLDDDDDDLLLLLKKKKKKKKK",
-    "KLDLLLLLLLLLLLDLKLLLLLLLLK",
-    "KLDLLKKLLLKKLDLKLWLLWLLWK.",
-    "KLDLLLLLLLLLLDLKLWLLWLLWK.",
-    "KLDLLWWWWWLLLDLKLLLLLLLLK.",
-    "KLLLWWWWWWWLLLLKLLLLLLLLK.",
-    "KLLLWWWKWWWLLLLKLLLLLLLLK.",
-    "KWWWWWWWWWWWWWWWWWWWWWWWK.",
-    "KKKKKKKKKKKKKKKKKKKK...KKK",
-    "....KKKKKKKKKKKKKKKKKKKKK.",
-    "....KLLLLLLLLLLLLLLLLLLK..",
-    "....KKKKKKKKKKKKKKKKKKKK..",
-  ],
+  h: 19,
+  rows: CURL_CRUMBS.rows,
   palette: BASE_PALETTE,
 };
 
@@ -200,7 +212,7 @@ const SPRITES: Record<CrumbsPose, PixelSprite> = {
   sleepy: SLEEPY_CRUMBS,
 };
 
-function renderSprite(sprite: PixelSprite, pixel: number) {
+function renderSprite(sprite: PixelSprite, pixel: number, originX = 0, originY = 0) {
   const rects: React.ReactNode[] = [];
   for (let y = 0; y < sprite.h; y++) {
     const row = sprite.rows[y] ?? "";
@@ -210,9 +222,9 @@ function renderSprite(sprite: PixelSprite, pixel: number) {
       if (fill === "transparent") continue;
       rects.push(
         <rect
-          key={`${x}-${y}`}
-          x={x * pixel}
-          y={y * pixel}
+          key={`${originX}-${originY}-${x}-${y}`}
+          x={(originX + x) * pixel}
+          y={(originY + y) * pixel}
           width={pixel}
           height={pixel}
           fill={fill}
@@ -221,6 +233,14 @@ function renderSprite(sprite: PixelSprite, pixel: number) {
     }
   }
   return rects;
+}
+
+function renderZLetter(sprite: PixelSprite, pixel: number, originX: number, originY: number, className: string) {
+  return (
+    <g className={className} transform={`translate(${originX * pixel}, ${originY * pixel})`} aria-hidden="true">
+      {renderSprite(sprite, pixel)}
+    </g>
+  );
 }
 
 export function Crumbs({
@@ -273,30 +293,9 @@ export function Crumbs({
         {renderSprite(sprite, pixel)}
         {pose === "nap" && (
           <g className="crumbs-zzz-group" aria-hidden="true">
-            <rect
-              className="crumbs-zzz crumbs-zzz-1"
-              x={18 * pixel}
-              y={2 * pixel}
-              width={pixel}
-              height={pixel}
-              fill="#4a8fd9"
-            />
-            <rect
-              className="crumbs-zzz crumbs-zzz-2"
-              x={20 * pixel}
-              y={1 * pixel}
-              width={pixel * 2}
-              height={pixel * 2}
-              fill="#4a8fd9"
-            />
-            <rect
-              className="crumbs-zzz crumbs-zzz-3"
-              x={22 * pixel}
-              y={0 * pixel}
-              width={pixel * 3}
-              height={pixel * 3}
-              fill="#4a8fd9"
-            />
+            {renderZLetter(Z_LETTER_SMALL, pixel, 17, 2, "crumbs-zzz crumbs-zzz-1")}
+            {renderZLetter(Z_LETTER_MED, pixel, 19, 0, "crumbs-zzz crumbs-zzz-2")}
+            {renderZLetter(Z_LETTER_LARGE, pixel, 21, 0, "crumbs-zzz crumbs-zzz-3")}
           </g>
         )}
       </svg>

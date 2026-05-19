@@ -76,7 +76,7 @@ export default function CrumbsLabPage() {
               2 · Napping · curled ball
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Sleeping loaf: head scaled up to ~1.3× wider and taller than the sit pose, with a full K outline all around it — the vertical K column between head and body reads as the neck/shoulder line. Six-wide DDDDDD forehead crease, side D cheek shadows, closed two-pixel eyes, and a three-row white muzzle ending in a K nose dot. The shorter body carries three vertical tabby back stripes and a thick K-outlined tail that tucks under and curls to a tip below the front paws. Three blue Zzz dots appear one at a time in a looping loading sequence above the back.
+              Sleeping loaf: head scaled up to ~1.3× wider and ~1.6× taller than the sit pose, with a full K outline and neck column separating head from body. Crown row, six-wide DDDDDD forehead crease, side D cheek shadows, closed two-pixel eyes, and a four-row white muzzle ending in a K nose dot. Three pixelated blue z letters (small → medium → large on a diagonal) appear one at a time in a looping loading sequence above the back.
             </p>
             <div
               className="mt-8 flex justify-center"
