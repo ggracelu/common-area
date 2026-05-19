@@ -15,7 +15,8 @@
     "test:preview": "playwright test --project=preview",
     "preview:url": "node scripts/preview-environment-url.mjs",
     "test:install": "playwright install chromium",
-    "provision:demo-accounts": "node scripts/provision-demo-accounts.mjs"
+    "provision:demo-accounts": "node scripts/provision-demo-accounts.mjs",
+    "db:partner-images": "node scripts/apply-partner-images.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.2.7",
