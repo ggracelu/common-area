@@ -46,7 +46,7 @@ export default function CrumbsLabPage() {
               2 · Napping · curled ball
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Sleeping loaf: full Crumbs head on the left (ears, D-shaded forehead, closed eyes, white muzzle with nose dot), four diagonal back stripes, white underbelly, and a thick three-row tail tucked under the body curling forward to a tip near the front paws.
+              Sleeping loaf: oversized Crumbs head (scaled ~1.3× wider and taller than the sitting pose) with triangular ears, DDDD forehead crease, D-shaded cheeks, closed eyes, and the three-row white muzzle ending in a K nose dot. The body is now shorter with three diagonal back stripes; underneath, a thick K-outlined tail tucks under the body and curls to a tip below the front paws.
             </p>
             <div
               className="mt-8 flex justify-center"
