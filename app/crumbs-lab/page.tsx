@@ -38,10 +38,11 @@ export default function CrumbsLabPage() {
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-black/70">
               This mark was <strong className="font-semibold">designed manually in Canva</strong>—capital{" "}
               <strong className="font-semibold">C</strong> embracing lowercase{" "}
-              <strong className="font-semibold">a</strong>. It ships in headers, auth shells, partner
-              surfaces, and the cohort reveal letter. Single ink only.
+              <strong className="font-semibold">a</strong> on an <strong className="font-semibold">off-white</strong>{" "}
+              ground (<code className="text-xs">#F6F2E5</code>, keyed to transparent in-app so it sits on V16 paper).
+              It ships in headers, auth shells, partner surfaces, and envelope reveals. Single ink only.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-8 rounded-[1.25rem] border border-black/10 bg-white/80 p-6">
+            <div className="mt-8 flex flex-wrap items-center gap-8 rounded-[1.25rem] border border-black/10 bg-[#F6F2E5] p-6">
               <CommonAreaLogo size={96} />
               <CommonAreaLogo size={48} />
               <CommonAreaLogo size={28} />

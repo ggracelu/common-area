@@ -2,10 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-export const COMMON_AREA_LOGO_PATH = "/brand/common-area-logo.png";
+/** Bumped when the Canva export changes (cache bust). */
+const LOGO_VERSION = "4";
 
-/** Width ÷ height of the Canva export (1024×942). */
-const LOGO_ASPECT = 942 / 1024;
+export const COMMON_AREA_LOGO_PATH = `/brand/common-area-logo.png?v=${LOGO_VERSION}`;
+
+/** Off-white keyed out in post — matches V16 paper (~#F6F2E5). */
+export const LOGO_PAPER_RGB = "246 242 229";
+
+/** Source artboard (Canva export). */
+export const LOGO_INTRINSIC_WIDTH = 754;
+export const LOGO_INTRINSIC_HEIGHT = 706;
 
 type CommonAreaLogoProps = {
   size?: number;
@@ -15,15 +22,13 @@ type CommonAreaLogoProps = {
   tone?: "ink" | "paper";
 };
 
-/** Single-color Common Area mark (transparent PNG). */
+/** Single-color Common Area mark (transparent PNG from Canva). */
 export function CommonAreaLogo({
   size = 40,
   className = "",
   priority = false,
   tone = "ink",
 }: CommonAreaLogoProps) {
-  const height = Math.round(size * LOGO_ASPECT);
-
   return (
     <span
       className={[
@@ -38,12 +43,12 @@ export function CommonAreaLogo({
     >
       <Image
         src={COMMON_AREA_LOGO_PATH}
-        alt=""
-        width={size}
-        height={height}
+        alt="Common Area"
+        width={LOGO_INTRINSIC_WIDTH}
+        height={LOGO_INTRINSIC_HEIGHT}
         className="h-full w-full object-contain"
         priority={priority}
-        aria-hidden
+        unoptimized
       />
     </span>
   );
