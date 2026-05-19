@@ -321,7 +321,7 @@ export function V16CampusCrumbsSite() {
               <h2 className="v16-h2">Connection through play.</h2>
               <p className="v16-small">Pottery. Cooking. Comedy. City walks. A reason to leave the house that isn’t networking.</p>
             </div>
-            <p className="v16-micro">Photos via Unsplash • Design-only exploration</p>
+            <p className="v16-micro">Photos via Unsplash • Summer 2026 Chicago season preview</p>
           </div>
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -392,7 +392,10 @@ export function V16CampusCrumbsSite() {
           <div className="v16-cta v16-whoosh">
             <p className="v16-kicker">Ready?</p>
             <h2 className="v16-h2">No swiping, no surveys. Just sign up and show up.</h2>
-            <p className="v16-small">Design exploration only — no backend logic added. Photos via Unsplash.</p>
+            <p className="v16-small">
+              Summer 2026 prototype — sign up, pick four experiences, and join a cohort. Server-backed when configured;
+              photos via Unsplash.
+            </p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Link href="/sign-up" className="v16-btn v16-btn-solid v16-btn-dark">
                 Create an account

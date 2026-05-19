@@ -1,3 +1,4 @@
+import { PartnerSampleDataNotice } from "@/components/business/PartnerSampleDataNotice";
 import { Card } from "@/components/ui/Card";
 import { PartnerDirectory } from "@/components/business/PartnerDirectory";
 import { partnerBusinesses } from "@/lib/business-partners";
@@ -15,9 +16,12 @@ export function BusinessCommunityTab({ state }: BusinessCommunityTabProps) {
         <p className="v16-kicker">Community</p>
         <h2 className="v16-h2 mt-2">Partner with neighbors and recognize regulars</h2>
         <p className="v16-small mt-3">
-          Preview how a host might pair with complementary businesses and remember the neighbors who return to your
-          room.
+          Preview how a host might pair with complementary businesses on a cafe crawl and remember neighbors who return
+          to your room.
         </p>
+        <div className="mt-4">
+          <PartnerSampleDataNotice />
+        </div>
       </section>
 
       <section>

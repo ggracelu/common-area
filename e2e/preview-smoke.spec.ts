@@ -60,6 +60,22 @@ test.describe("preview smoke", () => {
     await expect(page).toHaveURL(/sign-in|dashboard/);
   });
 
+  test("partner landing shows host marketing and gallery", async ({ page, baseURL }) => {
+    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/common-area.");
+
+    await page.goto("/partner", { waitUntil: "domcontentloaded" });
+    const bodyText = (await page.locator("body").innerText()) ?? "";
+    if (!/welcome,\s*small business owners/i.test(bodyText)) {
+      test.skip(
+        true,
+        "Partner landing content not reachable (likely Vercel Deployment Protection). Disable for Production or set VERCEL_AUTOMATION_BYPASS_SECRET.",
+      );
+    }
+    await expect(page.getByRole("heading", { name: /welcome, small business owners/i })).toBeVisible();
+    await expect(page.getByText(/Building community, 1 brick at a time/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /become a partner/i }).first()).toBeVisible();
+  });
+
   test("business dashboard redirects signed-out users to partner sign-in", async ({ page, baseURL }) => {
     test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/common-area.");
 

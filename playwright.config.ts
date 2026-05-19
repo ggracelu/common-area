@@ -2,7 +2,12 @@ import { defineConfig, devices } from "@playwright/test";
 import path from "path";
 import { loadEnvLocal } from "./lib/load-env-local";
 
+const shellPreviewBaseUrl = process.env.PLAYWRIGHT_BASE_URL?.trim();
 loadEnvLocal(process.cwd(), { override: true });
+// `test:preview`: shell PLAYWRIGHT_BASE_URL wins over stale `.env.local` (see docs/AUTOMATION_AND_EVAL.md).
+if (process.env.npm_lifecycle_event === "test:preview" && shellPreviewBaseUrl) {
+  process.env.PLAYWRIGHT_BASE_URL = shellPreviewBaseUrl;
+}
 
 const previewBaseUrl = process.env.PLAYWRIGHT_BASE_URL?.trim() || undefined;
 const previewConfigured = Boolean(

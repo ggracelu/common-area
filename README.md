@@ -49,6 +49,8 @@ Brand note:
 
 See:
 - [AGENTS.md](./AGENTS.md)
+- [Investor demo script](./docs/DEMO_SCRIPT.md)
+- [Automation and eval](./docs/AUTOMATION_AND_EVAL.md)
 - [Grader login](./docs/GRADER_LOGIN.md)
 - [Grader walkthrough](./docs/GRADER_WALKTHROUGH.md)
 - [Product Plan](./docs/PRODUCT_PLAN.md)

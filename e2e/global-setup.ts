@@ -9,6 +9,10 @@ loadEnvLocal();
 const authFile = path.join(__dirname, "fixtures", "grader-storage.json");
 
 async function globalSetup() {
+  if (process.env.npm_lifecycle_event === "test:preview") {
+    return;
+  }
+
   const email = process.env.GRADER_CLERK_EMAIL?.trim();
   const password = process.env.GRADER_CLERK_PASSWORD;
   if (!email || !password) {

@@ -2,18 +2,18 @@
 
 Living checklist for investor-pitch prototype quality. Update after Playwright grader runs or timed pitch dry-runs.
 
-**Last trust verification:** 2026-05-12 PM (branch `feature/dashboard-product-depth`, commit `d5ce243`); local Supabase trio `http://127.0.0.1:54321`; `npx supabase db reset` before grader run; grader E2E **pass** (~10.2s); preview smoke **3/3** on `https://common-area-one.vercel.app` (`npm run preview:url` + `VERCEL_AUTOMATION_BYPASS_SECRET`); DB spot-check script **pass** (`scripts/grader-db-spotcheck.mjs`); six undo actions + full reset **pass** (`scripts/grader-undo-all.mjs`, all ≤30s).
+**Last trust verification:** 2026-05-19 (branch `main`, final-mile sprint); production **https://common-area-one.vercel.app**; repo **ggracelu/common-area**; investor script [DEMO_SCRIPT.md](./DEMO_SCRIPT.md); automation contract [AUTOMATION_AND_EVAL.md](./AUTOMATION_AND_EVAL.md); defect log [FINAL_MILE_QA.md](./FINAL_MILE_QA.md). Re-run eval ladder after each deploy.
 
 ## Pitch-ready gate
 
 | Gate | Target | Current | Evidence |
 |------|--------|---------|----------|
 | Functional | 7/7 onboarding stages + 9/9 MVP pages + grader journey green locally | **Pass** | `npm run test:grader` pass (2026-05-12, 3/3 reruns); MVP manual matrix below; second-driver live demo not recorded |
-| Operable | ≤8 min demo; preview smoke green; undo/reset verified | **Pass** | Grader journey ~10–11s automated (reduced motion); narrated budget ~6 min; preview smoke **pass (3/3)** on ggracelu/common-area Preview URL; undo/reset in grader spec with ≤30s stage recovery |
+| Operable | ≤8 min demo; preview smoke green; undo/reset verified | **Pass** | [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) investor cut ~7 min; preview smoke **5 tests** on `common-area-one` when `PLAYWRIGHT_BASE_URL` + bypass set; partner landing + business redirect covered |
 | Experience | Crumbs + reduced motion; landing Lighthouse on pitch URL | **Partial** | `e2e/smoke.spec.ts` reduced-motion + Crumbs `aria-label`; pitch URL Lighthouse **blocked** (401); local mobile Lighthouse baseline 72 perf / 91 a11y |
 | Trust | This scorecard + tooling friction doc linked from grader walkthrough | **Done** | Week 7 probes below; [GRADER_WALKTHROUGH.md](./GRADER_WALKTHROUGH.md), [TOOLING_FRICTION.md](./TOOLING_FRICTION.md) |
 
-**Sign-off:** **Partial** — automated grader + preview smoke + DB spot-check + six undo timings green on aligned env; **live second-driver demo** and **brand-new Clerk signup** (non-grader account) not recorded this pass.
+**Sign-off:** **Partial — ready for investor demo on production** when Vercel Deployment Protection allows public access (see [FINAL_MILE_QA.md](./FINAL_MILE_QA.md) P0-1). Member path + partner preview documented; hide grader/partner QA controls during pitch. **Live second-driver** and **non-grader signup** still open.
 
 ## A. Functional completeness
 
@@ -54,7 +54,7 @@ Living checklist for investor-pitch prototype quality. Update after Playwright g
 | MASTER alignment | **Pass** | Bulletin-board cards, season rail, mono chips; single **Open season card** entry to `/bingo`. |
 | Critical-path copy | **Pass** | 4-of-6 contract; **Saved to your account** vs **Local demo cache**; deposit handoff paid/pending/failed/refunded; assignment running/error; chat server vs local vs unavailable. |
 | A11y on deposit / assignment / chat | **Pass** | `bingo-deposit-handoff` `role="dialog"` + labelled title; assignment banner + mailroom error `role="alert"`; chat send/saved/retry + `type="submit"`. |
-| Remaining blocker | **Open** | Live second-driver demo; pitch URL Lighthouse; landing footer still says “design exploration only” on `/`. |
+| Remaining blocker | **Open** | Vercel Deployment Protection (401) without bypass; live second-driver demo; pitch URL Lighthouse; timed investor dry-run not logged in DEMO_SCRIPT |
 
 ### Week 7 auth / data surface probes (2026-05-12)
 
@@ -81,7 +81,8 @@ Living checklist for investor-pitch prototype quality. Update after Playwright g
 
 ## MVP page checklist (pitch script)
 
-- [x] **Landing `/`** — Editorial hero, Summer 2026 kicker, deposit/pick/cohort metrics, Crumbs on sticky note + Meet Crumbs (`aria-label`). **Gap:** footer CTA still labels “design exploration only”; no authenticated empty state.
+- [x] **Landing `/`** — Editorial hero, Summer 2026 kicker, deposit/pick/cohort metrics, Crumbs on sticky note + Meet Crumbs (`aria-label`). Footer updated to Summer 2026 prototype copy (final mile).
+- [x] **Partner `/partner` + `/business/dashboard`** — Host gallery, onboarding, five-tab preview dashboard; sample data labeled; unsigned business route → partner sign-in.
 - [x] **Sign-in `/sign-in`** — `MinimalAuthShell`, Clerk tokens, optional `grader-sign-in-callout`. Signed-out users redirect from `/dashboard`.
 - [x] **Sign-up `/sign-up`** — Same shell as sign-in; optional `grader-sign-up-callout` when `NEXT_PUBLIC_GRADER_EMAIL_HINT` is set.
 - [x] **Season / deposit handoff (bingo + checkout)** — Submit → fold animation → `bingo-deposit-handoff` dialog with authority copy, `join-season-deposit`, server vs local paid labels; reduced-motion skips fold loops.
@@ -151,5 +152,7 @@ Living checklist for investor-pitch prototype quality. Update after Playwright g
 3. `/dashboard` Current → Future letter → cohort — ~2 min.
 4. `/cohort/chat` send + `/bingo` bonus stamp — ~1 min.
 5. Optional undo one stage via grader panel — ≤30s per stage (E2E-verified).
+
+**Investor demo:** See [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) (member loop + partner tabs; hide grader chrome).
 
 **Recovery:** `grader-reset-journey` or stage `grader-undo-*` on dashboard, bingo, or cohort when server authoritative.

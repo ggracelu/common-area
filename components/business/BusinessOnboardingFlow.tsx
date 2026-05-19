@@ -64,6 +64,7 @@ export function BusinessOnboardingFlow() {
   const [state, setState] = useState<BusinessOnboardingState>(() => defaultBusinessOnboardingState());
   const [step, setStep] = useState<OnboardingStep>("basics");
   const [hydrated, setHydrated] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -118,6 +119,7 @@ export function BusinessOnboardingFlow() {
       ...current,
       completed: true,
     }));
+    setShowWelcome(true);
   };
 
   const resetOnboarding = () => {
@@ -171,6 +173,15 @@ export function BusinessOnboardingFlow() {
     return (
       <div className="space-y-8">
         {testControls}
+        {showWelcome ? (
+          <Card variant="paper" className="p-5 md:p-6" data-testid="partner-onboarding-welcome">
+            <p className="v16-kicker">You&apos;re in the preview network</p>
+            <p className="v16-small mt-2">
+              Explore the host dashboard below. Calendar, analytics, and community use sample preview data until live
+              cohort windows ship with the member season.
+            </p>
+          </Card>
+        ) : null}
         <BusinessDashboardHome state={state} />
       </div>
     );

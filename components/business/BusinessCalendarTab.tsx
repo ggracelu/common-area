@@ -1,3 +1,4 @@
+import { PartnerSampleDataNotice } from "@/components/business/PartnerSampleDataNotice";
 import { Card } from "@/components/ui/Card";
 import {
   businessCalendarEvents,
@@ -48,8 +49,11 @@ export function BusinessCalendarTab() {
         <p className="v16-kicker">Calendar</p>
         <h2 className="v16-h2 mt-2">Past and upcoming cohort nights</h2>
         <p className="v16-small mt-3">
-          Preview schedule for standing nights, crawls, and workshops hosted with Common Area cohorts.
+          Preview schedule for standing nights, crawls, and workshops at your host room with Common Area cohorts.
         </p>
+        <div className="mt-4">
+          <PartnerSampleDataNotice />
+        </div>
       </section>
 
       <EventList title="Upcoming" events={upcoming} />

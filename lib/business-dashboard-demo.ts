@@ -63,7 +63,7 @@ export type BusinessGuestProfile = {
 export const businessCalendarEvents: BusinessCalendarEvent[] = [
   {
     id: "past-crawl",
-    title: "Wicker Park coffee crawl",
+    title: "Grader's Coffee — Wicker Park crawl kickoff",
     timing: "past",
     dateLabel: "Apr 24, 2026",
     timeLabel: "6:30–8:30 PM",
@@ -77,7 +77,7 @@ export const businessCalendarEvents: BusinessCalendarEvent[] = [
   },
   {
     id: "past-listening",
-    title: "Listening room check-in",
+    title: "Grader's Coffee — listening room check-in",
     timing: "past",
     dateLabel: "May 3, 2026",
     timeLabel: "7:00–9:00 PM",
@@ -91,7 +91,7 @@ export const businessCalendarEvents: BusinessCalendarEvent[] = [
   },
   {
     id: "upcoming-latte",
-    title: "Latte art standing night",
+    title: "Grader's Coffee — latte art standing night",
     timing: "upcoming",
     dateLabel: "May 18, 2026",
     timeLabel: "6:00–8:00 PM",
@@ -105,7 +105,7 @@ export const businessCalendarEvents: BusinessCalendarEvent[] = [
   },
   {
     id: "upcoming-crawl",
-    title: "Neighborhood cafe crawl",
+    title: "Grader's Coffee — neighborhood cafe crawl",
     timing: "upcoming",
     dateLabel: "May 29, 2026",
     timeLabel: "5:30–8:00 PM",
@@ -124,7 +124,7 @@ export const businessAnalyticsMetrics: BusinessAnalyticsMetric[] = [
     id: "attendance",
     label: "Average attendance",
     value: "13 guests",
-    note: "Across the last four hosted cohort nights.",
+    note: "Across Grader's Coffee cohort nights this season (sample preview).",
     accent: "var(--v16-blue)",
   },
   {
@@ -197,11 +197,11 @@ export const businessEventInsights: BusinessEventInsight[] = [
 export const businessCollaborationPartners: BusinessCollaborationPartner[] = [
   {
     id: "north-roast",
-    name: "North Roast",
-    category: "Cafe",
-    neighborhood: "Wicker Park",
+    name: "Crumbs Cafe",
+    category: "Coffee shop",
+    neighborhood: "Ukrainian Village",
     partnershipType: "Cafe crawl stop",
-    summary: "Pairs well for a two-stop crawl when your room needs a quieter pour-over contrast.",
+    summary: "Ukrainian Village workshop room pairs with a Wicker Park crawl when you want a second stop on the route.",
     accent: "var(--v16-magenta)",
   },
   {

@@ -1,3 +1,4 @@
+import { PartnerSampleDataNotice } from "@/components/business/PartnerSampleDataNotice";
 import { Card } from "@/components/ui/Card";
 import {
   businessAnalyticsMetrics,
@@ -30,10 +31,21 @@ export function BusinessAnalyticsTab() {
         <p className="v16-kicker">Analytics</p>
         <h2 className="v16-h2 mt-2">Event performance and guest mix</h2>
         <p className="v16-small mt-3">
-          Illustrative attendance, revenue, and neighborhood signals for partner preview grading. Numbers are sample
+          Illustrative attendance, revenue, and neighborhood signals for your host room. Numbers are sample preview
           data only.
         </p>
+        <div className="mt-4">
+          <PartnerSampleDataNotice />
+        </div>
       </section>
+
+      <Card variant="paper" className="p-5 md:p-6" style={{ ["--v16-accent" as never]: "var(--v16-lime)" }}>
+        <p className="v16-kicker">Season insight</p>
+        <p className="mt-2 text-lg font-semibold text-black">
+          Repeat guests are up 40% after your second crawl — neighbors are starting to recognize each other at the bar.
+        </p>
+        <p className="v16-small mt-2">Sample insight for partner preview; not live analytics.</p>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {businessAnalyticsMetrics.map((metric) => (

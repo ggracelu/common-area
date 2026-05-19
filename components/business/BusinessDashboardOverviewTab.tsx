@@ -64,7 +64,9 @@ export function BusinessDashboardOverviewTab({ state }: BusinessDashboardOvervie
             <p className="v16-kicker">Upcoming events</p>
             <h3 className="v16-h2 mt-2">Next cohort nights on your calendar</h3>
           </div>
-          <p className="v16-micro">Sample preview data only.</p>
+          <p className="v16-micro" data-testid="partner-dashboard-sample-label">
+            Sample preview data only.
+          </p>
         </div>
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {upcoming.map((event) => (

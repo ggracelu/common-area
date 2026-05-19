@@ -128,3 +128,9 @@ See [TOOLING_FRICTION.md](./TOOLING_FRICTION.md) for what broke with parallel wo
 ## Pitch readiness
 
 Track investor-pitch metrics in [PITCH_READINESS.md](./PITCH_READINESS.md).
+
+## Investor demo and automation
+
+- [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) — investor walkthrough and speaker notes
+- [AUTOMATION_AND_EVAL.md](./AUTOMATION_AND_EVAL.md) — human-in-the-loop vs automation, eval ladder
+- [FINAL_MILE_QA.md](./FINAL_MILE_QA.md) — final-mile defect log
