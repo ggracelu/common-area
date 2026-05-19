@@ -32,9 +32,10 @@ export default function CrumbsLabPage() {
             CA marks
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-black/70">
-            Each concept uses only C and A geometry. Compare at three sizes; lime, blue, and
-            magenta accents follow V16. Pick one direction to refine—stroke weight, corner
-            radius, and negative space—not five parallel brands.
+            Round 2 refines <strong className="font-semibold">C embraces A</strong> and{" "}
+            <strong className="font-semibold">C meets A</strong> with real letterforms and single-ink
+            marks, plus a <strong className="font-semibold">C + curled a</strong> experiment. Compare
+            at three sizes; round 1 is archived below.
           </p>
           <CommonAreaLogoLabGrid />
         </section>
@@ -75,7 +76,7 @@ export default function CrumbsLabPage() {
               2 · Napping · curled ball
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Sleeping loaf: head scaled up to ~1.6× wider and ~1.3× taller than the sit pose, with a full K outline all around it — the vertical K column between head and body reads as the neck/shoulder line. Six-wide DDDDDD forehead crease, side D cheek shadows, closed two-pixel eyes, and a three-row white muzzle ending in a K nose dot. The shorter body carries three vertical tabby back stripes and a thick K-outlined tail that tucks under and curls to a tip below the front paws. Three blue Zzz dots appear one at a time in a looping loading sequence above the back.
+              Sleeping loaf: head scaled up to ~1.3× wider and taller than the sit pose, with a full K outline all around it — the vertical K column between head and body reads as the neck/shoulder line. Six-wide DDDDDD forehead crease, side D cheek shadows, closed two-pixel eyes, and a three-row white muzzle ending in a K nose dot. The shorter body carries three vertical tabby back stripes and a thick K-outlined tail that tucks under and curls to a tip below the front paws. Three blue Zzz dots appear one at a time in a looping loading sequence above the back.
             </p>
             <div
               className="mt-8 flex justify-center"

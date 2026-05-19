@@ -74,3 +74,34 @@ export function saveChatIcebreaker(
 export function icebreakerLabel(kind: AntiNetworkingIcebreakerKind): string {
   return antiNetworkingIcebreakerOptions.find((option) => option.kind === kind)?.title ?? "Icebreaker";
 }
+
+const INTRO_SENT_PREFIX = "common-area:chat-icebreaker-intro-sent:v1";
+
+export function icebreakerIntroSentKey(
+  userId: string | null | undefined,
+  cohortId: string,
+): string {
+  return `${INTRO_SENT_PREFIX}:${userId ?? "anon"}:${cohortId}`;
+}
+
+export function hasIcebreakerIntroBeenSent(
+  userId: string | null | undefined,
+  cohortId: string,
+): boolean {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(icebreakerIntroSentKey(userId, cohortId)) === "1";
+}
+
+export function markIcebreakerIntroSent(userId: string | null | undefined, cohortId: string): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(icebreakerIntroSentKey(userId, cohortId), "1");
+}
+
+/** First chat message after completing the icebreaker gate. */
+export function formatIcebreakerJoinMessage(
+  displayName: string,
+  icebreaker: AntiNetworkingIcebreaker,
+): string {
+  const name = displayName.trim() || "Someone";
+  return `${name} just joined the chat! ${name}'s ${icebreaker.prompt}: ${icebreaker.answer}`;
+}

@@ -2,12 +2,26 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { sendCohortChatMessageAction } from "@/app/actions/chat";
+import { ChatMessageRow } from "@/components/chat/ChatMessageRow";
+import { ChatroomShell } from "@/components/chat/ChatroomShell";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
+import {
+  formatIcebreakerJoinMessage,
+  hasIcebreakerIntroBeenSent,
+  markIcebreakerIntroSent,
+  type AntiNetworkingIcebreaker,
+} from "@/lib/chat-icebreaker";
+import {
+  CHATROOM_CHANNELS,
+  CHATROOM_DIRECT_MESSAGES,
+  channelDisplayName,
+  type ChatroomChannelId,
+} from "@/lib/chatroom-channels";
 import { demoData, getDemoChatThread, getDemoUser } from "@/lib/demo-data";
 import { addChatMessage, getDefaultDemoState, loadDemoState } from "@/lib/demo-state";
 import type { CohortChatLoadState, CohortChatMessageView } from "@/types/chat";
@@ -65,14 +79,39 @@ function chatPaperColor(index: number) {
   return colors[index % colors.length]!;
 }
 
+const CRUMBS_MOD_MESSAGES: CohortChatMessageView[] = [
+  {
+    id: "crumbs-mod-welcome",
+    authorName: "Crumbs",
+    authorInitials: "CA",
+    body: "Welcome to #crumbs-mod. I keep things low-pressure — ping me if a thread needs a nudge, not a lecture.",
+    createdAtISO: new Date(0).toISOString(),
+    isSelf: false,
+    isSeeded: true,
+  },
+  {
+    id: "crumbs-mod-rules",
+    authorName: "Crumbs",
+    authorInitials: "CA",
+    body: "House rules: no hustle culture, no LinkedIn voice, snacks encouraged.",
+    createdAtISO: new Date(0).toISOString(),
+    isSelf: false,
+    isSeeded: true,
+  },
+];
+
 export function CohortChatDemo({
   serverOnboarding = null,
   serverChat = { status: "not_configured", messages: [] },
   variant = "default",
+  userDisplayName = "You",
+  icebreakerForIntro = null,
 }: {
   serverOnboarding?: OnboardingSnapshot | null;
   serverChat?: CohortChatLoadState;
   variant?: "default" | "chatroom";
+  userDisplayName?: string;
+  icebreakerForIntro?: AntiNetworkingIcebreaker | null;
 }) {
   const isChatroom = variant === "chatroom";
   const router = useRouter();
@@ -84,7 +123,9 @@ export function CohortChatDemo({
   const [sendState, setSendState] = useState<SendState>({ status: "idle" });
   const [pendingMessages, setPendingMessages] = useState<PendingMessage[]>([]);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [activeChannelId, setActiveChannelId] = useState<ChatroomChannelId>("main");
   const listRef = useRef<HTMLDivElement | null>(null);
+  const introSendStartedRef = useRef(false);
 
   const serverAuthoritative = Boolean(serverOnboarding?.configured);
   const serverAssigned =
@@ -147,58 +188,141 @@ export function CohortChatDemo({
     });
   }, [messages.length, reducedMotion]);
 
-  async function sendMessage(body: string) {
-    const trimmed = body.trim();
-    if (!trimmed || !chatUnlocked) return;
+  const sendMessage = useCallback(
+    async (body: string) => {
+      const trimmed = body.trim();
+      if (!trimmed || !chatUnlocked || !cohortId) return;
 
-    setSendState({ status: "sending", retryBody: trimmed });
-    setDraft("");
+      setSendState({ status: "sending", retryBody: trimmed });
+      setDraft("");
 
-    if (!serverAuthoritative) {
-      const next = addChatMessage(cohortId!, trimmed, storageUserId);
-      setState(next);
-      setSendState({ status: "sent" });
-      window.setTimeout(() => setSendState({ status: "idle" }), 1800);
-      return;
-    }
+      if (!serverAuthoritative) {
+        const next = addChatMessage(cohortId, trimmed, storageUserId);
+        setState(next);
+        setSendState({ status: "sent" });
+        window.setTimeout(() => setSendState({ status: "idle" }), 1800);
+        return;
+      }
 
-    const tempId = `pending_${Date.now()}`;
-    const pending: PendingMessage = {
-      id: tempId,
-      body: trimmed,
-      createdAtISO: new Date().toISOString(),
-      authorName: "You",
-      authorInitials: initialsFor("You"),
-      isSelf: true,
-      delivery: "sending",
-    };
-    setPendingMessages((current) => [...current, pending]);
+      const tempId = `pending_${Date.now()}`;
+      const pending: PendingMessage = {
+        id: tempId,
+        body: trimmed,
+        createdAtISO: new Date().toISOString(),
+        authorName: userDisplayName.trim() || "You",
+        authorInitials: initialsFor(userDisplayName),
+        isSelf: true,
+        delivery: "sending",
+      };
+      setPendingMessages((current) => [...current, pending]);
 
-    const result = await sendCohortChatMessageAction(trimmed);
-    if (result.ok) {
+      const result = await sendCohortChatMessageAction(trimmed);
+      if (result.ok) {
+        setPendingMessages((current) =>
+          current.map((message) => (message.id === tempId ? { ...result.message, delivery: "sending" } : message)),
+        );
+        setSendState({ status: "sent" });
+        router.refresh();
+        window.setTimeout(() => {
+          setPendingMessages((current) => current.filter((message) => message.id !== tempId));
+          setSendState({ status: "idle" });
+        }, 1800);
+        return;
+      }
+
       setPendingMessages((current) =>
-        current.map((message) => (message.id === tempId ? { ...result.message, delivery: "sending" } : message)),
+        current.map((message) => (message.id === tempId ? { ...message, delivery: "failed" } : message)),
       );
-      setSendState({ status: "sent" });
-      router.refresh();
-      window.setTimeout(() => {
-        setPendingMessages((current) => current.filter((message) => message.id !== tempId));
-        setSendState({ status: "idle" });
-      }, 1800);
-      return;
-    }
+      setDraft(trimmed);
+      setSendState({ status: "error", error: result.error, retryBody: trimmed });
+    },
+    [chatUnlocked, cohortId, router, serverAuthoritative, storageUserId, userDisplayName],
+  );
 
-    setPendingMessages((current) =>
-      current.map((message) => (message.id === tempId ? { ...message, delivery: "failed" } : message)),
-    );
-    setDraft(trimmed);
-    setSendState({ status: "error", error: result.error, retryBody: trimmed });
-  }
+  useEffect(() => {
+    if (!isChatroom || !chatUnlocked || !cohortId || !icebreakerForIntro || introSendStartedRef.current) return;
+    if (hasIcebreakerIntroBeenSent(storageUserId, cohortId)) return;
+
+    introSendStartedRef.current = true;
+    markIcebreakerIntroSent(storageUserId, cohortId);
+    const body = formatIcebreakerJoinMessage(userDisplayName, icebreakerForIntro);
+    void sendMessage(body);
+  }, [isChatroom, chatUnlocked, cohortId, icebreakerForIntro, sendMessage, storageUserId, userDisplayName]);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void sendMessage(draft);
   }
+
+  const activeChannel =
+    [...CHATROOM_CHANNELS, ...CHATROOM_DIRECT_MESSAGES].find((channel) => channel.id === activeChannelId) ??
+    CHATROOM_CHANNELS[0]!;
+
+  const channelMessages = useMemo(() => {
+    if (activeChannelId === "main") return messages;
+    if (activeChannelId === "crumbs-mod") return CRUMBS_MOD_MESSAGES;
+    return [];
+  }, [activeChannelId, messages]);
+
+  const isDirectMessageChannel = activeChannelId.startsWith("dm-");
+  const showChannelEmpty =
+    isDirectMessageChannel || (activeChannelId === "main" && channelMessages.length === 0);
+
+  const statusBanner = (
+    <div
+      className={[
+        "rounded-lg border px-3 py-2 text-xs text-[color:rgba(37,34,30,0.82)]",
+        serverChatReady
+          ? "border-[rgba(103,114,85,0.28)] bg-[rgba(236,245,225,0.72)]"
+          : "border-[rgba(26,92,255,0.28)] bg-[linear-gradient(135deg,rgba(26,92,255,0.06),rgba(247,240,228,0.72))]",
+      ].join(" ")}
+      role={serverChatError ? "alert" : "status"}
+      aria-live="polite"
+      data-testid="cohort-chat-demo-label"
+    >
+      <p className="font-semibold text-black">
+        {serverChatReady ? "Postgres-backed" : serverChatError ? "Unavailable" : "Demo thread"} · reactions & replies are preview-only
+      </p>
+    </div>
+  );
+
+  const composer = (
+    <form onSubmit={onSubmit} className="p-3 sm:p-4">
+      <div className="flex gap-2">
+        <input
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder={
+            activeChannelId === "main"
+              ? `Message ${channelDisplayName(activeChannel)}`
+              : `Message ${channelDisplayName(activeChannel)} (preview)`
+          }
+          aria-label="Message input"
+          disabled={serverChatError || sendState.status === "sending" || activeChannelId !== "main"}
+          maxLength={500}
+          className="min-w-0 flex-1 rounded-md border border-black/12 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--color-accent)] disabled:cursor-not-allowed disabled:opacity-50"
+        />
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={
+            !draft.trim() || serverChatError || sendState.status === "sending" || activeChannelId !== "main"
+          }
+        >
+          {sendState.status === "sending" ? "…" : "Send"}
+        </Button>
+      </div>
+      <div className="mt-2 min-h-4 text-[0.65rem] text-black/50" role={sendState.status === "error" ? "alert" : "status"} aria-live="polite">
+        {activeChannelId !== "main"
+          ? "Posting is enabled in #main for this preview."
+          : sendState.status === "error"
+            ? sendState.error
+            : sendState.status === "sending"
+              ? "Saving…"
+              : null}
+      </div>
+    </form>
+  );
 
   if (!chatUnlocked) {
     return (
@@ -238,6 +362,47 @@ export function CohortChatDemo({
     );
   }
 
+  if (isChatroom) {
+    return (
+      <div className="grid gap-6" data-testid="cohort-chat-demo">
+        <ChatroomShell
+          activeChannelId={activeChannelId}
+          onChannelChange={setActiveChannelId}
+          channelHeader={
+            <>
+              <h2 className="text-lg font-bold text-black">{channelDisplayName(activeChannel)}</h2>
+              {activeChannel.subtitle ? (
+                <p className="text-xs text-black/55">{activeChannel.subtitle}</p>
+              ) : null}
+            </>
+          }
+          statusBanner={statusBanner}
+          showEmptyState={showChannelEmpty}
+          emptyState={
+            <div className="rounded-lg border border-dashed border-black/15 bg-white/70 p-6 text-center">
+              <p className="text-sm font-semibold text-black">
+                {isDirectMessageChannel ? "Direct messages (preview)" : "No messages yet"}
+              </p>
+              <p className="mt-2 text-sm text-black/60">
+                {isDirectMessageChannel
+                  ? "DM threads are visual-only in this prototype. Say hi in #main."
+                  : "Your icebreaker posts here automatically when you join."}
+              </p>
+            </div>
+          }
+          messages={
+            <div ref={listRef} className="space-y-1">
+              {channelMessages.map((message) => (
+                <ChatMessageRow key={message.id} message={message} />
+              ))}
+            </div>
+          }
+          composer={composer}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-6" data-testid="cohort-chat-demo">
       <div
@@ -263,26 +428,24 @@ export function CohortChatDemo({
         </p>
       </div>
 
-      {!isChatroom ? (
-        <Card variant="scrapbook">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <Badge variant={serverChatReady ? "moss" : "sky"}>
-                {serverChatReady ? "Chat (server)" : "Chat (local demo)"}
-              </Badge>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight">
-                {cohort ? `${cohort.name} thread` : "Your cohort thread"}
-              </h2>
-              <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
-                A simple cohort room for first messages. Send-then-read reliability comes before live badges.
-              </p>
-            </div>
-            <Sticker>Say hi. Low stakes.</Sticker>
+      <Card variant="scrapbook">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <Badge variant={serverChatReady ? "moss" : "sky"}>
+              {serverChatReady ? "Chat (server)" : "Chat (local demo)"}
+            </Badge>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight">
+              {cohort ? `${cohort.name} thread` : "Your cohort thread"}
+            </h2>
+            <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
+              A simple cohort room for first messages. Send-then-read reliability comes before live badges.
+            </p>
           </div>
-        </Card>
-      ) : null}
+          <Sticker>Say hi. Low stakes.</Sticker>
+        </div>
+      </Card>
 
-      <Card variant={isChatroom ? "scrapbook" : "paper"} className="overflow-hidden p-0">
+      <Card variant="paper" className="overflow-hidden p-0">
         <div ref={listRef} className="max-h-[62vh] overflow-auto p-5 sm:p-6">
           {messages.length === 0 ? (
             <div className="rounded-[1.25rem] border border-dashed border-black/15 bg-white/70 p-5">
@@ -301,28 +464,21 @@ export function CohortChatDemo({
                     key={message.id}
                     className={[
                       "rounded-[1.35rem] border p-4 shadow-[0_10px_28px_rgba(52,36,24,0.08)]",
-                      isChatroom
-                        ? isCrumbs
-                          ? "border-[rgba(103,114,85,0.35)] bg-[linear-gradient(135deg,rgba(236,245,225,0.92),rgba(255,252,245,0.88))]"
-                          : message.isSelf
-                            ? "border-[rgba(26,92,255,0.22)] bg-[linear-gradient(135deg,rgba(233,255,107,0.45),rgba(255,255,255,0.9))]"
-                            : `border-black/10 ${chatPaperColor(index)}`
-                        : "border-black/10 bg-white/70",
+                      isCrumbs
+                        ? "border-[rgba(103,114,85,0.35)] bg-[linear-gradient(135deg,rgba(236,245,225,0.92),rgba(255,252,245,0.88))]"
+                        : message.isSelf
+                          ? "border-[rgba(26,92,255,0.22)] bg-[linear-gradient(135deg,rgba(233,255,107,0.45),rgba(255,255,255,0.9))]"
+                          : `border-black/10 ${chatPaperColor(index)}`,
                     ].join(" ")}
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <div className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-foreground)] text-xs font-black text-[var(--color-paper)]">
-                          {isCrumbs && isChatroom ? "🐾" : message.authorInitials}
+                          {isCrumbs ? "🐾" : message.authorInitials}
                         </div>
                         <div>
                           <p className="text-sm font-semibold">
                             {message.authorName}
-                            {isCrumbs && isChatroom ? (
-                              <span className="ml-2 text-xs font-black uppercase tracking-[0.14em] text-black/50">
-                                mod
-                              </span>
-                            ) : null}
                             {message.isLocalOnly ? <span className="ml-2 text-xs text-black/50">(local)</span> : null}
                           </p>
                           <p className="text-xs text-black/50">

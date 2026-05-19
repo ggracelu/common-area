@@ -1,0 +1,8 @@
+.chatroom-shell {
+  font-family: var(--v16-body, var(--font-sans));
+}
+
+.chatroom-channel-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

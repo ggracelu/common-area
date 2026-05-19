@@ -106,65 +106,60 @@ const REFERENCE_CRUMBS: PixelSprite = {
 };
 
 /**
- * Sleeping loaf — head scaled up to 21 cols × 11 rows (~1.6× wider and
+ * Sleeping loaf — head ~17 cols wide × 11 rows tall (~1.3× wider and
  * ~1.3× taller than the default sit pose) with a full K outline all
  * around: triangular ears, six-wide DDDDDD forehead crease across two
- * rows, side D cheek shadows that hug the full face, two-pixel closed
- * eyes positioned where the default eye dots sit, a three-row white
- * muzzle widening from five to seven pixels and ending with a single
- * K nose dot. A K column at col 20 separates head from body (the
- * "neck" line). The shorter body to the right carries three vertical
- * tabby back stripes. Below, the underbelly runs continuously across,
- * and a thick three-row tail (K outline + L interior) tucks under the
- * body curling to a tip below the front paws. NAP variant adds three
- * animated Zzz dots rendered separately so they can fade in as a
- * loading sequence.
+ * rows, side D cheek shadows, two-pixel closed eyes, a three-row white
+ * muzzle ending with a K nose dot. A K column near col 16 separates
+ * head from body (the "neck" line). The shorter body carries three
+ * vertical tabby back stripes; a thick three-row tail tucks under and
+ * curls forward. NAP adds animated Zzz overlay rects in the component.
  */
 const CURL_CRUMBS: PixelSprite = {
-  w: 30,
+  w: 26,
   h: 16,
   rows: [
-    "....K............K............",
-    "...KLK..........KLK...........",
-    "...LLLKKKKKKKKKKLLL...........",
-    "KLLLLLLDDDDDDLLLLLLLK.........",
-    "KLLLLLLDDDDDDLLLLLLLKKKKKKKKKK",
-    "KLDLLLLLLLLLLLLLLLDLKLLLLLLLLK",
-    "KLDLLLKKLLLLLKKLLLDLKLWLLWLLWK",
-    "KLDLLLLLLLLLLLLLLLDLKLWLLWLLWK",
-    "KLDLLLLLWWWWWLLLLLDLKLLLLLLLLK",
-    "KLLLLLLWWWWWWWLLLLLLKLLLLLLLLK",
-    "KLLLLLLWWWKWWWLLLLLLKLLLLLLLLK",
-    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWK",
-    "KKKKKKKKKKKKKKKKKKKKKKKK...KKK",
-    ".....KKKKKKKKKKKKKKKKKKKKKK...",
-    ".....KLLLLLLLLLLLLLLLLLLLLK...",
-    ".....KKKKKKKKKKKKKKKKKKKKKK...",
+    "...K.........K............",
+    "..KLK.......KLK...........",
+    "..LLLKKKKKKKKKLLL.........",
+    "KLLLLLDDDDDDLLLLLK........",
+    "KLLLLLDDDDDDLLLLLKKKKKKKKK",
+    "KLDLLLLLLLLLLLDLKLLLLLLLLK",
+    "KLDLLKKLLLKKLDLKLWLLWLLWK.",
+    "KLDLLLLLLLLLLDLKLWLLWLLWK.",
+    "KLDLLWWWWWLLLDLKLLLLLLLLK.",
+    "KLLLWWWWWWWLLLLKLLLLLLLLK.",
+    "KLLLWWWKWWWLLLLKLLLLLLLLK.",
+    "KWWWWWWWWWWWWWWWWWWWWWWWK.",
+    "KKKKKKKKKKKKKKKKKKKK...KKK",
+    "....KKKKKKKKKKKKKKKKKKKKK.",
+    "....KLLLLLLLLLLLLLLLLLLK..",
+    "....KKKKKKKKKKKKKKKKKKKK..",
   ],
   palette: BASE_PALETTE,
 };
 
 /** Loaf nap: same sleeping pose; Zzz dots are rendered as animated overlay rects in the Crumbs component. */
 const NAP_CRUMBS: PixelSprite = {
-  w: 30,
+  w: 26,
   h: 16,
   rows: [
-    "....K............K............",
-    "...KLK..........KLK...........",
-    "...LLLKKKKKKKKKKLLL...........",
-    "KLLLLLLDDDDDDLLLLLLLK.........",
-    "KLLLLLLDDDDDDLLLLLLLKKKKKKKKKK",
-    "KLDLLLLLLLLLLLLLLLDLKLLLLLLLLK",
-    "KLDLLLKKLLLLLKKLLLDLKLWLLWLLWK",
-    "KLDLLLLLLLLLLLLLLLDLKLWLLWLLWK",
-    "KLDLLLLLWWWWWLLLLLDLKLLLLLLLLK",
-    "KLLLLLLWWWWWWWLLLLLLKLLLLLLLLK",
-    "KLLLLLLWWWKWWWLLLLLLKLLLLLLLLK",
-    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWK",
-    "KKKKKKKKKKKKKKKKKKKKKKKK...KKK",
-    ".....KKKKKKKKKKKKKKKKKKKKKK...",
-    ".....KLLLLLLLLLLLLLLLLLLLLK...",
-    ".....KKKKKKKKKKKKKKKKKKKKKK...",
+    "...K.........K............",
+    "..KLK.......KLK...........",
+    "..LLLKKKKKKKKKLLL.........",
+    "KLLLLLDDDDDDLLLLLK........",
+    "KLLLLLDDDDDDLLLLLKKKKKKKKK",
+    "KLDLLLLLLLLLLLDLKLLLLLLLLK",
+    "KLDLLKKLLLKKLDLKLWLLWLLWK.",
+    "KLDLLLLLLLLLLDLKLWLLWLLWK.",
+    "KLDLLWWWWWLLLDLKLLLLLLLLK.",
+    "KLLLWWWWWWWLLLLKLLLLLLLLK.",
+    "KLLLWWWKWWWLLLLKLLLLLLLLK.",
+    "KWWWWWWWWWWWWWWWWWWWWWWWK.",
+    "KKKKKKKKKKKKKKKKKKKK...KKK",
+    "....KKKKKKKKKKKKKKKKKKKKK.",
+    "....KLLLLLLLLLLLLLLLLLLK..",
+    "....KKKKKKKKKKKKKKKKKKKK..",
   ],
   palette: BASE_PALETTE,
 };
@@ -280,7 +275,7 @@ export function Crumbs({
           <g className="crumbs-zzz-group" aria-hidden="true">
             <rect
               className="crumbs-zzz crumbs-zzz-1"
-              x={22 * pixel}
+              x={18 * pixel}
               y={2 * pixel}
               width={pixel}
               height={pixel}
@@ -288,7 +283,7 @@ export function Crumbs({
             />
             <rect
               className="crumbs-zzz crumbs-zzz-2"
-              x={24 * pixel}
+              x={20 * pixel}
               y={1 * pixel}
               width={pixel * 2}
               height={pixel * 2}
@@ -296,7 +291,7 @@ export function Crumbs({
             />
             <rect
               className="crumbs-zzz crumbs-zzz-3"
-              x={26 * pixel}
+              x={22 * pixel}
               y={0 * pixel}
               width={pixel * 3}
               height={pixel * 3}
