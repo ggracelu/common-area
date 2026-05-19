@@ -65,11 +65,11 @@ test.describe("grader onboarding journey", () => {
     await page.getByTestId("dashboard-tab-future").click();
     await expect(page.getByTestId("cohort-reveal-letter")).toBeVisible();
     await page.getByRole("button", { name: "Enter your common room" }).click();
-    await page.reload();
-    await expect(page.getByTestId("grader-checklist-letter")).toContainText("Done", { timeout: 30_000 });
-
-    await page.goto("/cohort");
+    await expect(page).toHaveURL(/\/cohort/, { timeout: 15_000 });
     await expect(page.getByTestId("cohort-roster")).toBeVisible({ timeout: 15_000 });
+
+    await page.goto("/dashboard");
+    await expect(page.getByTestId("grader-checklist-letter")).toContainText("Done", { timeout: 30_000 });
 
     await page.goto("/chat");
     const icebreaker = page.getByTestId("chat-icebreaker-onboarding");

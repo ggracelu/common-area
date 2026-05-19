@@ -370,13 +370,12 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
             peopleAdjective={futureLetter.peopleAdjective}
             onComplete={() => {
               if (serverAuthoritative) {
-                void markCohortRevealSeenAction().then(() => router.refresh());
+                void markCohortRevealSeenAction().then(() => router.push("/cohort"));
               } else {
                 markFutureCohortLetterPreviewDone(storageUserId);
                 markCohortRevealSeen(futureLetter.cohortId, storageUserId);
+                router.push("/cohort");
               }
-              handleModeChange("current");
-              setState(loadDemoState(storageUserId));
             }}
           />
         </div>
