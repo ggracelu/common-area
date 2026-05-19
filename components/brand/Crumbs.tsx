@@ -105,6 +105,58 @@ const REFERENCE_CRUMBS: PixelSprite = {
   palette: BASE_PALETTE,
 };
 
+/**
+ * Curled sleeping ball: tucked head, closed eyes, tail wrapped — not upright sit.
+ */
+const CURL_CRUMBS: PixelSprite = {
+  w: 16,
+  h: 16,
+  rows: [
+    "................",
+    "...KKKKKKKK.....",
+    "..KLLLLLLLLK....",
+    ".KLLLLLLLLLLK...",
+    "KLLLKKKKLLLLLK..",
+    "KLLLWWWWWLLLLLK.",
+    "KLLLLLLLLLLLLLK.",
+    "KLLLLLLLLLLLLLK.",
+    ".KLLLLLLLLLLLK..",
+    "..KLLLLLLLLLK...",
+    "...KKKKKKKKK....",
+    "....KKK..KKK....",
+    "................",
+    "................",
+    "................",
+    "................",
+  ],
+  palette: BASE_PALETTE,
+};
+
+/** Loaf nap: same curl with blue Zzz. */
+const NAP_CRUMBS: PixelSprite = {
+  w: 16,
+  h: 16,
+  rows: [
+    "................B",
+    "...KKKKKKKK....B.",
+    "..KLLLLLLLLK..B..",
+    ".KLLLLLLLLLLK....",
+    "KLLLKKKKLLLLLK..",
+    "KLLLWWWWWLLLLLK.",
+    "KLLLLLLLLLLLLLK.",
+    "KLLLLLLLLLLLLLK.",
+    ".KLLLLLLLLLLLK..",
+    "..KLLLLLLLLLK...",
+    "...KKKKKKKKK....",
+    "....KKK..KKK....",
+    "................",
+    "................",
+    "................",
+    "................",
+  ],
+  palette: SLEEPY_PALETTE,
+};
+
 /** Closed eyes (wide dashes) + three blue pixels Zzz on a diagonal. */
 const SLEEPY_CRUMBS: PixelSprite = {
   w: 16,
@@ -132,8 +184,8 @@ const SLEEPY_CRUMBS: PixelSprite = {
 
 const SPRITES: Record<CrumbsPose, PixelSprite> = {
   sit: REFERENCE_CRUMBS,
-  curl: REFERENCE_CRUMBS,
-  nap: REFERENCE_CRUMBS,
+  curl: CURL_CRUMBS,
+  nap: NAP_CRUMBS,
   stretch: REFERENCE_CRUMBS,
   yawn: REFERENCE_CRUMBS,
   play: REFERENCE_CRUMBS,
@@ -183,15 +235,27 @@ export function Crumbs({
   const viewW = sprite.w * pixel;
   const viewH = sprite.h * pixel;
   const { width, height } = SIZE_MAP[size];
+  const breathe =
+    animated && !reduced && (pose === "sit" || pose === "curl" || pose === "nap");
+  const breatheClass =
+    pose === "sit" ? "crumbs-breathe" : pose === "curl" || pose === "nap" ? "crumbs-breathe-slow" : "";
 
   return (
     <div
-      className={`crumbs-mascot ${reduced ? "crumbs-static" : ""} ${className}`}
+      className={[
+        "crumbs-mascot",
+        reduced ? "crumbs-static" : "",
+        breathe ? breatheClass : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       style={{ width, height }}
       aria-label="Crumbs the Cat"
       role="img"
     >
       <svg
+        className="crumbs-sprite"
         viewBox={`0 0 ${viewW} ${viewH}`}
         style={{ width: "100%", height: "100%", imageRendering: "pixelated" }}
         shapeRendering="crispEdges"

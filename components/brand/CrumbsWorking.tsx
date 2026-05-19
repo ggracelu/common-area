@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 
-/** Cat + desk (M = desk edge). */
+/** Cat + desk; F = frame, G = lens glass, M = desk edge. */
 const WORK_PALETTE: Record<string, string> = {
   ".": "transparent",
   K: "#000000",
@@ -17,6 +17,8 @@ const WORK_PALETTE: Record<string, string> = {
   U: "#3d3d3d",
   V: "#5a5a5a",
   I: "#7a7a7a",
+  F: "#000000",
+  G: "#b8dcff",
 };
 
 const PAD = 10;
@@ -24,14 +26,15 @@ const CAT_H = 16;
 const COL_L = new Set([1, 2, 3, 4]);
 const COL_R = new Set([6, 7, 8, 9]);
 
-const REFERENCE_CAT_ROWS = [
+/** Sitting cat with round glasses (F rims, G lenses) for mailroom / dashboard. */
+const WORKING_CAT_ROWS = [
   "..K.......K.....",
   ".KLK.....KLK....",
   ".LLLKKKKKLLL....",
-  "KLLLLDDLLLLLK...",
-  "KLLLLDDLLLLLK...",
-  "KLDKKLLKKLLDLK..",
-  "KLKKLKLKLKLKKK..",
+  "KLLFFFFFFFFLLK..",
+  "KLLFGWWWGFFLLK..",
+  "KLLFFFFFFFFLLK..",
+  "KFF...........FFK",
   "KLDLLWWWLLDLK...",
   "KLLLWWWWWLLLK...",
   "KKKKKKKKKKKKK.K.",
@@ -156,7 +159,7 @@ export function CrumbsWorking({
   const totalRows = CAT_H + LAPTOP_ROWS.length;
   const viewH = totalRows * pixel;
 
-  const catNodes = renderCatWithTypingLegs(REFERENCE_CAT_ROWS, motionReduced ? 0 : frame, pixel);
+  const catNodes = renderCatWithTypingLegs(WORKING_CAT_ROWS, motionReduced ? 0 : frame, pixel);
   const laptopNodes = renderLaptopRows(CAT_H, motionReduced ? 0 : frame, pixel);
 
   return (
@@ -166,7 +169,7 @@ export function CrumbsWorking({
       height={(size * viewH) / viewW}
       style={{ imageRendering: "pixelated" }}
       shapeRendering="crispEdges"
-      aria-label="Crumbs typing on a laptop"
+      aria-label="Crumbs typing on a laptop, wearing glasses"
       role="img"
       data-testid="crumbs-working"
     >

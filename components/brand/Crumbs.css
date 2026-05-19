@@ -7,10 +7,32 @@
   line-height: 0;
 }
 
+/* Subtle idle breath on default sit (feet stay grounded) */
+@keyframes crumbsBreathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.crumbs-mascot:not(.crumbs-static).crumbs-breathe .crumbs-sprite {
+  animation: crumbsBreathe 3.4s ease-in-out infinite;
+  transform-origin: 50% 88%;
+}
+
+.crumbs-mascot:not(.crumbs-static).crumbs-breathe-slow .crumbs-sprite {
+  animation: crumbsBreathe 4.6s ease-in-out infinite;
+  transform-origin: 50% 72%;
+}
+
 /* Static state for reduced motion */
 .crumbs-static .crumbs-pose,
 .crumbs-static .crumbs-tail,
-.crumbs-static .crumbs-zzz {
+.crumbs-static .crumbs-zzz,
+.crumbs-static .crumbs-sprite {
   animation: none !important;
 }
 

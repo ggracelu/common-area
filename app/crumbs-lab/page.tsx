@@ -36,7 +36,7 @@ export default function CrumbsLabPage() {
               style={{ minHeight: "11rem" }}
             >
               <div className="origin-top scale-[2.75]">
-                <Crumbs size="lg" pose="sit" animated={false} />
+                <Crumbs size="lg" pose="sit" animated />
               </div>
             </div>
           </li>
@@ -53,7 +53,7 @@ export default function CrumbsLabPage() {
               style={{ minHeight: "10rem" }}
             >
               <div className="origin-top scale-[2.75]">
-                <Crumbs size="lg" pose="curl" animated={false} />
+                <Crumbs size="lg" pose="curl" animated />
               </div>
             </div>
           </li>
@@ -63,7 +63,7 @@ export default function CrumbsLabPage() {
               3 · Working · glasses + laptop
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Round lenses (C), rims (F), blue screen (S), keyboard with typing highlight.
+              Black rims (F), pale blue lenses (G), temple arms, blue screen (S), keyboard with typing highlight.
             </p>
             <div className="mt-8 flex justify-center">
               <CrumbsWorking size={280} />
