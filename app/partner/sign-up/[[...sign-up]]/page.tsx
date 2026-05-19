@@ -1,4 +1,6 @@
 import { SignUp } from "@clerk/nextjs";
+import { DemoAccountPanel } from "@/components/auth/DemoAccountPanel";
+import { PartnerClerkVerificationCallout } from "@/components/auth/PartnerClerkVerificationCallout";
 import { MinimalAuthShell } from "@/components/site/MinimalAuthShell";
 
 const clerkAppearance = {
@@ -17,10 +19,12 @@ const clerkAppearance = {
 export default function PartnerSignUpPage() {
   return (
     <MinimalAuthShell title="Create your business account.">
+      <PartnerClerkVerificationCallout />
       <p className="mb-4 text-sm text-[color:rgba(37,34,30,0.78)]">
         Chicago small business owners can join the partner preview with a Common Area account. After sign-up you will
         finish host onboarding on the business dashboard.
       </p>
+      <DemoAccountPanel variant="partner" />
       <div className="flex justify-center py-4">
         <SignUp
           path="/partner/sign-up"

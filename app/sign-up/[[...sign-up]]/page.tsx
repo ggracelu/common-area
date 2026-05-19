@@ -1,4 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
+import { DemoAccountPanel } from "@/components/auth/DemoAccountPanel";
 import { MinimalAuthShell } from "@/components/site/MinimalAuthShell";
 
 const graderEmailHint = process.env.NEXT_PUBLIC_GRADER_EMAIL_HINT?.trim();
@@ -18,6 +19,7 @@ export default function SignUpPage() {
           </p>
         </div>
       ) : null}
+      <DemoAccountPanel variant="member" />
       <div className="flex justify-center py-4">
         <SignUp
           path="/sign-up"

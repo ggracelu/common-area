@@ -10,11 +10,9 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CohortRevealLetter } from "@/components/cohort/CohortRevealLetter";
 import { PostcardMatchAnimation } from "@/components/cohort/PostcardMatchAnimation";
-import { CrumbsNote } from "@/components/app/CrumbsNote";
 import { CrumbsTyping } from "@/components/app/CrumbsTyping";
 import { demoData, getDemoCohort, getDemoEvent } from "@/lib/demo-data";
 import { ACTIVITY_SLUG_TO_DEMO_EVENT } from "@/lib/demo-activity-slug-map";
-import { buildGraderChecklist } from "@/lib/grader-onboarding";
 import {
   assignDemoCohortFromSelections,
   getDefaultDemoState,
@@ -28,8 +26,6 @@ import type { OnboardingSnapshot } from "@/types/onboarding";
 type ViewMode = "current" | "future";
 type AssignmentRequestState = { status: "idle" | "running" | "error"; error?: string };
 type AssignmentUiStatus = "not_started" | "ready" | "running" | "pending" | "assigned" | "error";
-
-type ChecklistRow = { label: string; done: boolean; footnote?: string; testId: string };
 
 type DashboardDemoProps = {
   serverOnboarding?: OnboardingSnapshot | null;
@@ -140,23 +136,22 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
           ? "Ready for local demo assignment."
         : "Ready to join a cohort?";
 
+  const isReadyToJoinHeadline =
+    !isFuturePreview && liveStatus === "not_started" && !currentMatchingBusy;
+
   const sub = isFuturePreview
     ? canSimulateCohortReveal
-      ? serverAuthoritative
-        ? "Open the envelope to read your assignment. Copy reflects your saved picks and server-created cohort match."
-        : "Open the envelope to read your local demo assignment. This does not claim production persistence."
-      : "Your cohort letter appears here only after assignment exists."
+      ? "Open your cohort letter when you're ready."
+      : "Your letter unlocks after assignment."
     : liveStatus === "assigned" && letterPreviewDone
-      ? "You’ve opened your cohort letter. Visit Cohort for your roster, overlaps, and chat."
+      ? "Head to your cohort for roster, chat, and bingo."
       : liveStatus === "error"
-        ? assignmentRequest.error ?? "Assignment did not complete. Your saved deposit and picks are still intact."
+        ? assignmentRequest.error ?? "Try refreshing or retry assignment."
       : currentMatchingBusy
-        ? serverAuthoritative
-          ? "The server is assigning your cohort from saved picks. The Future letter stays locked until assignment is confirmed."
-          : "Local demo matching is queued. Use the local demo control when you want to reveal an assigned cohort."
+        ? "We're matching you from your saved picks. Check Future for your letter."
         : liveStatus === "ready"
-          ? "This is local demo state. Run the local assignment to preview the reveal; production matching stays server-side."
-          : `Open the season card to pick ${required} of ${available} experiences, submit, then secure your spot with the $20 deposit.`;
+          ? "Run local demo assignment to preview your reveal."
+          : `Pick ${required} on the season card, then pay the $20 deposit.`;
 
   const statusChip = isFuturePreview
     ? "Preview: cohort reveal"
@@ -179,28 +174,6 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
   const cohortPageReady = serverAuthoritative
     ? serverOnboarding?.assignmentStatus === "assigned" && letterPreviewDone
     : state.matching.status === "assigned" && letterPreviewDone;
-  const bingoBonusReady = serverAuthoritative
-    ? serverOnboarding?.assignmentStatus === "assigned"
-    : state.matching.status === "assigned";
-
-  const checklist: ChecklistRow[] = useMemo(() => {
-    return buildGraderChecklist({
-      snapshot: serverOnboarding,
-      hasEnoughPicks,
-      hasPaid,
-      letterPreviewDone,
-      cohortPageReady,
-      bingoBonusReady,
-    });
-  }, [
-    serverOnboarding,
-    hasEnoughPicks,
-    hasPaid,
-    letterPreviewDone,
-    cohortPageReady,
-    bingoBonusReady,
-  ]);
-
   const futureLetter = useMemo(() => {
     const serverPickIds =
       serverAuthoritative && (serverOnboarding?.selectedActivitySlugs.length ?? 0) > 0
@@ -231,14 +204,15 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
   }, [state.selectedEventIds, required, serverAuthoritative, serverOnboarding]);
 
   const seasonSteps = [
-    { label: "Deposit", done: hasPaid },
-    { label: `${required} of ${available} picks`, done: hasEnoughPicks },
+    { label: "Deposit", done: hasPaid, testId: "grader-checklist-deposit" },
+    { label: `${required} of ${available} picks`, done: hasEnoughPicks, testId: "grader-checklist-picks" },
     {
       label: "Matching",
       done: assignmentReady && (letterPreviewDone || isFuturePreview),
+      testId: "grader-checklist-matching",
     },
-    { label: "Letter", done: letterPreviewDone },
-    { label: "Cohort room", done: cohortPageReady },
+    { label: "Letter", done: letterPreviewDone, testId: "grader-checklist-letter" },
+    { label: "Cohort room", done: cohortPageReady, testId: "grader-checklist-cohort" },
   ];
 
   function handleModeChange(next: ViewMode) {
@@ -279,11 +253,13 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
 
       <ol
         aria-label="Summer 2026 season progress"
+        data-testid="grader-onboarding-checklist"
         className="flex flex-wrap gap-2 rounded-[1.25rem] border border-black/8 bg-[linear-gradient(135deg,rgba(255,255,255,0.82),rgba(247,240,228,0.72))] p-3"
       >
         {seasonSteps.map((step, index) => (
           <li
             key={step.label}
+            data-testid={step.testId}
             className={[
               "flex min-w-[5.5rem] flex-1 items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold",
               step.done
@@ -301,6 +277,7 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
               {step.done ? "✓" : index + 1}
             </span>
             <span>{step.label}</span>
+            <span className="sr-only">{step.done ? "Done" : "Pending"}</span>
           </li>
         ))}
       </ol>
@@ -432,8 +409,16 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-2xl">
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">{headline}</h1>
-              <p className="mt-5 text-lg leading-8 text-[color:rgba(37,34,30,0.74)]">{sub}</p>
+              <h1
+                className={
+                  isReadyToJoinHeadline
+                    ? "text-5xl font-black tracking-tight text-black sm:text-6xl"
+                    : "text-4xl font-semibold tracking-tight sm:text-5xl"
+                }
+              >
+                {headline}
+              </h1>
+              <p className="mt-4 max-w-xl text-base leading-7 text-[color:rgba(37,34,30,0.72)] sm:text-lg">{sub}</p>
             </div>
 
             {showMatchingInProgress ? (
@@ -448,34 +433,6 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
               </div>
             ) : null}
           </div>
-
-          <ul className="mt-8 divide-y divide-black/10 border-t border-black/10" data-testid="grader-onboarding-checklist">
-            {checklist.map((item) => (
-              <li
-                key={item.testId}
-                data-testid={item.testId}
-                className={[
-                  "flex flex-wrap items-center justify-between gap-4 py-3 text-sm",
-                  item.done ? "text-[color:rgba(37,34,30,0.82)]" : "text-[color:rgba(37,34,30,0.68)]",
-                ].join(" ")}
-              >
-                <span>
-                  {item.label}
-                  {item.footnote ? (
-                    <span className="mt-1 block text-[0.7rem] font-normal text-black/45">{item.footnote}</span>
-                  ) : null}
-                </span>
-                <span
-                  className={[
-                    "shrink-0 rounded-full px-3 py-1 text-xs font-semibold",
-                    item.done ? "bg-[color:rgba(233,255,107,0.45)] text-black" : "bg-black/5 text-black/45",
-                  ].join(" ")}
-                >
-                  {item.done ? "Done" : "Pending"}
-                </span>
-              </li>
-            ))}
-          </ul>
 
           {liveStatus === "error" ? (
             <div
@@ -509,19 +466,6 @@ export function DashboardDemo({ serverOnboarding = null }: DashboardDemoProps) {
             ) : null}
           </div>
 
-          {!hasPaid || !hasEnoughPicks ? (
-            <div className="mt-8">
-              <CrumbsNote
-                title="Season note"
-                lines={[
-                  "Start on the season card: four picks, then the $20 deposit.",
-                  `The contract is ${required} of ${available} activities for Chicago Summer 2026.`,
-                  "Overlap on week two is the whole point.",
-                ]}
-                pose="curious"
-              />
-            </div>
-          ) : null}
         </Card>
       ) : null}
 

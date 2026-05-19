@@ -2,6 +2,8 @@
 
 Use this page for **who signs in**, **with what credentials**, and **what the app should show** after login. For environment setup, database reset, and the full onboarding script, see [GRADER_WALKTHROUGH.md](./GRADER_WALKTHROUGH.md).
 
+For **five member + five business audience demos** (live pitch personas), see [DEMO_ACCOUNTS.md](./DEMO_ACCOUNTS.md).
+
 ## Quick reference
 
 Common Area grading uses **two separate Clerk flows**. Do not sign in on `/sign-in` when you mean to grade the partner preview, and do not use the member grader email on `/partner/sign-in`.
@@ -52,6 +54,8 @@ After `npx supabase db reset`, provision or relink the shared partner Clerk acco
 
 ```bash
 node scripts/provision-partner-accounts.mjs
+# or all five member + five business demos:
+npm run provision:demo-accounts
 ```
 
 The script creates or reuses the Clerk users, verifies `+clerk_test` addresses, and writes `clerk_user_id` on the `graders-coffee` partner row. Ten Chicago host businesses (including Grader's Coffee) are seeded from `supabase/seed_partner_businesses.sql`; the public gallery on `/partner` reads them from Supabase when env is aligned.

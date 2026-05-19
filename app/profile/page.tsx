@@ -5,7 +5,7 @@ export default async function ProfilePage() {
   return (
     <AppShell
       title="Profile"
-      description="Your common-room card: neighborhood, prompt vibes, and what you’re currently committed to this season (demo-local)."
+      description="Your common-room card: location, season status, and light prompt vibes."
     >
       <ProfileHome />
     </AppShell>

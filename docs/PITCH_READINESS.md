@@ -15,6 +15,14 @@ Living checklist for investor-pitch prototype quality. Update after Playwright g
 
 **Sign-off:** **Partial — ready for investor demo on production** when Vercel Deployment Protection allows public access (see [FINAL_MILE_QA.md](./FINAL_MILE_QA.md) P0-1). Member path + partner preview documented; hide grader/partner QA controls during pitch. **Live second-driver** and **non-grader signup** still open.
 
+| Audience | Ready? | Condition |
+|----------|--------|-----------|
+| Course grader | **Yes, with caveats** | Aligned Supabase; `/sign-in` vs `/partner/sign-in`; undo-all timing; production accessible |
+| Investor live demo | **No until P0-1** | Public URL must return **200**, not **401** |
+| Complete v4 product | **No** | Partner Postgres, partner E2E, prod webhook, chat/billing hardening |
+
+Week priorities: [PM_WEEK_DECISIONS.md](./PM_WEEK_DECISIONS.md).
+
 ## A. Functional completeness
 
 | Metric | Target | Current | How measured |
@@ -40,7 +48,7 @@ Living checklist for investor-pitch prototype quality. Update after Playwright g
 
 | Metric | Target | Current | How measured |
 |--------|--------|---------|--------------|
-| Automated regression | typecheck + build + grader suite green | **Pass** | typecheck + build + `npm run test` + `npm run test:grader` + `npm run test:preview` green (2026-05-12) |
+| Automated regression | typecheck + build + grader suite green | **Pass** | `npm run typecheck` green (2026-05-19); build + `npm run test` + `npm run test:grader` + `npm run test:preview` green (2026-05-12) |
 | Crumbs surfaces | ≥4 interactive surfaces + aria labels | **Pass** | Landing sticky + Meet Crumbs; dashboard mailroom; bingo deposit handoff; cohort reveal; `CrumbsWorking` / `Crumbs.tsx` `aria-label` |
 | Reduced motion | Crumbs loops respect `prefers-reduced-motion` | **Pass** | `e2e/smoke.spec.ts`, grader `emulateMedia` |
 | Primary flow a11y | 0 critical keyboard gaps on core routes | **Pass (code)** | Deposit `role="dialog"`; assignment `role="alert"`; chat form submit + saved/retry status; no blocking gaps found on deposit → assignment → chat → bingo bonus |

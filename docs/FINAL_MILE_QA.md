@@ -8,8 +8,9 @@
 
 | ID | Surface | Issue | Status |
 |----|---------|-------|--------|
-| P0-1 | Production | **Vercel Deployment Protection** returns **401** on `common-area-one.vercel.app` for unauthenticated curl/browser without bypass. Investors cannot load the app until protection is disabled for Production or `VERCEL_AUTOMATION_BYPASS_SECRET` is set. Preview smoke **skips** partner content test when the SSO wall is present; redirect tests may still pass. | **Operator:** Vercel → common-area → Settings → Deployment Protection |
-| P0-2 | Landing | Footer/CTA copy says **“Design exploration only — no backend logic”** while member path is server-backed. Undermines pitch trust. | **Fix in code** |
+| P0-1 | Production | **Vercel Deployment Protection** returns **401** on `common-area-one.vercel.app` for unauthenticated curl/browser without bypass (verified 2026-05-19). Investors cannot load the app until protection is disabled for Production. Preview smoke **skips** partner content test when the SSO wall is present. | **Operator:** [PM_WEEK_DECISIONS.md](./PM_WEEK_DECISIONS.md#p0-1--unblock-production-operator) |
+| P0-2 | Engineering | `npm run typecheck` failed on invalid `groupSize` in `lib/demo-accounts.ts`. | **Fixed** (2026-05-19) |
+| P0-2b | Landing | Footer/CTA copy said **“Design exploration only — no backend logic”** while member path is server-backed. | **Fixed** — V16 footer: “Summer 2026 prototype … Server-backed when configured” |
 
 ## P1 — trust / copy (fix in sprint)
 
