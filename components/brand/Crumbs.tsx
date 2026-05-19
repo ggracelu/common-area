@@ -106,42 +106,53 @@ const REFERENCE_CRUMBS: PixelSprite = {
 };
 
 /**
- * Sleeping loaf (reference pose): flat on belly, head left, paws under chin,
- * tabby stripes on back, white muzzle + underbelly. L/D/W/K = gray tabby fur.
+ * Sleeping loaf — long horizontal silhouette modeled on the reference photo:
+ * head on the left with two pointed ears, three vertical forehead stripes,
+ * closed slanted eyes, white muzzle with nose dot and whisker pads, four
+ * diagonal tabby stripes down the back, white underbelly band, and the tail
+ * tucked under the body curling forward. Gray palette (L/W/K).
  */
 const CURL_CRUMBS: PixelSprite = {
-  w: 24,
-  h: 10,
+  w: 32,
+  h: 14,
   rows: [
-    "........................",
-    "..K...K.................",
-    ".KLWLWLK................",
-    "KLLKKKKLL...............",
-    "KLLWWWWWLLL.............",
-    "KLLLLLLLLLLLL...........",
-    "KLLWLWLWLWLWL...........",
-    "KLLWWWWWWWWWWLL.........",
-    "KKKLLLLLLLLLLKK.........",
-    "........................",
+    "...KK........KK.................",
+    "..KLLK......KLLK................",
+    ".KLLLLKKKKKKLLLLK...............",
+    "KLLLLLWLLWLLWLLLLK..............",
+    "KLLLLLLLLLLLLLLLLKKKKKKKKKKKKKK.",
+    "KLLKKLLLLKKLLLLLLLLLLLLLLLLLLLK.",
+    "KWWLLLLLLLLLLWLLLLWLLLLWLLLLWLK.",
+    "KLWWWLLLLLLLLLWLLLLWLLLLWLLLLWK.",
+    "KWWKWWLLLLLLLLLLLLLLLLLLLLLLLLK.",
+    "KLWWWLLLLLLLLLLLLLLLLLLLLLLLLLK.",
+    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWWK.",
+    ".KKKKKKKKKKKKKKKKKKKKKK....KKKK.",
+    "........KKKKKKKKKKKKKKK.........",
+    ".......KK.......................",
   ],
   palette: BASE_PALETTE,
 };
 
-/** Loaf nap: same sleeping pose with blue Zzz. */
+/** Loaf nap: same sleeping pose with blue Zzz rising from above the head. */
 const NAP_CRUMBS: PixelSprite = {
-  w: 24,
-  h: 10,
+  w: 32,
+  h: 14,
   rows: [
-    ".......................B",
-    "..K...K..............B..",
-    ".KLWLWLK............B...",
-    "KLLKKKKLL...............",
-    "KLLWWWWWLLL.............",
-    "KLLLLLLLLLLLL...........",
-    "KLLWLWLWLWLWL...........",
-    "KLLWWWWWWWWWWLL.........",
-    "KKKLLLLLLLLLLKK.........",
-    "........................",
+    "...KK........KK............B....",
+    "..KLLK......KLLK........B.......",
+    ".KLLLLKKKKKKLLLLK....B..........",
+    "KLLLLLWLLWLLWLLLLK..............",
+    "KLLLLLLLLLLLLLLLLKKKKKKKKKKKKKK.",
+    "KLLKKLLLLKKLLLLLLLLLLLLLLLLLLLK.",
+    "KWWLLLLLLLLLLWLLLLWLLLLWLLLLWLK.",
+    "KLWWWLLLLLLLLLWLLLLWLLLLWLLLLWK.",
+    "KWWKWWLLLLLLLLLLLLLLLLLLLLLLLLK.",
+    "KLWWWLLLLLLLLLLLLLLLLLLLLLLLLLK.",
+    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWWK.",
+    ".KKKKKKKKKKKKKKKKKKKKKK....KKKK.",
+    "........KKKKKKKKKKKKKKK.........",
+    ".......KK.......................",
   ],
   palette: SLEEPY_PALETTE,
 };
