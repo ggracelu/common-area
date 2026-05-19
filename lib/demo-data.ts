@@ -91,6 +91,7 @@ export type DemoUser = {
   prompt: DemoProfilePrompt;
   preferenceTags: DemoEventType[];
   avatar: { kind: "initials"; value: string };
+  avatarImageUrl?: string;
 };
 
 export type DemoCohort = {
@@ -581,6 +582,7 @@ function buildDemoUsers(): DemoUser[] {
         prompt,
         preferenceTags,
         avatar: { kind: "initials", value: initialsFor(displayName) },
+        avatarImageUrl: `https://i.pravatar.cc/160?img=${((i + cohortIndex * 7) % 70) + 1}`,
       });
     }
   }

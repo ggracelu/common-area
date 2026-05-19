@@ -7,6 +7,7 @@ const appLinks = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Season card", href: "/bingo" },
   { label: "Cohort", href: "/cohort" },
+  { label: "Chatroom", href: "/chat" },
   { label: "Profile", href: "/profile" },
 ];
 

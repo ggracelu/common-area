@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Crumbs, CrumbsLine } from "@/components/brand/Crumbs";
+import { V16CursorGlow } from "@/components/visual/V16CursorGlow";
 import "@/components/brand/Crumbs.css";
-
-type Cursor = { x: number; y: number };
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -19,30 +18,6 @@ function useReducedMotion() {
   }, []);
 
   return reduced;
-}
-
-function useCursor() {
-  const [cursor, setCursor] = useState<Cursor>({ x: 0, y: 0 });
-  const raf = useRef<number | null>(null);
-  const next = useRef<Cursor>({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const onMove = (event: PointerEvent) => {
-      next.current = { x: event.clientX, y: event.clientY };
-      if (raf.current != null) return;
-      raf.current = window.requestAnimationFrame(() => {
-        raf.current = null;
-        setCursor(next.current);
-      });
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      if (raf.current != null) window.cancelAnimationFrame(raf.current);
-    };
-  }, []);
-
-  return cursor;
 }
 
 function useScrollProgress() {
@@ -104,7 +79,6 @@ const u = {
 
 export function V16CampusCrumbsSite() {
   const reduced = useReducedMotion();
-  const cursor = useCursor();
   const progress = useScrollProgress();
 
   const palette = useMemo(
@@ -126,13 +100,6 @@ export function V16CampusCrumbsSite() {
   const actRef = useInViewClass({ threshold: 0.2 });
   const crumbsRef = useInViewClass({ threshold: 0.2 });
   const ctaRef = useInViewClass({ threshold: 0.2 });
-
-  const cursorStyle = reduced
-    ? undefined
-    : ({
-        "--cx": `${cursor.x}px`,
-        "--cy": `${cursor.y}px`,
-      } as React.CSSProperties);
 
   const scrollStyle = reduced
     ? undefined
@@ -161,7 +128,7 @@ export function V16CampusCrumbsSite() {
         } as React.CSSProperties
       }
     >
-      <div className="v16-cursor" style={cursorStyle} aria-hidden="true" />
+      <V16CursorGlow />
 
       <header className="sticky top-0 z-20 border-b border-black/10 bg-white/82 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1520px] items-center justify-between gap-6 px-5 py-4 md:px-10">

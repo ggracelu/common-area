@@ -55,13 +55,26 @@ function seededMessagesForCohort(cohortId: string | null): CohortChatMessageView
   });
 }
 
+function chatPaperColor(index: number) {
+  const colors = [
+    "bg-[color:rgba(233,255,107,0.35)]",
+    "bg-[color:rgba(255,184,0,0.22)]",
+    "bg-[color:rgba(26,92,255,0.14)]",
+    "bg-[color:rgba(255,47,184,0.12)]",
+  ];
+  return colors[index % colors.length]!;
+}
+
 export function CohortChatDemo({
   serverOnboarding = null,
   serverChat = { status: "not_configured", messages: [] },
+  variant = "default",
 }: {
   serverOnboarding?: OnboardingSnapshot | null;
   serverChat?: CohortChatLoadState;
+  variant?: "default" | "chatroom";
 }) {
+  const isChatroom = variant === "chatroom";
   const router = useRouter();
   const { userId } = useAuth();
   const storageUserId = userId ?? null;
@@ -214,6 +227,11 @@ export function CohortChatDemo({
             <Button href="/bingo" variant="secondary">
               Open season card
             </Button>
+            {isChatroom ? null : (
+              <Button href="/chat" variant="ghost">
+                Join the conversation
+              </Button>
+            )}
           </div>
         </Card>
       </div>
@@ -245,24 +263,26 @@ export function CohortChatDemo({
         </p>
       </div>
 
-      <Card variant="scrapbook">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <Badge variant={serverChatReady ? "moss" : "sky"}>
-              {serverChatReady ? "Chat (server)" : "Chat (local demo)"}
-            </Badge>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight">
-              {cohort ? `${cohort.name} thread` : "Your cohort thread"}
-            </h2>
-            <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
-              A simple cohort room for first messages. Send-then-read reliability comes before live badges.
-            </p>
+      {!isChatroom ? (
+        <Card variant="scrapbook">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <Badge variant={serverChatReady ? "moss" : "sky"}>
+                {serverChatReady ? "Chat (server)" : "Chat (local demo)"}
+              </Badge>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight">
+                {cohort ? `${cohort.name} thread` : "Your cohort thread"}
+              </h2>
+              <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">
+                A simple cohort room for first messages. Send-then-read reliability comes before live badges.
+              </p>
+            </div>
+            <Sticker>Say hi. Low stakes.</Sticker>
           </div>
-          <Sticker>Say hi. Low stakes.</Sticker>
-        </div>
-      </Card>
+        </Card>
+      ) : null}
 
-      <Card variant="paper" className="overflow-hidden p-0">
+      <Card variant={isChatroom ? "scrapbook" : "paper"} className="overflow-hidden p-0">
         <div ref={listRef} className="max-h-[62vh] overflow-auto p-5 sm:p-6">
           {messages.length === 0 ? (
             <div className="rounded-[1.25rem] border border-dashed border-black/15 bg-white/70 p-5">
@@ -273,18 +293,36 @@ export function CohortChatDemo({
             </div>
           ) : (
             <div className="grid gap-3">
-              {messages.map((message) => {
+              {messages.map((message, index) => {
                 const delivery = "delivery" in message ? message.delivery : null;
+                const isCrumbs = message.authorName === "Crumbs";
                 return (
-                  <div key={message.id} className="rounded-[1.25rem] border border-black/10 bg-white/70 p-4">
+                  <div
+                    key={message.id}
+                    className={[
+                      "rounded-[1.35rem] border p-4 shadow-[0_10px_28px_rgba(52,36,24,0.08)]",
+                      isChatroom
+                        ? isCrumbs
+                          ? "border-[rgba(103,114,85,0.35)] bg-[linear-gradient(135deg,rgba(236,245,225,0.92),rgba(255,252,245,0.88))]"
+                          : message.isSelf
+                            ? "border-[rgba(26,92,255,0.22)] bg-[linear-gradient(135deg,rgba(233,255,107,0.45),rgba(255,255,255,0.9))]"
+                            : `border-black/10 ${chatPaperColor(index)}`
+                        : "border-black/10 bg-white/70",
+                    ].join(" ")}
+                  >
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <div className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-foreground)] text-xs font-black text-[var(--color-paper)]">
-                          {message.authorInitials}
+                          {isCrumbs && isChatroom ? "🐾" : message.authorInitials}
                         </div>
                         <div>
                           <p className="text-sm font-semibold">
                             {message.authorName}
+                            {isCrumbs && isChatroom ? (
+                              <span className="ml-2 text-xs font-black uppercase tracking-[0.14em] text-black/50">
+                                mod
+                              </span>
+                            ) : null}
                             {message.isLocalOnly ? <span className="ml-2 text-xs text-black/50">(local)</span> : null}
                           </p>
                           <p className="text-xs text-black/50">

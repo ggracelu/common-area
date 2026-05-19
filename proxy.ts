@@ -8,6 +8,7 @@ const isMemberProtectedRoute = createRouteMatcher([
   "/season/select(.*)",
   "/cohort(.*)",
   "/cohort/chat(.*)",
+  "/chat(.*)",
   "/profile(.*)",
 ]);
 

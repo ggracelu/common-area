@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
 import { demoData } from "@/lib/demo-data";
 import { loadDemoState } from "@/lib/demo-state";
+import { icebreakerLabel, loadChatIcebreaker } from "@/lib/chat-icebreaker";
 import { loadProfileLocation, saveProfileLocation } from "@/lib/profile-location";
 
 export function ProfileHome() {
@@ -17,10 +18,12 @@ export function ProfileHome() {
   const [locationDraft, setLocationDraft] = useState("");
   const [locationSaved, setLocationSaved] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [chatIcebreaker, setChatIcebreaker] = useState<ReturnType<typeof loadChatIcebreaker>>(null);
 
   useEffect(() => {
     const id = window.setTimeout(() => {
       setLocationDraft(loadProfileLocation(user?.id ?? null));
+      setChatIcebreaker(loadChatIcebreaker(user?.id ?? null));
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(id);
@@ -114,6 +117,23 @@ export function ProfileHome() {
             </p>
           ) : null}
         </div>
+
+        {chatIcebreaker ? (
+          <div className="mt-4 rounded-[1.5rem] border border-black/10 bg-[color:rgba(233,255,107,0.35)] p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/60">Chatroom icebreaker</p>
+            <p className="mt-2 text-sm font-semibold text-black">{icebreakerLabel(chatIcebreaker.kind)}</p>
+            <p className="mt-2 text-base leading-6 text-black/78">{chatIcebreaker.answer}</p>
+            <p className="mt-2 text-xs text-black/55">Shown on your profile and in the cohort chatroom.</p>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-black/60">
+            Complete the one-time icebreaker in the{" "}
+            <a href="/chat" className="font-semibold text-[var(--color-accent)] underline-offset-2 hover:underline">
+              chatroom
+            </a>{" "}
+            to add your anti-networking answer here.
+          </p>
+        )}
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="rounded-[1.5rem] bg-white/80 p-5">

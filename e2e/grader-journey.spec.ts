@@ -71,7 +71,14 @@ test.describe("grader onboarding journey", () => {
     await page.goto("/cohort");
     await expect(page.getByTestId("cohort-roster")).toBeVisible({ timeout: 15_000 });
 
-    await page.goto("/cohort/chat");
+    await page.goto("/chat");
+    const icebreaker = page.getByTestId("chat-icebreaker-onboarding");
+    if (await icebreaker.isVisible().catch(() => false)) {
+      await page.getByTestId("chat-icebreaker-option-snack").click();
+      await page.getByTestId("chat-icebreaker-answer").fill("Frozen grapes with Tajín — grader snack canon.");
+      await page.getByTestId("chat-icebreaker-submit").click();
+    }
+    await expect(page.getByTestId("chatroom-experience")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("cohort-chat-demo-label")).toBeVisible();
     await expect(page.getByTestId("cohort-chat-demo-label")).toContainText(
       /Postgres-backed cohort thread|Chat persistence unavailable|Demo chat thread/i,

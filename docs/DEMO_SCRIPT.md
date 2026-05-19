@@ -74,7 +74,7 @@ On `/business/dashboard`, sign in as any business row and use **Apply sample ans
 | **Season invite** | 0:45 | `/` (scroll) | Summer 2026: $20 deposit, pick **4 of 6** experiences, land in a cohort of ~15–20 with real overlap. Low pressure, high repeat. |
 | **Join** | 2:00 | `/sign-in` → `/bingo` | Walk four picks and submit. Deposit handoff — test path is fine; point at **Paid** and **Saved to your account** if visible. |
 | **Belonging** | 2:00 | `/dashboard` → **Future** → `/cohort` | Matching runs server-side. Letter → roster. “Familiar faces, not opaque matching magic.” Show overlap story on cohort home. |
-| **Play** | 1:00 | `/cohort/chat`, `/bingo` bonus | Light play: one chat line; one bonus stamp. Read the status banner honestly (Postgres vs demo). |
+| **Play** | 1:00 | `/chat`, `/bingo` bonus | **Chatroom** tab: one-time anti-networking icebreaker, then send a line. One bonus stamp on season card. Read the status banner honestly (Postgres vs demo). |
 | **Host side** | 1:30 | `/partner` → `/partner/sign-in` → `/business/dashboard` | “Businesses get repeat cohort nights.” Tour tabs: Dashboard, Calendar, Analytics, Community, Profile. Say **sample preview data** once. |
 | **Close** | 0:30 | Community or Profile tab | Repeat encounters at real businesses. Next: prove retention, then live cohort windows for hosts—no partner billing in this slice. |
 

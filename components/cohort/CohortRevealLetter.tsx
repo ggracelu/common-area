@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Crumbs } from "@/components/brand/Crumbs";
+import { ConfettiBurst } from "@/components/visual/ConfettiBurst";
 
 type RevealPhase = "envelope" | "opening" | "letter";
 
@@ -27,6 +28,7 @@ export function CohortRevealLetter({
   void _cohortId;
   const [reducedMotion, setReducedMotion] = useState(false);
   const [phase, setPhase] = useState<RevealPhase>("envelope");
+  const [confettiActive, setConfettiActive] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -51,11 +53,13 @@ export function CohortRevealLetter({
       setPhase("letter");
       return;
     }
+    setConfettiActive(true);
     setPhase("opening");
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-8" data-testid="cohort-reveal-letter">
+      <ConfettiBurst active={confettiActive} originX={0.5} originY={0.42} />
       {phase !== "letter" ? (
         <CardLetterShell phase={phase} reducedMotion={reducedMotion} onOpenEnvelope={openEnvelope} />
       ) : null}

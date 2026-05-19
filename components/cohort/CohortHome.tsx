@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element -- cohort roster and activity preview photos */
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
@@ -8,8 +9,14 @@ import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
 import { GraderControlPanel } from "@/components/app/GraderControlPanel";
 import { CohortRevealLetter } from "@/components/cohort/CohortRevealLetter";
+import { CohortWelcomeSpotlights } from "@/components/cohort/CohortWelcomeSpotlights";
+import {
+  hasSeenCohortCommonRoomWelcome,
+  markCohortCommonRoomWelcomeSeen,
+} from "@/lib/cohort-common-room-welcome";
 import { PostcardMatchAnimation } from "@/components/cohort/PostcardMatchAnimation";
 import { CrumbsTyping } from "@/components/app/CrumbsTyping";
+import { demoMemberAvatarUrl, demoUserAvatarUrl } from "@/lib/cohort-avatars";
 import { demoData, getDemoEvent, getDemoUser } from "@/lib/demo-data";
 import { ACTIVITY_SLUG_TO_DEMO_EVENT } from "@/lib/demo-activity-slug-map";
 import { cohortPeopleAdjective } from "@/lib/cohort-reveal-copy";
@@ -27,6 +34,18 @@ function chunk<T>(arr: T[], size: number) {
   return out;
 }
 
+const cohortPaperColors = [
+  "bg-[color:rgba(233,255,107,0.88)]",
+  "bg-[color:rgba(255,184,0,0.28)]",
+  "bg-[color:rgba(26,92,255,0.18)]",
+  "bg-[color:rgba(255,47,184,0.16)]",
+  "bg-[color:rgba(191,212,223,0.55)]",
+] as const;
+
+function cohortPaperColor(index: number) {
+  return cohortPaperColors[index % cohortPaperColors.length]!;
+}
+
 type CohortHomeProps = {
   serverOnboarding?: OnboardingSnapshot | null;
 };
@@ -36,6 +55,7 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
   const storageUserId = userId ?? null;
 
   const [state, setState] = useState(() => getDefaultDemoState());
+  const [showWelcomeSpotlights, setShowWelcomeSpotlights] = useState(false);
 
   useEffect(() => {
     const id = window.setTimeout(() => {
@@ -69,6 +89,22 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
     (serverAuthoritative
       ? !serverOnboarding?.cohortRevealSeen
       : !state.seenCohortRevealIds.includes(cohort.id));
+
+  const cohortHomeReady =
+    Boolean(cohort) &&
+    !showCohortLetter &&
+    (serverAuthoritative
+      ? serverOnboarding?.assignmentStatus === "assigned"
+      : state.matching.status === "assigned");
+
+  useEffect(() => {
+    if (!cohortHomeReady || !cohort) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (hasSeenCohortCommonRoomWelcome(storageUserId, cohort.id)) return;
+
+    markCohortCommonRoomWelcomeSeen(storageUserId, cohort.id);
+    setShowWelcomeSpotlights(true);
+  }, [cohort, cohortHomeReady, storageUserId]);
 
   const letterEvents = useMemo(() => {
     if (!cohort) return { a: "", b: "" };
@@ -104,11 +140,21 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
         displayName: member.displayName ?? (member.isSelf ? "You" : "Cohort member"),
         neighborhood: member.isSeed ? "Chicago" : "Your cohort",
         avatar: { value: (member.displayName ?? "?").slice(0, 1).toUpperCase() },
+        avatarImageUrl: demoMemberAvatarUrl(member.profileId),
         commonRoomFact: member.isSelf ? "This is your row in the server roster." : "Seeded cohort member in your assigned cohort.",
       }));
     }
     if (!cohort) return [];
-    return cohort.memberIds.map((id) => getDemoUser(id)).filter(Boolean);
+    return cohort.memberIds
+      .map((id) => {
+        const user = getDemoUser(id);
+        if (!user) return null;
+        return {
+          ...user,
+          avatarImageUrl: demoUserAvatarUrl(user),
+        };
+      })
+      .filter(Boolean);
   }, [cohort, serverAuthoritative, serverOnboarding]);
 
   const featuredEvents = useMemo(() => {
@@ -177,8 +223,8 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
             <Button href="/dashboard" variant="primary">
               Back to dashboard
             </Button>
-            <Button href="/cohort/chat" variant="secondary">
-              Open chat
+            <Button href="/chat" variant="secondary">
+              Join the conversation
             </Button>
           </div>
         </Card>
@@ -265,82 +311,61 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
 
   return (
     <div className="grid gap-6" data-testid="cohort-home">
+      <CohortWelcomeSpotlights show={showWelcomeSpotlights} />
       <GraderControlPanel storageUserId={storageUserId} showWhenConfigured={serverAuthoritative} />
-      <Card variant="scrapbook">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <Card variant="scrapbook" className="relative overflow-hidden">
+        <div aria-hidden="true" className="cohort-scrap-tape cohort-scrap-tape-tl" />
+        <div aria-hidden="true" className="cohort-scrap-tape cohort-scrap-tape-tr" />
+        <div className="relative z-10 flex flex-wrap items-start justify-between gap-4">
           <div>
             <Badge variant="butter">Cohort reveal</Badge>
             <h2 className="mt-4 text-4xl font-semibold tracking-tight">{cohort.name}</h2>
             <p className="mt-4 text-base leading-7 text-[color:rgba(37,34,30,0.72)]">{cohort.theme}</p>
           </div>
-          <Sticker>20 people. Familiar faces.</Sticker>
+          <Sticker className="cohort-scrap-sticker-float">20 people. Familiar faces.</Sticker>
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-[1.5rem] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Members</p>
-            <p className="mt-3 text-2xl font-semibold">{members.length}</p>
-            <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.66)]">A real common room size.</p>
+        <div className="relative z-10 mt-8 grid gap-4 sm:grid-cols-3">
+          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)]", cohortPaperColor(0)].join(" ")}>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/55">Members</p>
+            <p className="mt-3 text-2xl font-black">{members.length}</p>
+            <p className="mt-2 text-sm text-black/65">A real common room size.</p>
           </div>
-          <div className="rounded-[1.5rem] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Overlap</p>
-            <p className="mt-3 text-2xl font-semibold">{cohort.sharedEventTypeOverlap.length} types</p>
-            <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.66)]">
-              {cohort.sharedEventTypeOverlap.join(" • ")}
-            </p>
+          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)]", cohortPaperColor(1)].join(" ")}>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/55">Overlap</p>
+            <p className="mt-3 text-2xl font-black">{cohort.sharedEventTypeOverlap.length} types</p>
+            <p className="mt-2 text-sm text-black/65">{cohort.sharedEventTypeOverlap.join(" • ")}</p>
           </div>
-          <div className="rounded-[1.5rem] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Next</p>
-            <div className="mt-4 flex flex-col gap-2">
-              <Button href="/cohort/chat" variant="secondary" size="sm">
-                Open chat
-              </Button>
-              <Button href="/bingo" variant="ghost" size="sm">
-                Open bingo
+          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)]", cohortPaperColor(2)].join(" ")}>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/55">Conversation</p>
+            <p className="mt-3 text-sm font-semibold text-black/75">Say hi in the chatroom after a one-time icebreaker.</p>
+            <div className="mt-4">
+              <Button href="/chat" variant="secondary" size="sm" data-testid="cohort-join-conversation">
+                Join the conversation
               </Button>
             </div>
           </div>
         </div>
       </Card>
 
-      <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card variant="paper">
-          <Badge variant="rust">Why you were matched</Badge>
-          <h3 className="mt-4 text-2xl font-semibold tracking-tight">A legible overlap story.</h3>
-          <ul className="mt-5 grid gap-3">
-            {cohort.whyThisCohortWorks.map((line) => (
-              <li
-                key={line}
-                className="rounded-[1.25rem] border border-black/10 bg-white/75 px-4 py-3 text-sm font-medium text-[color:rgba(37,34,30,0.78)]"
-              >
-                {line}
-              </li>
-            ))}
-          </ul>
-          <Sticker className="mt-6">No bios. No swiping. Just overlap + repetition.</Sticker>
-        </Card>
-
-        <Card variant="paper">
-          <Badge variant="sky">Icebreakers</Badge>
-          <h3 className="mt-4 text-2xl font-semibold tracking-tight">Anti-networking prompts</h3>
-          <div className="mt-5 grid gap-3">
-            {[
-              "Choose your campus alter ego.",
-              "Pick your emergency side-quest role: navigator, snack finder, hype person, documentarian.",
-              "What would your fake student club be called?",
-              "Which snack best represents your communication style?",
-              "What useless talent are you bringing to the cohort?",
-            ].map((prompt) => (
-              <div key={prompt} className="rounded-[1.25rem] border border-black/10 bg-white/75 p-4">
-                <p className="text-sm font-semibold">{prompt}</p>
-                <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.68)]">
-                  (Demo) In the real app, answers would persist and appear in your cohort yearbook.
-                </p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </section>
+      <Card variant="paper" className="w-full">
+        <Badge variant="rust">Why you were matched</Badge>
+        <h3 className="mt-4 text-2xl font-semibold tracking-tight">A legible overlap story.</h3>
+        <ul className="mt-5 grid gap-3 md:grid-cols-3">
+          {cohort.whyThisCohortWorks.map((line, index) => (
+            <li
+              key={line}
+              className={[
+                "rounded-[1.25rem] border border-black/10 px-4 py-3 text-sm font-medium text-black/78 shadow-[0_8px_24px_rgba(52,36,24,0.08)]",
+                cohortPaperColor(index + 2),
+              ].join(" ")}
+            >
+              {line}
+            </li>
+          ))}
+        </ul>
+        <Sticker className="mt-6">No bios. No swiping. Just overlap + repetition.</Sticker>
+      </Card>
 
       <Card variant="scrapbook" data-testid="cohort-roster">
         <Badge variant="neutral">Roster</Badge>
@@ -364,9 +389,12 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
                   className="rounded-[1.4rem] border border-black/10 bg-white/75 p-4 transition-transform hover:-translate-y-[1px]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-foreground)] text-sm font-black text-[var(--color-paper)]">
-                      {m!.avatar.value}
-                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={m!.avatarImageUrl}
+                      alt=""
+                      className="h-11 w-11 shrink-0 rounded-full border-2 border-white object-cover shadow-[0_8px_20px_rgba(52,36,24,0.12)]"
+                    />
                     <div>
                       <p className="text-sm font-semibold">{m!.displayName}</p>
                       <p className="text-xs text-[color:rgba(37,34,30,0.62)]">{m!.neighborhood}</p>
@@ -384,14 +412,23 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
         <Badge variant="butter">Featured overlaps</Badge>
         <h3 className="mt-4 text-2xl font-semibold tracking-tight">A shared schedule vibe</h3>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {featuredEvents.map((evt) => (
-            <div key={evt!.id} className="rounded-[1.5rem] border border-black/10 bg-white/75 p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--color-accent)]">
-                {evt!.neighborhood}
-              </p>
-              <p className="mt-3 text-xl font-semibold">{evt!.title}</p>
-              <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.68)]">{evt!.vibe}</p>
-            </div>
+          {featuredEvents.map((evt, index) => (
+            <article
+              key={evt!.id}
+              className={[
+                "overflow-hidden rounded-[1.5rem] border border-black/12 shadow-[0_14px_38px_rgba(52,36,24,0.12)]",
+                cohortPaperColor(index),
+              ].join(" ")}
+            >
+              {evt!.imageUrl ? (
+                <img src={evt!.imageUrl} alt="" className="h-32 w-full object-cover" />
+              ) : null}
+              <div className="p-5">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-black/55">{evt!.neighborhood}</p>
+                <p className="mt-2 text-xl font-black text-black">{evt!.title}</p>
+                <p className="mt-2 text-sm text-black/68">{evt!.vibe}</p>
+              </div>
+            </article>
           ))}
         </div>
       </Card>
