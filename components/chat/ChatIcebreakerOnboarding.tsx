@@ -60,15 +60,16 @@ export function ChatIcebreakerOnboarding({ userId, onComplete }: ChatIcebreakerO
           <Crumbs size="lg" pose="nap" expression="sleepy" animated className="shrink-0" />
           <div className="min-w-0 flex-1">
             <Badge variant="butter">One-time chatroom gate</Badge>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-black">Anti-networking icebreaker</h2>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-black/72">
-              Crumbs moderates this room. Before you join the conversation, pick one low-stakes prompt and answer it.
-              No elevator pitches. No “what do you do?” energy.
+            <h2 className="mt-3 text-2xl font-black tracking-tight text-black sm:text-3xl">
+              Answer 1 anti-networking icebreaker to join the chat
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-black/72">
+              Pick one prompt below and reply in your own words. Low stakes only — no elevator pitches.
             </p>
           </div>
         </div>
 
-        <div className="relative z-10 mt-8 grid gap-3 md:grid-cols-3">
+        <div className="relative z-10 mt-6 grid gap-2.5 md:grid-cols-3">
           {antiNetworkingIcebreakerOptions.map((option, index) => {
             const active = selectedKind === option.kind;
             return (
@@ -81,17 +82,17 @@ export function ChatIcebreakerOnboarding({ userId, onComplete }: ChatIcebreakerO
                   setError(null);
                 }}
                 className={[
-                  "group relative aspect-[4/3] overflow-hidden rounded-[1.35rem] border p-4 text-left shadow-[0_14px_38px_rgba(52,36,24,0.12)] transition-transform",
-                  "hover:-translate-y-[2px] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]",
+                  "group relative rounded-[1.15rem] border px-3.5 py-3 text-left shadow-[0_10px_28px_rgba(52,36,24,0.1)] transition-transform",
+                  "hover:-translate-y-[1px] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]",
                   paperColors[index]!,
                   active
                     ? "border-[3px] border-[var(--color-accent-dark)] ring-2 ring-[color:rgba(233,255,107,0.55)]"
                     : "border-black/12",
                 ].join(" ")}
               >
-                <p className="text-[0.62rem] font-black uppercase tracking-[0.2em] text-black/55">Option {index + 1}</p>
-                <p className="mt-2 text-lg font-black leading-tight text-black">{option.title}</p>
-                <p className="mt-2 text-sm leading-5 text-black/70">{option.prompt}</p>
+                <p className="text-[0.58rem] font-black uppercase tracking-[0.18em] text-black/55">Option {index + 1}</p>
+                <p className="mt-1 text-base font-black leading-snug text-black">{option.title}</p>
+                <p className="mt-1 text-xs leading-4 text-black/70">{option.prompt}</p>
               </button>
             );
           })}
