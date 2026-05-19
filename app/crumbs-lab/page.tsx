@@ -46,7 +46,7 @@ export default function CrumbsLabPage() {
               2 · Napping · curled ball
             </p>
             <p className="mt-2 text-sm text-black/65">
-              Flat sleeping loaf: head left, three forehead stripes, slanted closed eyes, white muzzle, four tabby back stripes, white belly, tail curling under to a tip at the front.
+              Sleeping loaf: full Crumbs head on the left (ears, D-shaded forehead, closed eyes, white muzzle with nose dot), four diagonal back stripes, white underbelly, and a thick three-row tail tucked under the body curling forward to a tip near the front paws.
             </p>
             <div
               className="mt-8 flex justify-center"

@@ -106,30 +106,31 @@ const REFERENCE_CRUMBS: PixelSprite = {
 };
 
 /**
- * Sleeping loaf — long horizontal silhouette modeled on the reference photo:
- * head on the left with two pointed ears, three vertical forehead stripes,
- * closed slanted eyes, white muzzle with nose dot and whisker pads, four
- * diagonal tabby stripes down the back, white underbelly band, and the tail
- * tucked under the body curling forward. Gray palette (L/W/K).
+ * Sleeping loaf — head reuses the default Crumbs face (triangular ears,
+ * D-shaded forehead and cheeks, closed two-pixel eyes, white muzzle with
+ * nose dot). Body extends right with four diagonal tabby back stripes and
+ * a white underbelly. A thick three-row tail (K outline + L interior)
+ * tucks under the body and curls forward toward the front paws.
  */
 const CURL_CRUMBS: PixelSprite = {
   w: 32,
-  h: 14,
+  h: 15,
   rows: [
-    "...KK........KK.................",
-    "..KLLK......KLLK................",
-    ".KLLLLKKKKKKLLLLK...............",
-    "KLLLLLWLLWLLWLLLLK..............",
-    "KLLLLLLLLLLLLLLLLKKKKKKKKKKKKKK.",
-    "KLLKKLLLLKKLLLLLLLLLLLLLLLLLLLK.",
-    "KWWLLLLLLLLLLWLLLLWLLLLWLLLLWLK.",
-    "KLWWWLLLLLLLLLWLLLLWLLLLWLLLLWK.",
-    "KWWKWWLLLLLLLLLLLLLLLLLLLLLLLLK.",
-    "KLWWWLLLLLLLLLLLLLLLLLLLLLLLLLK.",
-    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWWK.",
+    "..K.......K.....................",
+    ".KLK.....KLK....................",
+    ".LLLKKKKKLLL....................",
+    "KLLLLDDLLLLLK...................",
+    "KLLLLDDLLLLLKKKKKKKKKKKKKKKKKKKK",
+    "KLDLLLLLLLDLLLLLLLLLLLLLLLLLLLLK",
+    "KLDLKKLKKLDLLLLLWLLLWLLLWLLLWLLK",
+    "KLDLLWWWLLDLLLLLLWLLLWLLLWLLLWLK",
+    "KLLLWWWWWLLLLLLLLLLLLLLLLLLLLLLK",
+    "KLLWWWKWWWLLLLLLLLLLLLLLLLLLLLLK",
+    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWK",
     ".KKKKKKKKKKKKKKKKKKKKKK....KKKK.",
-    "........KKKKKKKKKKKKKKK.........",
-    ".......KK.......................",
+    "......KKKKKKKKKKKKKKKKKKKKK.....",
+    "......KLLLLLLLLLLLLLLLLLLLK.....",
+    "......KKKKKKKKKKKKKKKKKKKKK.....",
   ],
   palette: BASE_PALETTE,
 };
@@ -137,22 +138,23 @@ const CURL_CRUMBS: PixelSprite = {
 /** Loaf nap: same sleeping pose with blue Zzz rising from above the head. */
 const NAP_CRUMBS: PixelSprite = {
   w: 32,
-  h: 14,
+  h: 15,
   rows: [
-    "...KK........KK............B....",
-    "..KLLK......KLLK........B.......",
-    ".KLLLLKKKKKKLLLLK....B..........",
-    "KLLLLLWLLWLLWLLLLK..............",
-    "KLLLLLLLLLLLLLLLLKKKKKKKKKKKKKK.",
-    "KLLKKLLLLKKLLLLLLLLLLLLLLLLLLLK.",
-    "KWWLLLLLLLLLLWLLLLWLLLLWLLLLWLK.",
-    "KLWWWLLLLLLLLLWLLLLWLLLLWLLLLWK.",
-    "KWWKWWLLLLLLLLLLLLLLLLLLLLLLLLK.",
-    "KLWWWLLLLLLLLLLLLLLLLLLLLLLLLLK.",
-    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWWK.",
+    "..K.......K................B....",
+    ".KLK.....KLK............B.......",
+    ".LLLKKKKKLLL.........B..........",
+    "KLLLLDDLLLLLK...................",
+    "KLLLLDDLLLLLKKKKKKKKKKKKKKKKKKKK",
+    "KLDLLLLLLLDLLLLLLLLLLLLLLLLLLLLK",
+    "KLDLKKLKKLDLLLLLWLLLWLLLWLLLWLLK",
+    "KLDLLWWWLLDLLLLLLWLLLWLLLWLLLWLK",
+    "KLLLWWWWWLLLLLLLLLLLLLLLLLLLLLLK",
+    "KLLWWWKWWWLLLLLLLLLLLLLLLLLLLLLK",
+    "KWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWK",
     ".KKKKKKKKKKKKKKKKKKKKKK....KKKK.",
-    "........KKKKKKKKKKKKKKK.........",
-    ".......KK.......................",
+    "......KKKKKKKKKKKKKKKKKKKKK.....",
+    "......KLLLLLLLLLLLLLLLLLLLK.....",
+    "......KKKKKKKKKKKKKKKKKKKKK.....",
   ],
   palette: SLEEPY_PALETTE,
 };
