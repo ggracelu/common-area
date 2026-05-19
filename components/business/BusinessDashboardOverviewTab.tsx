@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import {
   businessAnalyticsMetrics,
@@ -62,7 +61,7 @@ export function BusinessDashboardOverviewTab({ state }: BusinessDashboardOvervie
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="v16-kicker">Upcoming events</p>
-            <h3 className="v16-h2 mt-2">Next cohort nights on your calendar</h3>
+            <h3 className="v16-h2 mt-2">Up next on your calendar</h3>
           </div>
           <p className="v16-micro" data-testid="partner-dashboard-sample-label">
             Sample preview data only.
@@ -74,20 +73,6 @@ export function BusinessDashboardOverviewTab({ state }: BusinessDashboardOvervie
           ))}
         </div>
       </section>
-
-      <Card className="p-6 md:p-8">
-        <p className="v16-kicker">What&apos;s next</p>
-        <h3 className="v16-h2 mt-2">Standing nights, then cohort visibility.</h3>
-        <p className="v16-small mt-3 max-w-2xl">
-          This preview does not process live partner billing or assign cohorts. When the consumer season shows repeat
-          visits, hosts will see read-only cohort windows and capacity here—without payouts or CRM in the first pass.
-        </p>
-        <div className="mt-6">
-          <Link href="/" className="v16-btn v16-btn-outline">
-            See the member experience
-          </Link>
-        </div>
-      </Card>
     </div>
   );
 }

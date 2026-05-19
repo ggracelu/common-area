@@ -3,7 +3,11 @@ export type BusinessEventTiming = "past" | "upcoming";
 export type BusinessCalendarEvent = {
   id: string;
   title: string;
+  shortTitle: string;
   timing: BusinessEventTiming;
+  /** YYYY-MM for month grid placement */
+  monthKey: string;
+  day: number;
   dateLabel: string;
   timeLabel: string;
   cohortName: string;
@@ -64,7 +68,10 @@ export const businessCalendarEvents: BusinessCalendarEvent[] = [
   {
     id: "past-crawl",
     title: "Grader's Coffee — Wicker Park crawl kickoff",
+    shortTitle: "Crawl kickoff",
     timing: "past",
+    monthKey: "2026-04",
+    day: 24,
     dateLabel: "Apr 24, 2026",
     timeLabel: "6:30–8:30 PM",
     cohortName: "North Branch cohort",
@@ -78,7 +85,10 @@ export const businessCalendarEvents: BusinessCalendarEvent[] = [
   {
     id: "past-listening",
     title: "Grader's Coffee — listening room check-in",
+    shortTitle: "Listening night",
     timing: "past",
+    monthKey: "2026-05",
+    day: 3,
     dateLabel: "May 3, 2026",
     timeLabel: "7:00–9:00 PM",
     cohortName: "Ukrainian Village cohort",
@@ -92,7 +102,10 @@ export const businessCalendarEvents: BusinessCalendarEvent[] = [
   {
     id: "upcoming-latte",
     title: "Grader's Coffee — latte art standing night",
+    shortTitle: "Latte art night",
     timing: "upcoming",
+    monthKey: "2026-05",
+    day: 18,
     dateLabel: "May 18, 2026",
     timeLabel: "6:00–8:00 PM",
     cohortName: "Logan Square cohort",
@@ -106,7 +119,10 @@ export const businessCalendarEvents: BusinessCalendarEvent[] = [
   {
     id: "upcoming-crawl",
     title: "Grader's Coffee — neighborhood cafe crawl",
+    shortTitle: "Cafe crawl",
     timing: "upcoming",
+    monthKey: "2026-05",
+    day: 29,
     dateLabel: "May 29, 2026",
     timeLabel: "5:30–8:00 PM",
     cohortName: "Wicker Park cohort",
@@ -273,4 +289,42 @@ export function upcomingBusinessEvents(events: BusinessCalendarEvent[] = busines
 
 export function pastBusinessEvents(events: BusinessCalendarEvent[] = businessCalendarEvents) {
   return events.filter((event) => event.timing === "past");
+}
+
+export const businessCalendarMonthKeys = ["2026-04", "2026-05"] as const;
+
+export type BusinessCalendarMonthKey = (typeof businessCalendarMonthKeys)[number];
+
+export function formatBusinessCalendarMonth(monthKey: string): string {
+  const [year, month] = monthKey.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(
+    new Date(year, month - 1, 1),
+  );
+}
+
+export function eventsForMonth(
+  monthKey: string,
+  events: BusinessCalendarEvent[] = businessCalendarEvents,
+): BusinessCalendarEvent[] {
+  return events.filter((event) => event.monthKey === monthKey);
+}
+
+/** Sunday-start month grid cells (null = padding). */
+export function buildMonthGrid(monthKey: string): Array<number | null> {
+  const [year, month] = monthKey.split("-").map(Number);
+  const firstDay = new Date(year, month - 1, 1);
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const leading = firstDay.getDay();
+  const cells: Array<number | null> = [];
+
+  for (let i = 0; i < leading; i += 1) {
+    cells.push(null);
+  }
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    cells.push(day);
+  }
+  while (cells.length % 7 !== 0) {
+    cells.push(null);
+  }
+  return cells;
 }
