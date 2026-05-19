@@ -1,27 +1,56 @@
 import type { Metadata } from "next";
+import { CommonAreaLogoLabGrid } from "@/components/brand/CommonAreaLogoMarks";
 import { Crumbs } from "@/components/brand/Crumbs";
 import { CrumbsWorking } from "@/components/brand/CrumbsWorking";
 import { V16Theme } from "@/components/site/V16Theme";
 
 export const metadata: Metadata = {
   title: "Crumbs lab · Common Area",
-  description: "Internal sprite preview for mascot feedback.",
+  description: "Internal design lab for mascot poses and CA logo ideation.",
   robots: { index: false, follow: false },
 };
 
 export default function CrumbsLabPage() {
   return (
     <V16Theme className="min-h-screen">
-      <main className="mx-auto max-w-2xl px-6 py-14 pb-24">
+      <main className="mx-auto max-w-3xl px-6 py-14 pb-24">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
           Unlisted · not in navigation
         </p>
         <h1 className="v16-h2 mt-3">Crumbs design lab</h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-black/70">
-          Three reference poses for feedback: full-body sit, sleeping curl, and working
-          at a laptop. Use this page to note what to change next (proportions, glasses,
-          paws, tail, etc.).
+          Workplace for ideation: mascot pose references below, plus five minimal{" "}
+          <strong className="font-semibold text-black/85">CA</strong> logo directions that
+          lean into familiarity, shared space, and community—not nightlife neon.
         </p>
+
+        <section className="mt-14" aria-labelledby="ca-logo-lab-heading">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+            Logo ideation
+          </p>
+          <h2 id="ca-logo-lab-heading" className="v16-h2 mt-3">
+            CA marks
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-black/70">
+            Each concept uses only C and A geometry. Compare at three sizes; lime, blue, and
+            magenta accents follow V16. Pick one direction to refine—stroke weight, corner
+            radius, and negative space—not five parallel brands.
+          </p>
+          <CommonAreaLogoLabGrid />
+        </section>
+
+        <section className="mt-20" aria-labelledby="crumbs-poses-heading">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+            Mascot poses
+          </p>
+          <h2 id="crumbs-poses-heading" className="v16-h2 mt-3">
+            Crumbs reference
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-black/70">
+            Three poses for feedback: full-body sit, sleeping curl, and working at a laptop.
+            Note proportions, glasses, paws, tail, etc.
+          </p>
+        </section>
 
         <ol className="mt-12 space-y-16">
           <li className="paper-surface rounded-[1.75rem] p-8 shadow-[var(--shadow-card)]">

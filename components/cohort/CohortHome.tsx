@@ -325,46 +325,38 @@ export function CohortHome({ serverOnboarding = null }: CohortHomeProps) {
           <Sticker className="cohort-scrap-sticker-float">20 people. Familiar faces.</Sticker>
         </div>
 
-        <div className="relative z-10 mt-8 grid gap-4 sm:grid-cols-3">
-          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)]", cohortPaperColor(0)].join(" ")}>
+        <div className="relative z-10 mt-8 grid grid-cols-1 gap-4 lg:grid-cols-4">
+          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)] lg:col-span-1", cohortPaperColor(0)].join(" ")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/55">Members</p>
             <p className="mt-3 text-2xl font-black">{members.length}</p>
             <p className="mt-2 text-sm text-black/65">A real common room size.</p>
           </div>
-          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)]", cohortPaperColor(1)].join(" ")}>
+          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)] lg:col-span-1", cohortPaperColor(1)].join(" ")}>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/55">Overlap</p>
             <p className="mt-3 text-2xl font-black">{cohort.sharedEventTypeOverlap.length} types</p>
             <p className="mt-2 text-sm text-black/65">{cohort.sharedEventTypeOverlap.join(" • ")}</p>
           </div>
-          <div className={["rounded-[1.5rem] border border-black/10 p-5 shadow-[0_12px_32px_rgba(52,36,24,0.1)]", cohortPaperColor(2)].join(" ")}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-black/55">Conversation</p>
-            <p className="mt-3 text-sm font-semibold text-black/75">Say hi in the chatroom after a one-time icebreaker.</p>
-            <div className="mt-4">
-              <Button href="/chat" variant="secondary" size="sm" data-testid="cohort-join-conversation">
-                Join the conversation
-              </Button>
+          <div className="flex flex-col gap-3 lg:col-span-2">
+            <div>
+              <Badge variant="rust">Why you were matched</Badge>
+              <h3 className="mt-3 text-xl font-semibold tracking-tight">A legible overlap story.</h3>
             </div>
+            <ul className="grid flex-1 gap-3">
+              {cohort.whyThisCohortWorks.map((line, index) => (
+                <li
+                  key={line}
+                  className={[
+                    "rounded-[1.25rem] border border-black/10 px-4 py-3 text-sm font-medium leading-6 text-black/78 shadow-[0_8px_24px_rgba(52,36,24,0.08)]",
+                    cohortPaperColor(index + 2),
+                  ].join(" ")}
+                >
+                  {line}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </Card>
-
-      <Card variant="paper" className="w-full">
-        <Badge variant="rust">Why you were matched</Badge>
-        <h3 className="mt-4 text-2xl font-semibold tracking-tight">A legible overlap story.</h3>
-        <ul className="mt-5 grid gap-3 md:grid-cols-3">
-          {cohort.whyThisCohortWorks.map((line, index) => (
-            <li
-              key={line}
-              className={[
-                "rounded-[1.25rem] border border-black/10 px-4 py-3 text-sm font-medium text-black/78 shadow-[0_8px_24px_rgba(52,36,24,0.08)]",
-                cohortPaperColor(index + 2),
-              ].join(" ")}
-            >
-              {line}
-            </li>
-          ))}
-        </ul>
-        <Sticker className="mt-6">No bios. No swiping. Just overlap + repetition.</Sticker>
+        <Sticker className="relative z-10 mt-6">No bios. No swiping. Just overlap + repetition.</Sticker>
       </Card>
 
       <Card variant="scrapbook" data-testid="cohort-roster">

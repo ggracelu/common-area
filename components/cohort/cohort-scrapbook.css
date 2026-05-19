@@ -152,6 +152,39 @@
   }
 }
 
+.cohort-join-conversation-cta {
+  animation: cohortJoinCtaPulse 2.4s ease-in-out infinite;
+}
+
+.cohort-join-callout {
+  animation: cohortJoinCalloutIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cohortJoinCtaPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 22px 70px rgba(52, 36, 24, 0.22),
+      0 0 0 0 rgba(233, 255, 107, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 26px 80px rgba(52, 36, 24, 0.26),
+      0 0 0 10px rgba(233, 255, 107, 0);
+  }
+}
+
+@keyframes cohortJoinCalloutIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cohort-scrap-sticker-float {
     animation: none;
@@ -159,5 +192,10 @@
 
   .cohort-welcome-spotlights {
     display: none;
+  }
+
+  .cohort-join-conversation-cta,
+  .cohort-join-callout {
+    animation: none;
   }
 }
