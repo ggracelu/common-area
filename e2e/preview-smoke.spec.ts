@@ -26,7 +26,7 @@ async function assertPreviewDeployReachable(baseURL: string) {
   }
 }
 
-// Preview smoke targets the Vercel deploy at PLAYWRIGHT_BASE_URL for ggracelu/whynot (landing, sign-in, protected dashboard redirect).
+// Preview smoke targets the Vercel deploy at PLAYWRIGHT_BASE_URL for ggracelu/common-area (landing, sign-in, protected dashboard redirect).
 test.describe("preview smoke", () => {
   test.beforeAll(async ({ baseURL }) => {
     if (!previewDeployConfigured(baseURL)) {
@@ -37,7 +37,7 @@ test.describe("preview smoke", () => {
   });
 
   test("landing and public bingo are reachable", async ({ page, baseURL }) => {
-    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/whynot.");
+    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/common-area.");
 
     await page.goto("/");
     await expect(page.getByRole("link", { name: /sign up|save me a spot/i }).first()).toBeVisible();
@@ -47,21 +47,21 @@ test.describe("preview smoke", () => {
   });
 
   test("sign-in route is reachable", async ({ page, baseURL }) => {
-    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/whynot.");
+    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/common-area.");
 
     await page.goto("/sign-in");
     await expect(page).toHaveURL(/sign-in/);
   });
 
   test("dashboard redirects or loads for signed-out users", async ({ page, baseURL }) => {
-    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/whynot.");
+    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/common-area.");
 
     await page.goto("/dashboard");
     await expect(page).toHaveURL(/sign-in|dashboard/);
   });
 
   test("business dashboard redirects signed-out users to partner sign-in", async ({ page, baseURL }) => {
-    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/whynot.");
+    test.skip(!previewDeployConfigured(baseURL), "Set PLAYWRIGHT_BASE_URL to the public Vercel deploy for ggracelu/common-area.");
 
     await page.goto("/business/dashboard");
     await expect(page).toHaveURL(/partner\/sign-in/);

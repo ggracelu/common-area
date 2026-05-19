@@ -43,8 +43,9 @@ Key files:
 This repo is in Phase 4+: catalog + design system plus a repeatable new-user demo with server-first onboarding when Supabase is configured.
 
 Brand note:
-- The visible product is now `Common Area`.
-- The repository and root folder remain named `whynot` for now to avoid unnecessary churn.
+- The visible product is **Common Area**.
+- The GitHub repository is [`ggracelu/common-area`](https://github.com/ggracelu/common-area). The local folder may still be named `whynot` on disk until you rename it manually.
+- Production deploy: **https://common-area.vercel.app** (legacy alias **https://whynot-one.vercel.app** may still resolve during transition).
 
 See:
 - [AGENTS.md](./AGENTS.md)

@@ -10,7 +10,7 @@ const previewConfigured = Boolean(
 );
 const previewBypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim();
 const previewOnly = process.env.npm_lifecycle_event === "test:preview";
-// Preview project asserts the public Vercel deploy for ggracelu/whynot (see docs/GRADER_WALKTHROUGH.md).
+// Preview project asserts the public Vercel deploy for ggracelu/common-area (see docs/GRADER_WALKTHROUGH.md).
 const graderStorageState = path.join(__dirname, "e2e/fixtures/grader-storage.json");
 const graderCredentialsConfigured = Boolean(
   process.env.GRADER_CLERK_EMAIL?.trim() && process.env.GRADER_CLERK_PASSWORD,

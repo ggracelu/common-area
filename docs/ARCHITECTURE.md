@@ -1,10 +1,10 @@
 # Common Area Architecture
 
 ## Intended App Structure
-The project should be organized to keep routing, domain logic, and infrastructure concerns separate. The current repo/folder may still be named `whynot`, but the visible product name is `Common Area`.
+The project should be organized to keep routing, domain logic, and infrastructure concerns separate. The GitHub repository is **common-area**; the visible product name is **Common Area**.
 
 ```text
-whynot/
+common-area/
   app/
   components/
   lib/

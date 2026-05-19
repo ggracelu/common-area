@@ -1,6 +1,6 @@
 # Claude project guide — Common Area
 
-Read [AGENTS.md](./AGENTS.md) first for engineering guardrails, stack, security, and RLS rules. This file adds **product strategy** and **priorities** for Claude-assisted work in the `whynot` repository (product name: **Common Area**).
+Read [AGENTS.md](./AGENTS.md) first for engineering guardrails, stack, security, and RLS rules. This file adds **product strategy** and **priorities** for Claude-assisted work in the **common-area** repository (product name: **Common Area**).
 
 ## Mission
 
@@ -8,7 +8,7 @@ Help Gen Z young adults in Chicago rebuild a **campus feeling** after college th
 
 **Core promise:** turn your city into a campus.
 
-Do not rename the package, filesystem paths, or GitHub repository unless explicitly asked.
+Repository and npm package are **common-area**; the product name is **Common Area**. Do not rename the local checkout folder or Vercel project again unless explicitly asked.
 
 ## Strategic canon
 

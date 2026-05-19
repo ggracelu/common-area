@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const repo = process.env.GITHUB_REPOSITORY ?? "ggracelu/whynot";
+const repo = process.env.GITHUB_REPOSITORY ?? "ggracelu/common-area";
 const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
 
 const headers = {
   Accept: "application/vnd.github+json",
-  "User-Agent": "whynot-preview-url",
+  "User-Agent": "common-area-preview-url",
 };
 
 if (token) {

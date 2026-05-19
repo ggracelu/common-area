@@ -9,9 +9,9 @@ Common Area is a seasonal, cohort-based social platform for Chicago. Users disco
 Core promise: turn your city into a campus.
 
 Important repository note:
-- The visible product name is now `Common Area`.
-- The repository and root folder may still be named `whynot` for now.
-- Do not rename package names, filesystem paths, or the GitHub repository unless explicitly requested.
+- The visible product name is **Common Area**.
+- The GitHub repository is **ggracelu/common-area**; npm package name is **common-area**.
+- The local checkout folder may still be named `whynot` on disk until renamed manually.
 
 ## Target Audience
 - Gen Z young adults in Chicago
@@ -44,7 +44,7 @@ The MVP is successful when a user can:
 This project starts documentation-first. When the app is scaffolded later, prefer this structure:
 
 ```text
-whynot/
+common-area/
   AGENTS.md
   docs/
     PRODUCT_PLAN.md
