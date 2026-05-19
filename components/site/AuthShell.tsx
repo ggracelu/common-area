@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { CommonAreaLogoLink } from "@/components/brand/CommonAreaLogo";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Polaroid } from "@/components/ui/Polaroid";
@@ -18,12 +18,9 @@ export function AuthShell({ title, description, children }: AuthShellProps) {
       <main className="flex min-h-screen items-center justify-center px-6 py-16 sm:px-8">
         <div className="grid w-full max-w-6xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <section className="max-w-xl">
-            <Link href="/" className="inline-flex items-center gap-4">
-              <span className="v16-mark" aria-hidden="true">
-                CA
-              </span>
+            <CommonAreaLogoLink href="/" className="inline-flex">
               <span className="v16-topline">Common Area</span>
-            </Link>
+            </CommonAreaLogoLink>
             <Badge variant="sky" className="mt-8 rounded-full px-4 py-2 font-[var(--v16-mono)]">
               Chicago season access
             </Badge>

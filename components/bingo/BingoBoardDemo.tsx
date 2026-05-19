@@ -11,12 +11,19 @@ import { Sticker } from "@/components/ui/Sticker";
 import { Crumbs } from "@/components/brand/Crumbs";
 import { JoinSeasonButton } from "@/components/season/JoinSeasonButton";
 import { GraderControlPanel } from "@/components/app/GraderControlPanel";
+import { BingoPrizeReveal } from "@/components/bingo/BingoPrizeReveal";
+import { BingoWinLinesOverlay } from "@/components/bingo/BingoWinLinesOverlay";
+import { hasBingoPrizeBeenRevealed } from "@/lib/bingo-prize";
+import {
+  detectBingoLines,
+  getMarkedIndices,
+  getWinningCellIndices,
+} from "@/lib/bingo-win";
 import { saveDemoActivitySelectionsAction } from "@/app/actions/activity-selections";
 import { toggleBingoTileAction } from "@/app/actions/bingo";
 import { demoData, getDemoBusiness, getDemoEvent } from "@/lib/demo-data";
 import type { OnboardingSnapshot } from "@/types/onboarding";
 import {
-  getBingoProgress,
   getDefaultDemoState,
   loadDemoState,
   mailPostcardForMatching,
@@ -25,6 +32,8 @@ import {
   toggleBingoTile,
   toggleSelectedEvent,
 } from "@/lib/demo-state";
+
+import "@/components/bingo/bingo-win.css";
 
 type OpenTile = { tileId: string } | null;
 
@@ -98,21 +107,35 @@ export function BingoBoardDemo({
   const [bonusSaveStatus, setBonusSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [depositRecordedLocally, setDepositRecordedLocally] = useState(false);
   const [autosaveStatusLabel, setAutosaveStatusLabel] = useState<string | null>(null);
+  const [showPrizeReveal, setShowPrizeReveal] = useState(false);
   const skipFirstRemoteSave = useRef(true);
+  const hadBingoRef = useRef(false);
   const tiles = demoData.bingoTiles;
   const serverAuthoritative = Boolean(serverOnboarding?.configured);
   const completedTileIds = useMemo(
     () => (serverAuthoritative ? (serverBingoCompletions ?? []) : state.bingo.completedTileIds),
     [serverAuthoritative, serverBingoCompletions, state.bingo.completedTileIds],
   );
-  const progressState = useMemo(
-    () => ({
-      ...state,
-      bingo: { completedTileIds },
-    }),
-    [state, completedTileIds],
-  );
-  useMemo(() => getBingoProgress(tiles, progressState), [progressState, tiles]);
+  const bingoWinLines = useMemo(() => {
+    const marked = getMarkedIndices(tiles, completedTileIds);
+    return detectBingoLines(marked);
+  }, [tiles, completedTileIds]);
+
+  const winningCellIndices = useMemo(() => getWinningCellIndices(bingoWinLines), [bingoWinLines]);
+
+  const hasBingo = bingoWinLines.length > 0;
+
+  useEffect(() => {
+    if (!hasBingo) {
+      hadBingoRef.current = false;
+      return;
+    }
+    const isNewBingo = !hadBingoRef.current;
+    hadBingoRef.current = true;
+    if (isNewBingo && !hasBingoPrizeBeenRevealed(storageUserId)) {
+      setShowPrizeReveal(true);
+    }
+  }, [hasBingo, storageUserId]);
 
   const required = demoData.season.requiredEventCount;
   const available = demoData.season.availableEventCount;
@@ -484,6 +507,7 @@ export function BingoBoardDemo({
 
             {/* 5x5 grid */}
             <div className="relative z-10 grid grid-cols-5 gap-2">
+              <BingoWinLinesOverlay lines={bingoWinLines} />
               {tiles.map((tile, idx) => {
                 const isFree = tile.kind === "free";
                 const isBonus = tile.kind === "challenge";
@@ -495,6 +519,7 @@ export function BingoBoardDemo({
                   isEvent && tile.eventId && !selected && (!canSelectMore || isCommitted);
                 const isCenter = idx === 12 && isFree;
                 const lockedBonus = isBonus && !canDoBonusChallenges;
+                const isOnWinningLine = winningCellIndices.has(idx);
 
                 const paperClass = isBonus
                   ? "bg-[color:rgba(40,40,40,0.10)]"
@@ -522,6 +547,7 @@ export function BingoBoardDemo({
                         : "",
                       disabledSelect ? "opacity-70" : "",
                       lockedBonus ? "opacity-60 cursor-not-allowed" : "",
+                      isOnWinningLine ? "bingo-win-cell z-20" : "",
                     ].join(" ")}
                   >
                     <div className="relative z-10 flex h-full flex-col justify-between">
@@ -1153,6 +1179,12 @@ export function BingoBoardDemo({
           </div>
         </div>
       ) : null}
+
+      <BingoPrizeReveal
+        open={showPrizeReveal}
+        userId={storageUserId}
+        onClose={() => setShowPrizeReveal(false)}
+      />
     </div>
   );
 }

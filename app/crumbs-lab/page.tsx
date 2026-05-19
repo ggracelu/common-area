@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CommonAreaLogo } from "@/components/brand/CommonAreaLogo";
 import { CommonAreaLogoLabGrid } from "@/components/brand/CommonAreaLogoMarks";
 import { Crumbs } from "@/components/brand/Crumbs";
 import { CrumbsWorking } from "@/components/brand/CrumbsWorking";
@@ -19,12 +20,40 @@ export default function CrumbsLabPage() {
         </p>
         <h1 className="v16-h2 mt-3">Crumbs design lab</h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-black/70">
-          Workplace for ideation: mascot pose references below, plus five minimal{" "}
-          <strong className="font-semibold text-black/85">CA</strong> logo directions that
-          lean into familiarity, shared space, and community—not nightlife neon.
+          Workplace for ideation: production mark below, SVG explorations archived, and mascot pose
+          references at the bottom.
         </p>
 
-        <section className="mt-14" aria-labelledby="ca-logo-lab-heading">
+        <section className="mt-14" aria-labelledby="production-logo-heading">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+            Production mark
+          </p>
+          <h2 id="production-logo-heading" className="v16-h2 mt-3">
+            Shipped logo
+          </h2>
+          <article className="paper-surface mt-8 rounded-[1.75rem] p-8 shadow-[var(--shadow-card)]">
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-black/55">
+              Canva · manual design
+            </p>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-black/70">
+              This mark was <strong className="font-semibold">designed manually in Canva</strong>—capital{" "}
+              <strong className="font-semibold">C</strong> embracing lowercase{" "}
+              <strong className="font-semibold">a</strong>. It ships in headers, auth shells, partner
+              surfaces, and the cohort reveal letter. Single ink only.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-8 rounded-[1.25rem] border border-black/10 bg-white/80 p-6">
+              <CommonAreaLogo size={96} />
+              <CommonAreaLogo size={48} />
+              <CommonAreaLogo size={28} />
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-6 rounded-[1.25rem] bg-[#0A0A0A] p-5">
+              <CommonAreaLogo size={56} tone="paper" />
+              <span className="text-xs text-white/60">Reversed on ink — same PNG</span>
+            </div>
+          </article>
+        </section>
+
+        <section className="mt-20" aria-labelledby="ca-logo-lab-heading">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             Logo ideation
           </p>

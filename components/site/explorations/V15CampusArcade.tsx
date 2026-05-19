@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CommonAreaLogoLink } from "@/components/brand/CommonAreaLogo";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Cursor = { x: number; y: number };
@@ -163,12 +164,9 @@ export function V15CampusArcadeSite() {
 
       <header className="sticky top-0 z-20 border-b border-black/10 bg-white/82 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1520px] items-center justify-between gap-6 px-5 py-4 md:px-10">
-          <Link href="/" className="flex items-center gap-4">
-            <span className="v15-mark" aria-hidden="true">
-              CA
-            </span>
+          <CommonAreaLogoLink href="/">
             <span className="v15-topline">Common Area</span>
-          </Link>
+          </CommonAreaLogoLink>
 
           <nav className="hidden items-center gap-7 md:flex">
             {[

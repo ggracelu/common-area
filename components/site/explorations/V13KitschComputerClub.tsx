@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CommonAreaLogo } from "@/components/brand/CommonAreaLogo";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Cursor = { x: number; y: number };
@@ -132,7 +133,7 @@ export function V13KitschComputerClubSite() {
       <header className="sticky top-0 z-20 border-b border-black/10 bg-white/82 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1520px] items-center justify-between gap-6 px-5 py-4 md:px-10">
           <div className="flex items-center gap-4">
-            <span className="v13-mark">CA</span>
+            <CommonAreaLogo size={40} />
             <div className="leading-tight">
               <p className="v13-topline">Common Area</p>
               <p className="v13-subline">V13 Kitschy Computer Club</p>

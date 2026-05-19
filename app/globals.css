@@ -3492,18 +3492,13 @@ button {
   transform: translateZ(0);
 }
 
-.v16-mark {
-  display: grid;
-  place-items: center;
-  height: 40px;
-  width: 40px;
-  border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.14);
-  background: linear-gradient(135deg, rgba(233, 255, 107, 0.9), rgba(255, 47, 184, 0.14));
-  box-shadow: 0 18px 60px rgba(52, 36, 24, 0.12);
-  font-family: var(--v16-mono, var(--font-mono));
-  font-weight: 900;
-  letter-spacing: 0.08em;
+/* Legacy class name — production mark is CommonAreaLogo (Canva PNG). */
+.v16-mark,
+.common-area-logo {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .v16-topline {
@@ -4111,6 +4106,10 @@ button {
 
 .partner-gallery-section {
   margin-top: 5rem;
+}
+
+.partner-gallery-section-embedded {
+  margin-top: 0;
 }
 
 .partner-gallery-track-wrap {

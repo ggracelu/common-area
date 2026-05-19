@@ -1,33 +1,51 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { SeasonStatusChecklist } from "@/components/app/SeasonStatusChecklist";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Sticker } from "@/components/ui/Sticker";
-import { demoData } from "@/lib/demo-data";
-import { loadDemoState } from "@/lib/demo-state";
 import { icebreakerLabel, loadChatIcebreaker } from "@/lib/chat-icebreaker";
+import { getDefaultDemoState, loadDemoState, type DemoAppState } from "@/lib/demo-state";
 import { loadProfileLocation, saveProfileLocation } from "@/lib/profile-location";
+import { buildSeasonChecklist } from "@/lib/season-checklist";
 
 export function ProfileHome() {
   const { user, isSignedIn } = useUser();
-  const state = useMemo(() => loadDemoState(user?.id ?? null), [user?.id]);
+  const storageUserId = user?.id ?? null;
+  const [state, setState] = useState<DemoAppState>(getDefaultDemoState);
   const [promptIndex, setPromptIndex] = useState(0);
   const [locationDraft, setLocationDraft] = useState("");
   const [locationSaved, setLocationSaved] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [chatIcebreaker, setChatIcebreaker] = useState<ReturnType<typeof loadChatIcebreaker>>(null);
 
+  const refreshProgress = useCallback(() => {
+    setState(loadDemoState(storageUserId));
+    setChatIcebreaker(loadChatIcebreaker(storageUserId));
+  }, [storageUserId]);
+
   useEffect(() => {
     const id = window.setTimeout(() => {
-      setLocationDraft(loadProfileLocation(user?.id ?? null));
-      setChatIcebreaker(loadChatIcebreaker(user?.id ?? null));
+      setLocationDraft(loadProfileLocation(storageUserId));
+      refreshProgress();
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(id);
-  }, [user?.id]);
+  }, [storageUserId, refreshProgress]);
+
+  useEffect(() => {
+    const onFocus = () => refreshProgress();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refreshProgress]);
+
+  const checklist = useMemo(
+    () => buildSeasonChecklist({ state, isSignedIn: Boolean(isSignedIn), chatIcebreaker }),
+    [state, isSignedIn, chatIcebreaker],
+  );
 
   const displayName =
     user?.fullName ?? user?.firstName ?? user?.username ?? "Guest (demo)";
@@ -51,8 +69,8 @@ export function ProfileHome() {
   }
 
   return (
-    <div className="grid gap-6">
-      <Card variant="scrapbook" className="max-w-4xl">
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] lg:items-start">
+      <Card variant="scrapbook" data-testid="profile-common-room-card">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <Badge variant="sky">Common room card</Badge>
@@ -75,6 +93,12 @@ export function ProfileHome() {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button variant="primary" href="/bingo" data-testid="profile-my-bingo-card">
+            My bingo card
+          </Button>
         </div>
 
         <div className="mt-8 rounded-[1.5rem] border border-black/10 bg-white/80 p-5">
@@ -135,20 +159,9 @@ export function ProfileHome() {
           </p>
         )}
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-[1.5rem] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Email</p>
-            <p className="mt-3 text-base font-semibold">{email}</p>
-          </div>
-          <div className="rounded-[1.5rem] bg-white/80 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Season status</p>
-            <p className="mt-3 text-base font-semibold">
-              Deposit: {state.depositStatus} • Picks: {state.selectedEventIds.length}/{demoData.season.requiredEventCount}
-            </p>
-            <p className="mt-2 text-sm text-[color:rgba(37,34,30,0.62)]">
-              {isSignedIn ? "Synced with your season progress when Supabase is configured." : "Sign in to track season progress."}
-            </p>
-          </div>
+        <div className="mt-4 rounded-[1.5rem] bg-white/80 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[color:rgba(37,34,30,0.65)]">Email</p>
+          <p className="mt-3 text-base font-semibold">{email}</p>
         </div>
 
         <div className="mt-6 rounded-[1.8rem] border border-black/10 bg-white/70 p-5">
@@ -159,14 +172,17 @@ export function ProfileHome() {
             <Button size="sm" variant="secondary" onClick={() => setPromptIndex((i) => i + 1)}>
               Shuffle prompt
             </Button>
-            <Button size="sm" variant="ghost" href="/bingo">
-              Pick experiences
-            </Button>
           </div>
         </div>
 
         <Sticker className="mt-6">Crumbs approves of gentle self-disclosure.</Sticker>
       </Card>
+
+      <SeasonStatusChecklist
+        checklist={checklist}
+        depositStatus={state.depositStatus}
+        isSignedIn={Boolean(isSignedIn)}
+      />
     </div>
   );
 }

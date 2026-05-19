@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CommonAreaLogoLink } from "@/components/brand/CommonAreaLogo";
 import { PartnerBusinessGallery } from "@/components/business/PartnerBusinessGallery";
 import { V16Theme } from "@/components/site/V16Theme";
 import type { PartnerBusiness } from "@/lib/business-partners";
@@ -12,12 +13,9 @@ export function PartnerLandingPage({ businesses }: PartnerLandingPageProps) {
     <V16Theme className="min-h-screen">
       <header className="sticky top-0 z-20 border-b border-black/10 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-5 py-4 md:px-10">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="v16-mark" aria-hidden="true">
-              CA
-            </span>
+          <CommonAreaLogoLink href="/" className="gap-3">
             <span className="v16-topline">Common Area</span>
-          </Link>
+          </CommonAreaLogoLink>
           <div className="flex items-center gap-3">
             <Link href="/partner/sign-in" className="v16-btn v16-btn-outline text-xs">
               Sign in

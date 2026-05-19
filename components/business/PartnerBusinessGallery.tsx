@@ -5,6 +5,8 @@ import type { PartnerBusiness } from "@/lib/business-partners";
 
 type PartnerBusinessGalleryProps = {
   businesses: PartnerBusiness[];
+  /** Hide section heading — for embedded surfaces like bingo prize reveal. */
+  embedded?: boolean;
 };
 
 function GalleryTrack({
@@ -54,7 +56,7 @@ function GalleryTrack({
   );
 }
 
-export function PartnerBusinessGallery({ businesses }: PartnerBusinessGalleryProps) {
+export function PartnerBusinessGallery({ businesses, embedded = false }: PartnerBusinessGalleryProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -73,18 +75,30 @@ export function PartnerBusinessGallery({ businesses }: PartnerBusinessGalleryPro
   const bottomRow = businesses.filter((_, index) => index % 2 === 1);
 
   return (
-    <section className="partner-gallery-section" aria-labelledby="partner-gallery-heading">
-      <div className="partner-gallery-intro">
-        <p className="v16-kicker">Chicago host network</p>
-        <h2 id="partner-gallery-heading" className="v16-h2 mt-3">
-          Building community, 1 brick at a time
-        </h2>
-        <p className="v16-small mt-3 max-w-2xl">
-          Simulated neighborhood hosts across restaurants, bars, cafes, studios, and gyms. Photos via Unsplash.
+    <section
+      className={embedded ? "partner-gallery-section partner-gallery-section-embedded" : "partner-gallery-section"}
+      aria-labelledby={embedded ? undefined : "partner-gallery-heading"}
+    >
+      {embedded ? (
+        <p
+          className="text-xs font-black uppercase tracking-[0.22em] text-black/55"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          Redeem at any partner
         </p>
-      </div>
+      ) : (
+        <div className="partner-gallery-intro">
+          <p className="v16-kicker">Chicago host network</p>
+          <h2 id="partner-gallery-heading" className="v16-h2 mt-3">
+            Building community, 1 brick at a time
+          </h2>
+          <p className="v16-small mt-3 max-w-2xl">
+            Simulated neighborhood hosts across restaurants, bars, cafes, studios, and gyms. Photos via Unsplash.
+          </p>
+        </div>
+      )}
 
-      <div className="partner-gallery-rows mt-10 space-y-5">
+      <div className={embedded ? "partner-gallery-rows mt-5 space-y-4" : "partner-gallery-rows mt-10 space-y-5"}>
         <GalleryTrack businesses={topRow.length ? topRow : businesses} direction="left" reducedMotion={reducedMotion} />
         <GalleryTrack
           businesses={bottomRow.length ? bottomRow : businesses}
